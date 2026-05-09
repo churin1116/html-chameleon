@@ -56,8 +56,17 @@ body {
   text-decoration: none;
   font-weight: 600;
   white-space: nowrap;
+  cursor: pointer;
 }
 .popup__notice-link:hover { text-decoration: underline; }
+
+.popup__notice--info {
+  background: #eff6ff;
+  border-bottom-color: #bfdbfe;
+  color: #1e3a8a;
+}
+.popup__notice--info .popup__notice-dot { background: #3b82f6; }
+.popup__notice--info .popup__notice-link { color: #1d4ed8; }
 
 .popup__section {
   padding: 10px 8px 12px;

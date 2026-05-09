@@ -29,9 +29,19 @@ The extension considers a page to be Chameleon-aware if any of these are present
 
 The badge stays empty on pages that match none of these.
 
+## Local files (`file://`)
+
+Chrome **disables** extension access to `file://` URLs by default for every extension — this is a Chrome-wide security setting that **cannot be enabled programmatically** by the extension. Enable it once per machine:
+
+1. Open `chrome://extensions`
+2. Click **Details** on the Chameleon card
+3. Toggle **"Allow access to file URLs"** ON
+4. Reload any open file:// tabs
+
+When you open the popup on a `file://` tab without this toggle, Chameleon shows a one-click shortcut to the right settings page.
+
 ## Known limitations (v1 stub)
 
-- **No icons.** Chrome shows the default puzzle-piece icon. Add 16/48/128 PNGs to enable a real icon. *(Phase 3.)*
 - **CSP-strict pages.** Pages with a `script-src` that disallows `'unsafe-inline'` will reject the injected `<script>` tag. The popup-driven `chrome.scripting.executeScript` path uses MAIN-world isolation and works in more cases — for those pages, the user can re-pick the theme in the popup while that tab is active.
 - **No custom-color UI.** v1 ships only the 5 presets. Custom variable overrides via `Chameleon.setTheme({ custom: {...} })` work programmatically but are not exposed in the popup yet.
 - **No `chrome.storage.sync`.** Settings persist locally per browser. Cross-device sync comes in Phase 3.

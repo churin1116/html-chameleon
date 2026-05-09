@@ -2,9 +2,9 @@
  * Chameleon Chrome extension — popup logic.
  *
  * On open: check whether the active tab declares Chameleon (meta / link / data
- * attribute). Toggle the "not detected" notice accordingly. The picker still
- * works on non-Chameleon pages — the chosen theme persists for the next
- * Chameleon-aware page the user visits.
+ * attribute), and whether the extension is allowed to run on file:// URLs when
+ * the active tab is a local file. Toggles the matching notice. The picker
+ * always works — chosen theme persists for any future Chameleon-aware page.
  */
 const STORAGE_KEY = 'chameleon-theme';
 const VALID_MODES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
@@ -49,10 +49,18 @@ function highlight(mode) {
   });
 }
 
-async function checkActiveTabDetection() {
+async function getActiveTab() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) return false;
+    return tab || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function checkActiveTabDetection(tab) {
+  if (!tab?.id) return false;
+  try {
     const [result] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: () => !!(
@@ -63,21 +71,50 @@ async function checkActiveTabDetection() {
     });
     return !!(result && result.result);
   } catch (e) {
+    // chrome://, file:// without permission, etc.
     return false;
   }
+}
+
+function checkFileAccess() {
+  return new Promise(resolve => {
+    if (!chrome.extension || typeof chrome.extension.isAllowedFileSchemeAccess !== 'function') {
+      resolve(false);
+      return;
+    }
+    try {
+      chrome.extension.isAllowedFileSchemeAccess(allowed => resolve(!!allowed));
+    } catch (e) {
+      resolve(false);
+    }
+  });
 }
 
 document.querySelectorAll('.preset').forEach(b => {
   b.addEventListener('click', () => setTheme(b.dataset.mode));
 });
 
+document.getElementById('open-settings-btn')?.addEventListener('click', e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
+});
+
 (async () => {
-  const [detected, current] = await Promise.all([
-    checkActiveTabDetection(),
-    getCurrent()
+  const tab = await getActiveTab();
+  const [detected, current, fileAccess] = await Promise.all([
+    checkActiveTabDetection(tab),
+    getCurrent(),
+    checkFileAccess()
   ]);
 
-  document.getElementById('not-detected-notice').hidden = detected;
+  const isFileUrl = !!(tab?.url && tab.url.startsWith('file://'));
+  const showFileNotice = isFileUrl && !fileAccess;
+  // Mutually exclusive: file-access issue is root cause, hide "not detected" if it's set
+  const showNotDetectedNotice = !showFileNotice && !detected;
+
+  document.getElementById('file-access-notice').hidden = !showFileNotice;
+  document.getElementById('not-detected-notice').hidden = !showNotDetectedNotice;
+
   const statusPill = document.getElementById('status-pill');
   if (detected) {
     statusPill.textContent = 'on';
