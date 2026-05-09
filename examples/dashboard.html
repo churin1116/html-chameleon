@@ -76,25 +76,28 @@
     font-size: 1.6rem;
     letter-spacing: -0.01em;
   }
-  .ext-cta {
+  /* Inline install CTA — top-right is reserved for the Chameleon extension's
+     floating palette, so this lives at the bottom of the page instead. */
+  .ext-cta-inline {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 14px;
+    padding: 10px 18px;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 500;
     text-decoration: none;
-    transition: border-color 0.15s ease, color 0.15s ease;
+    transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
   }
-  .ext-cta:hover {
+  .ext-cta-inline:hover {
     border-color: var(--primary);
     color: var(--primary);
+    transform: translateY(-1px);
   }
-  .ext-cta .lizard { font-size: 1rem; line-height: 1; }
+  .ext-cta-inline .lizard { font-size: 1rem; line-height: 1; }
 
   /* Stats */
   .stats {
@@ -183,10 +186,6 @@
   <main class="main">
     <header class="head">
       <h1>Overview</h1>
-      <a class="ext-cta" href="https://github.com/churin1116/html-chameleon/tree/main/extension" target="_blank" rel="noopener">
-        <span class="lizard" aria-hidden="true">🦎</span>
-        <span>Theme with Chameleon</span>
-      </a>
     </header>
 
     <h2 class="section">Key metrics</h2>
@@ -248,10 +247,15 @@
       </div>
     </div>
 
-    <p class="text-subtle" style="font-size: 0.85rem; margin-top: 32px; text-align: center;">
-      Themed by <a href="https://github.com/churin1116/html-chameleon">Chameleon</a> ·
-      install the extension above to repaint everything in one click.
-    </p>
+    <div style="margin-top: 40px; text-align: center;">
+      <a class="ext-cta-inline" href="https://github.com/churin1116/html-chameleon/tree/main/extension" target="_blank" rel="noopener">
+        <span class="lizard" aria-hidden="true">🦎</span>
+        <span>Install the Chameleon extension to switch themes →</span>
+      </a>
+      <p class="text-subtle" style="font-size: 0.85rem; margin: 12px 0 0;">
+        Themed by <a href="https://github.com/churin1116/html-chameleon">Chameleon</a>.
+      </p>
+    </div>
   </main>
 
 </div>
