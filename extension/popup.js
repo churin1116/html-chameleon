@@ -7,7 +7,7 @@
  * always works — chosen theme persists for any future Chameleon-aware page.
  */
 const STORAGE_KEY = 'chameleon-theme';
-const VALID_MODES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+const VALID_MODES = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight'];
 
 async function getCurrent() {
   const data = await chrome.storage.local.get(STORAGE_KEY);

@@ -27,6 +27,9 @@
   const DEFAULT_POSITION = 'br';
 
   const PRESETS = [
+    // 'system' is a meta-mode: theme.js resolves it to light/dark via
+    // prefers-color-scheme. The half-white/half-black swatch hints at "auto".
+    { mode: 'system',   label: 'System',   gradient: 'linear-gradient(135deg, #ffffff 50%, #0a0a0a 50%)' },
     { mode: 'light',    label: 'Light',    gradient: 'linear-gradient(135deg, #ffffff 50%, #2563eb 50%)' },
     { mode: 'dark',     label: 'Dark',     gradient: 'linear-gradient(135deg, #0a0a0a 50%, #60a5fa 50%)' },
     { mode: 'sunset',   label: 'Sunset',   gradient: 'linear-gradient(135deg, #fff7ed 50%, #ea580c 50%)' },

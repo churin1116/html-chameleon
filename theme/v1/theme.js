@@ -14,14 +14,28 @@
   'use strict';
 
   var STORAGE_KEY = 'chameleon-theme';
-  var VALID_PRESETS = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+  var BUILTIN_THEMES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+  // 'system' is a meta-mode: it resolves to light/dark via prefers-color-scheme
+  // at apply-time. It has no CSS block of its own.
+  var VALID_MODES = BUILTIN_THEMES.concat(['system']);
+
+  function resolveMode(mode) {
+    if (mode === 'system') {
+      return (window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    return mode;
+  }
 
   function applyTheme(theme) {
     if (!theme || typeof theme !== 'object') return;
     var root = document.documentElement;
 
-    if (theme.mode && VALID_PRESETS.indexOf(theme.mode) !== -1) {
-      root.setAttribute('data-theme', theme.mode);
+    if (theme.mode && VALID_MODES.indexOf(theme.mode) !== -1) {
+      var actualMode = resolveMode(theme.mode);
+      if (BUILTIN_THEMES.indexOf(actualMode) !== -1) {
+        root.setAttribute('data-theme', actualMode);
+      }
     }
 
     // Clear previous custom-variable overrides before applying new ones.
@@ -81,11 +95,16 @@
     } catch (err) { /* ignore */ }
   });
 
-  // Follow OS preference if user hasn't explicitly chosen.
+  // Follow OS preference for two cases:
+  //   1) user is on 'system' mode → re-resolve light/dark when OS flips
+  //   2) user has no stored preference → follow OS as the default
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     var listener = function (ev) {
-      if (!readStored()) {
+      var stored = readStored();
+      if (stored && stored.mode === 'system') {
+        applyTheme(stored);
+      } else if (!stored) {
         applyTheme({ mode: ev.matches ? 'dark' : 'light' });
       }
     };
@@ -96,7 +115,8 @@
   // Public API.
   window.Chameleon = {
     version: '1.0.0',
-    presets: VALID_PRESETS.slice(),
+    presets: BUILTIN_THEMES.slice(),
+    modes: VALID_MODES.slice(),
     setTheme: setTheme,
     getTheme: function () { return readStored() || defaultTheme(); },
     reset: function () {
