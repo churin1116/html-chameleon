@@ -109,9 +109,27 @@ body {
 .preset.active .preset__check { opacity: 1; }
 
 .popup__footer {
-  padding: 10px 16px 12px;
+  padding: 12px 16px 14px;
   font-size: 0.74rem;
   color: #a1a1aa;
+  text-align: center;
 }
 .popup__footer a { color: inherit; text-decoration: none; }
 .popup__footer a:hover { color: #2563eb; }
+.gh-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #e4e4e7;
+  color: #525252;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.gh-icon-btn:hover {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+.gh-icon-btn svg { display: block; }
