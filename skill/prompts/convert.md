@@ -87,3 +87,23 @@ Open issues: 2 colors with confidence <70% (see review block above)
 ```
 
 If any open issues remain, list them so the user can apply manual fixes.
+
+## Markdown (`.md`) input — handle the source after conversion
+
+When the input file has a `.md` extension, the themed HTML is written to a
+sibling file (`<basename>.html`) and the source `.md` is NOT modified by the
+conversion itself.
+
+**Before reporting completion, always invoke the `AskUserQuestion` tool** to
+let the user decide what happens to the source `.md`. Do not ask via
+free-text confirmation — use the structured tool. Options:
+
+| Option | Action |
+| --- | --- |
+| Keep as-is (recommended) | No-op — `.md` remains at its original path |
+| Delete the original | Remove `<basename>.md` |
+| Archive with date suffix | Rename `<basename>.md` → `<basename>_<YYYYMMDD>.md` (e.g., `notes.md` → `notes_20260509.md`) |
+
+Use today's local date in `YYYYMMDD` format (8 digits, no separators). Apply
+the user's choice immediately, and include the result in the summary
+(`Source kept` / `Source deleted` / `Source archived as <filename>`).
