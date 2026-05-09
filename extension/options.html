@@ -97,6 +97,73 @@
     75% { transform: translateX(6px); }
   }
   .theme-row.--shake { animation: shake 0.25s ease; }
+
+  .section-heading {
+    margin: 3rem 0 0.75rem;
+    font-size: 1.4rem;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+  .api-key-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "label  label  status"
+      "input  input  save";
+    column-gap: 10px;
+    row-gap: 8px;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+  .api-key-row > label { grid-area: label; }
+  .api-key-row .api-key-status { grid-area: status; justify-self: end; font-size: 0.8rem; }
+  .api-key-row .api-key-input { grid-area: input; }
+  .api-key-row .api-key-save { grid-area: save; }
+  .api-key-input {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md, 8px);
+    background: var(--surface);
+    color: var(--text);
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+  .api-key-input:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .api-key-save {
+    padding: 9px 18px;
+    border: 0;
+    border-radius: var(--radius-md, 8px);
+    background: var(--primary);
+    color: var(--on-primary);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .api-key-save:hover { opacity: 0.9; }
+  .approve-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md, 8px);
+    cursor: pointer;
+    font-size: 0.92rem;
+  }
+  .approve-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
 </style>
 </head>
 <body class="bg-canvas">
@@ -111,6 +178,33 @@
   <div class="theme-list" id="theme-list" role="list"></div>
 
   <p class="counter text-subtle" id="counter" aria-live="polite">— of — favorited</p>
+
+  <h2 class="section-heading">AI Chat (local files)</h2>
+  <p class="text-muted" style="margin: 0 0 1.5rem; font-size: 0.92rem;">
+    The "Chat with AI" button on the Chameleon palette appears only on <code>file://</code> URLs.
+    It uses your own Anthropic API key to edit the HTML source directly.
+    Page content is sent to Anthropic — review the
+    <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">privacy policy</a>.
+  </p>
+  <div class="api-key-row">
+    <label for="api-key-input" class="text-base" style="font-weight: 500;">Anthropic API key</label>
+    <input type="password" id="api-key-input" class="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+    <button class="api-key-save" id="api-key-save" type="button">Save</button>
+    <span class="api-key-status text-subtle" id="api-key-status"></span>
+  </div>
+  <p class="text-subtle" style="margin: 0.5rem 0 1rem; font-size: 0.85rem;">
+    Get a key at <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>.
+    Stored in <code>chrome.storage.local</code> on this device only — never sent anywhere except api.anthropic.com.
+  </p>
+  <label class="approve-row" for="approve-input">
+    <input type="checkbox" id="approve-input" checked>
+    <span>
+      Show changes for review before saving (recommended).
+      <span class="text-subtle" style="display: block; font-size: 0.82rem; margin-top: 2px;">
+        Off = save immediately when the AI responds.
+      </span>
+    </span>
+  </label>
 
   <div class="footer">
     <a href="https://github.com/churin1116/html-chameleon" target="_blank" rel="noopener">github.com/churin1116/html-chameleon</a>

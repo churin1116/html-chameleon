@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chameleon Chat</title>
+<link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+
+<div class="panel">
+
+  <header class="panel__head">
+    <span class="panel__brand">Chameleon Chat ✨</span>
+    <button class="panel__settings-toggle" id="settings-toggle" type="button" aria-expanded="false" aria-controls="settings-body" title="Settings">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </header>
+
+  <section class="panel__settings" id="settings-body" hidden>
+    <label class="setting-row" for="api-key-field">
+      <span class="setting-label">Anthropic API key</span>
+      <input type="password" id="api-key-field" class="setting-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+      <span class="setting-meta" id="api-key-meta"></span>
+    </label>
+    <label class="setting-row setting-row--inline" for="approve-field">
+      <input type="checkbox" id="approve-field" checked>
+      <span>Show changes before saving (recommended)</span>
+    </label>
+    <p class="setting-foot">
+      Page content is sent to Anthropic when chatting.
+      Key stored in <code>chrome.storage.local</code> on this device only.
+    </p>
+  </section>
+
+  <section class="panel__status" id="status-bar">
+    <span class="status-dot status-dot--idle" id="status-dot"></span>
+    <span class="status-text" id="status-text">Loading current file…</span>
+  </section>
+
+  <div class="panel__messages" id="messages">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-state__icon">✨</div>
+      <p class="empty-state__title">Edit this file with Claude</p>
+      <p class="empty-state__body">
+        Tell Claude what to change — heading style, copy edits, layout tweaks.
+        It returns a full updated HTML; you review and approve before it's saved.
+      </p>
+      <div class="empty-state__notice">
+        <strong>💡 For larger edits, use Claude Code instead.</strong>
+        This side panel sends the entire HTML on every turn, which is slow and
+        token-heavy on big files. For multi-file work, structural refactors, or
+        anything you want to iterate on, the
+        <a href="https://www.anthropic.com/claude-code" target="_blank" rel="noopener">Claude Code CLI</a>
+        is dramatically faster and more capable. Use this panel for quick
+        in-browser tweaks on a single open file.
+      </div>
+      <p class="empty-state__hint" id="hint-text"></p>
+    </div>
+  </section>
+  </div>
+
+  <section class="panel__composer">
+    <textarea
+      id="composer-input"
+      class="composer-input"
+      placeholder="Make the heading purple and add a subtitle…"
+      rows="2"
+    ></textarea>
+    <div class="composer-row">
+      <span class="composer-hint text-subtle">⌘⏎ to send</span>
+      <button class="composer-send" id="composer-send" type="button" disabled>Send</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="sidepanel.js"></script>
+</body>
+</html>

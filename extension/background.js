@@ -35,6 +35,16 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     chrome.runtime.openOptionsPage();
     return;
   }
+
+  // Open the side-panel chat. chrome.sidePanel.open() must be called from a
+  // user-gesture handler — it's allowed inside chrome.runtime.onMessage when
+  // the message originated from a content-script click event.
+  if (msg?.type === 'chameleon:open-chat' && sender.tab?.id) {
+    chrome.sidePanel.open({ tabId: sender.tab.id }).catch(err => {
+      console.error('Chameleon: failed to open side panel', err);
+    });
+    return;
+  }
 });
 
 // Clear the badge while a tab is reloading / navigating so stale state doesn't

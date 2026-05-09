@@ -166,6 +166,17 @@
           </svg>
           <span class="__cm-action-name">Manage themes</span>
         </button>
+        ${isLocalFile() ? `
+        <button class="__cm-action __cm-action-chat" data-action="chat" type="button">
+          <svg class="__cm-action-icon __cm-action-icon-chat" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12a8 8 0 1 1-2.6-5.9L21 4v7l-7 0"/>
+            <circle cx="9" cy="13" r="0.7" fill="currentColor"/>
+            <circle cx="13" cy="13" r="0.7" fill="currentColor"/>
+            <circle cx="17" cy="13" r="0.7" fill="currentColor"/>
+          </svg>
+          <span class="__cm-action-name">Chat with AI</span>
+        </button>
+        ` : ''}
         <button class="__cm-settings-toggle" type="button" aria-expanded="false" aria-controls="__cm-position-panel">
           <svg class="__cm-settings-icon" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="2" y="2" width="12" height="12" rx="2"/>
@@ -249,6 +260,16 @@
         try {
           chrome.runtime.sendMessage({ type: 'chameleon:open-options' });
         } catch (err) { /* extension may have been reloaded */ }
+        close();
+      });
+    });
+
+    rail.querySelectorAll('[data-action="chat"]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        try {
+          chrome.runtime.sendMessage({ type: 'chameleon:open-chat' });
+        } catch (err) { /* swallow */ }
         close();
       });
     });
@@ -510,6 +531,7 @@
       .__cm-settings-toggle:hover,
       .__cm-action:hover { background: var(--surface-2, #f4f4f5) !important; color: var(--text, #0a0a0a) !important; }
       .__cm-action-icon { color: #facc15 !important; flex-shrink: 0 !important; }
+      .__cm-action-icon-chat { color: var(--primary, #2563eb) !important; }
       .__cm-action-name { flex: 1 !important; }
       .__cm-settings-icon { flex-shrink: 0 !important; }
       .__cm-settings-name { flex: 1 !important; }
@@ -560,6 +582,10 @@
     `;
   }
 
+  function isLocalFile() {
+    return location.protocol === 'file:';
+  }
+
   // ---------- Detection ----------
   function detect() {
     if (document.querySelector('meta[name="chameleon"]')) {
@@ -598,4 +624,5 @@
       chrome.runtime.sendMessage({ type: 'chameleon:open-options' });
     } catch (e) { /* extension may have been reloaded */ }
   });
+
 })();

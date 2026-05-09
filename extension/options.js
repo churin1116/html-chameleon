@@ -81,7 +81,50 @@ async function onToggle(row) {
   render(favs);
 }
 
+// ---------- API key + approve-before-apply settings ----------
+const API_KEY_KEY = 'chameleon-api-key';
+const APPROVE_KEY = 'chameleon-approve-before-apply';
+
+async function loadSettings() {
+  const data = await chrome.storage.local.get([API_KEY_KEY, APPROVE_KEY]);
+  const input = document.getElementById('api-key-input');
+  const status = document.getElementById('api-key-status');
+  const approve = document.getElementById('approve-input');
+  if (input && data[API_KEY_KEY]) {
+    input.value = data[API_KEY_KEY];
+    if (status) status.textContent = 'saved';
+  }
+  if (approve) {
+    // Default to true (approve before apply) when not set
+    approve.checked = data[APPROVE_KEY] !== false;
+  }
+}
+
+document.getElementById('api-key-save')?.addEventListener('click', async () => {
+  const input = document.getElementById('api-key-input');
+  const status = document.getElementById('api-key-status');
+  const value = (input?.value || '').trim();
+  if (!value) {
+    if (status) status.textContent = '(empty)';
+    return;
+  }
+  if (!value.startsWith('sk-ant-')) {
+    if (status) status.textContent = "doesn't look like an Anthropic key";
+    return;
+  }
+  await chrome.storage.local.set({ [API_KEY_KEY]: value });
+  if (status) {
+    status.textContent = 'saved ✓';
+    setTimeout(() => { status.textContent = 'saved'; }, 1500);
+  }
+});
+
+document.getElementById('approve-input')?.addEventListener('change', async e => {
+  await chrome.storage.local.set({ [APPROVE_KEY]: e.target.checked });
+});
+
 (async () => {
   const favs = await getFavorites();
   render(favs);
+  await loadSettings();
 })();
