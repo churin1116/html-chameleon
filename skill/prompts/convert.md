@@ -1,5 +1,23 @@
 # Convert mode — prompt template
 
+## Input routing — branch by file extension
+
+The input file's extension determines the flow. **Decide based on the
+extension alone — do NOT ask the user "what do you want to do?" up-front
+when the extension is unambiguous.** The user already invoked `/chameleon`
+on this file; that's intent enough.
+
+| Extension | Flow | Section |
+| --- | --- | --- |
+| `.html` | Retrofit existing HTML (color mapping + dry-run) | "Workflow" below |
+| `.md`   | Render Markdown to themed HTML (no color mapping needed) | "Markdown input" near the end |
+
+Only call `AskUserQuestion` for clarification if:
+- The file has no extension or an unrecognized one
+- Inside one of the flows, an explicit decision step requires it (e.g., the source-disposition question after MD render, or a confidence-< 70% color mapping during HTML retrofit)
+
+---
+
 When given an existing HTML file with hardcoded colors, retrofit it to use Chameleon
 WITHOUT writing the file in a single shot. Always dry-run first.
 
