@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Chameleon",
+  "version": "1.0.0",
+  "description": "Theme any HTML page that uses the Chameleon contract. Pick a theme, persist your preference, sync across tabs.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Chameleon"
+  },
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

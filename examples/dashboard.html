@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chameleon — Dashboard example</title>
+
+<link rel="stylesheet" href="../theme/v1/theme.css">
+<script src="../theme/v1/theme.js"></script>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* Sidebar */
+  aside.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+  }
+  .brand {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 0 0 24px;
+    padding: 0 8px;
+  }
+  .nav { list-style: none; padding: 0; margin: 0; }
+  .nav li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .nav li a:hover { background: var(--surface-2); color: var(--text); }
+  .nav li a.active { background: var(--primary); color: var(--on-primary); }
+
+  /* Main */
+  main.main {
+    padding: 28px 32px;
+    background: var(--canvas);
+  }
+
+  /* Header */
+  header.head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header.head h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: -0.01em;
+  }
+  .theme-picker {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-subtle);
+    margin: 0 0 6px;
+  }
+  .stat .stat-value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .stat .stat-delta {
+    font-size: 0.78rem;
+    margin-top: 4px;
+  }
+
+  /* Table */
+  table.tbl {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .tbl th, .tbl td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+  }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl thead th {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  h2.section {
+    font-size: 1rem;
+    margin: 0 0 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <h2 class="brand">Chameleon 🦎</h2>
+    <ul class="nav">
+      <li><a href="#" class="active">Overview</a></li>
+      <li><a href="#" class="text-base">Reports</a></li>
+      <li><a href="#" class="text-base">Customers</a></li>
+      <li><a href="#" class="text-base">Settings</a></li>
+    </ul>
+    <p class="text-subtle" style="font-size: 0.78rem; margin-top: 32px; padding: 0 8px;">
+      A 100-line dashboard, fully themable.
+    </p>
+  </aside>
+
+  <main class="main">
+    <header class="head">
+      <h1>Overview</h1>
+      <select class="theme-picker" onchange="Chameleon.setTheme({mode: this.value})" aria-label="Theme">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="sunset">Sunset</option>
+        <option value="forest">Forest</option>
+        <option value="midnight">Midnight</option>
+      </select>
+    </header>
+
+    <h2 class="section">Key metrics</h2>
+    <div class="stats">
+      <div class="card stat">
+        <p class="stat-label">Active users</p>
+        <p class="stat-value">12,489</p>
+        <p class="stat-delta text-success">▲ 12.4% vs last week</p>
+      </div>
+      <div class="card stat">
+        <p class="stat-label">Conversion</p>
+        <p class="stat-value">3.21%</p>
+        <p class="stat-delta text-warning">▼ 0.3% vs last week</p>
+      </div>
+      <div class="card stat">
+        <p class="stat-label">Revenue</p>
+        <p class="stat-value">$48.2k</p>
+        <p class="stat-delta text-success">▲ 6.8% vs last week</p>
+      </div>
+      <div class="card stat">
+        <p class="stat-label">Churn</p>
+        <p class="stat-value">1.04%</p>
+        <p class="stat-delta text-danger">▲ 0.2% vs last week</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <h2 class="section">Recent events</h2>
+        <table class="tbl">
+          <thead>
+            <tr><th>Time</th><th>Event</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="text-muted">14:02</td><td>Deploy completed</td><td><span class="pill" style="background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); border-color: transparent;">success</span></td></tr>
+            <tr><td class="text-muted">13:48</td><td>Cache hit dropped to 87%</td><td><span class="pill" style="background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); border-color: transparent;">warning</span></td></tr>
+            <tr><td class="text-muted">13:21</td><td>Payment processor 5xx</td><td><span class="pill" style="background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); border-color: transparent;">incident</span></td></tr>
+            <tr><td class="text-muted">12:58</td><td>Daily backup verified</td><td><span class="pill" style="background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); border-color: transparent;">success</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h2 class="section">Notes</h2>
+        <div class="alert alert-success" style="margin-bottom: 8px;">All services nominal. No incidents in 14 days.</div>
+        <div class="alert alert-warning" style="margin-bottom: 8px;">Cache hit rate below target — investigate before EOD.</div>
+        <div class="card" style="margin-top: 12px;">
+          <h3 style="margin-top: 0; font-size: 1rem;">Action items</h3>
+          <ul class="text-muted" style="padding-left: 18px; margin: 0;">
+            <li>Approve onboarding rollout (variant B)</li>
+            <li>Bump cache TTL to 600s</li>
+            <li>Schedule postmortem for payment incident</li>
+          </ul>
+          <div style="margin-top: 14px; display: flex; gap: 8px;">
+            <button class="btn btn-primary">Approve</button>
+            <button class="btn btn-ghost">Defer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-subtle" style="font-size: 0.85rem; margin-top: 32px; text-align: center;">
+      Themed by <a href="https://github.com/churin1116/html-chameleon">Chameleon</a>.
+      Reload after picking a theme — the preference persists.
+    </p>
+  </main>
+
+</div>
+
+<script>
+  document.querySelector('.theme-picker').value = Chameleon.getTheme().mode;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chameleon — Themable HTML, without the boilerplate</title>
+
+<!-- ============================================================
+     CHAMELEON v1 — CSS variable contract & utility classes
+     This file dogfoods the very system it documents.
+     ============================================================ -->
+<style>
+  /* ---------- Light theme (default) ---------- */
+  :root,
+  [data-theme="light"] {
+    --canvas: #ffffff;
+    --surface: #fafafa;
+    --surface-2: #f4f4f5;
+
+    --text: #0a0a0a;
+    --text-muted: #525252;
+    --text-subtle: #a1a1aa;
+
+    --primary: #2563eb;
+    --on-primary: #ffffff;
+    --secondary: #7c3aed;
+    --on-secondary: #ffffff;
+    --accent: #ec4899;
+    --on-accent: #ffffff;
+
+    --border: #e4e4e7;
+    --border-subtle: #f0f0f0;
+    --border-strong: #a1a1aa;
+
+    --success: #16a34a;
+    --on-success: #ffffff;
+    --warning: #d97706;
+    --on-warning: #ffffff;
+    --danger: #dc2626;
+    --on-danger: #ffffff;
+  }
+
+  /* ---------- Dark theme ---------- */
+  [data-theme="dark"] {
+    --canvas: #0a0a0a;
+    --surface: #141414;
+    --surface-2: #1f1f23;
+
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --text-subtle: #71717a;
+
+    --primary: #60a5fa;
+    --on-primary: #0a0a0a;
+    --secondary: #c4b5fd;
+    --on-secondary: #1e1b4b;
+    --accent: #f472b6;
+    --on-accent: #500724;
+
+    --border: #27272a;
+    --border-subtle: #1f1f23;
+    --border-strong: #52525b;
+
+    --success: #22c55e;
+    --on-success: #052e16;
+    --warning: #fbbf24;
+    --on-warning: #451a03;
+    --danger: #f87171;
+    --on-danger: #450a0a;
+  }
+
+  /* ---------- Sunset preset (warm) ---------- */
+  [data-theme="sunset"] {
+    --canvas: #fff7ed;
+    --surface: #ffedd5;
+    --surface-2: #fed7aa;
+
+    --text: #431407;
+    --text-muted: #9a3412;
+    --text-subtle: #c2410c;
+
+    --primary: #ea580c;
+    --on-primary: #fff7ed;
+    --secondary: #db2777;
+    --on-secondary: #fff7ed;
+    --accent: #facc15;
+    --on-accent: #422006;
+
+    --border: #fdba74;
+    --border-subtle: #fed7aa;
+    --border-strong: #c2410c;
+
+    --success: #65a30d;
+    --on-success: #ffffff;
+    --warning: #b45309;
+    --on-warning: #ffffff;
+    --danger: #b91c1c;
+    --on-danger: #ffffff;
+  }
+
+  /* ---------- Forest preset (calm green) ---------- */
+  [data-theme="forest"] {
+    --canvas: #f0fdf4;
+    --surface: #dcfce7;
+    --surface-2: #bbf7d0;
+
+    --text: #052e16;
+    --text-muted: #166534;
+    --text-subtle: #16a34a;
+
+    --primary: #15803d;
+    --on-primary: #f0fdf4;
+    --secondary: #0f766e;
+    --on-secondary: #f0fdfa;
+    --accent: #ca8a04;
+    --on-accent: #fefce8;
+
+    --border: #86efac;
+    --border-subtle: #bbf7d0;
+    --border-strong: #15803d;
+
+    --success: #15803d;
+    --on-success: #ffffff;
+    --warning: #b45309;
+    --on-warning: #ffffff;
+    --danger: #b91c1c;
+    --on-danger: #ffffff;
+  }
+
+  /* ---------- Midnight preset (very dark, purple-leaning) ---------- */
+  [data-theme="midnight"] {
+    --canvas: #030712;
+    --surface: #0c0a18;
+    --surface-2: #1e1b3a;
+
+    --text: #f3e8ff;
+    --text-muted: #c4b5fd;
+    --text-subtle: #8b5cf6;
+
+    --primary: #a78bfa;
+    --on-primary: #1e1b3a;
+    --secondary: #67e8f9;
+    --on-secondary: #083344;
+    --accent: #f0abfc;
+    --on-accent: #4a044e;
+
+    --border: #1e1b3a;
+    --border-subtle: #0c0a18;
+    --border-strong: #6d28d9;
+
+    --success: #4ade80;
+    --on-success: #052e16;
+    --warning: #fcd34d;
+    --on-warning: #451a03;
+    --danger: #fb7185;
+    --on-danger: #450a0a;
+  }
+
+  /* ---------- Base + reset ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+  code, pre, .mono {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 0.9em;
+  }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); }
+  a:hover { border-bottom-color: var(--primary); }
+
+  hr { border: 0; border-top: 1px solid var(--border); margin: 4rem 0; }
+
+  /* ---------- Utility classes (Chameleon v1 contract) ---------- */
+  .bg-canvas { background: var(--canvas); }
+  .bg-surface { background: var(--surface); }
+  .bg-surface-2 { background: var(--surface-2); }
+  .bg-primary { background: var(--primary); color: var(--on-primary); }
+  .bg-secondary { background: var(--secondary); color: var(--on-secondary); }
+  .bg-accent { background: var(--accent); color: var(--on-accent); }
+  .bg-success { background: var(--success); color: var(--on-success); }
+  .bg-warning { background: var(--warning); color: var(--on-warning); }
+  .bg-danger  { background: var(--danger);  color: var(--on-danger); }
+
+  .text-base    { color: var(--text); }
+  .text-muted   { color: var(--text-muted); }
+  .text-subtle  { color: var(--text-subtle); }
+  .text-on-primary   { color: var(--on-primary); }
+  .text-on-secondary { color: var(--on-secondary); }
+  .text-primary { color: var(--primary); }
+  .text-secondary { color: var(--secondary); }
+  .text-accent { color: var(--accent); }
+  .text-success { color: var(--success); }
+  .text-warning { color: var(--warning); }
+  .text-danger  { color: var(--danger); }
+
+  .border        { border: 1px solid var(--border); }
+  .border-subtle { border: 1px solid var(--border-subtle); }
+  .border-strong { border: 1px solid var(--border-strong); }
+  .border-primary { border: 1px solid var(--primary); }
+
+  .rounded { border-radius: 8px; }
+  .rounded-lg { border-radius: 14px; }
+  .rounded-full { border-radius: 999px; }
+
+  /* ---------- Page layout ---------- */
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  .page--wide { max-width: 1200px; }
+
+  header.hero {
+    padding: 6rem 1.5rem 4rem;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: 1.05;
+    margin: 0 0 1rem;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+  }
+  .hero .tagline {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 620px;
+    margin: 0 0 2rem;
+  }
+  .hero .meta {
+    color: var(--text-subtle);
+    font-size: 0.9rem;
+  }
+  .hero .meta code {
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--text-muted);
+  }
+
+  section.numbered {
+    padding: 4rem 0;
+  }
+  section.numbered .section-num {
+    font-family: ui-monospace, monospace;
+    color: var(--text-subtle);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  section.numbered h2 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  section.numbered .lede {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 720px;
+    margin: 0 0 2.5rem;
+  }
+  section.numbered h3 {
+    font-size: 1.15rem;
+    margin: 2.5rem 0 0.75rem;
+    font-weight: 600;
+  }
+
+  /* ---------- Theme rail (top-right floating control) ---------- */
+  .theme-rail {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+  }
+  .theme-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--text) 10%, transparent);
+    backdrop-filter: blur(8px);
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .theme-trigger:hover {
+    border-color: var(--border-strong);
+    background: var(--surface-2);
+  }
+  .theme-trigger[aria-expanded="true"] {
+    border-color: var(--primary);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+  .theme-trigger:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .theme-trigger__chevron {
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+  }
+  .theme-trigger[aria-expanded="true"] .theme-trigger__chevron {
+    transform: rotate(180deg);
+    color: var(--primary);
+  }
+
+  .theme-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .theme-swatch--current {
+    background: linear-gradient(135deg, var(--canvas) 50%, var(--primary) 50%);
+  }
+  .theme-swatch--light    { background: linear-gradient(135deg, #ffffff 50%, #2563eb 50%); }
+  .theme-swatch--dark     { background: linear-gradient(135deg, #0a0a0a 50%, #60a5fa 50%); }
+  .theme-swatch--sunset   { background: linear-gradient(135deg, #fff7ed 50%, #ea580c 50%); }
+  .theme-swatch--forest   { background: linear-gradient(135deg, #f0fdf4 50%, #15803d 50%); }
+  .theme-swatch--midnight { background: linear-gradient(135deg, #030712 50%, #a78bfa 50%); }
+
+  .theme-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 5px;
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--text) 18%, transparent),
+                0 2px 6px color-mix(in srgb, var(--text) 8%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    animation: themeMenuFade 0.16s ease;
+    backdrop-filter: blur(12px);
+  }
+  @keyframes themeMenuFade {
+    from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .theme-menu[hidden] { display: none; }
+
+  .theme-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: transparent;
+    border: 0;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background 0.1s ease;
+  }
+  .theme-menu__item:hover {
+    background: var(--surface-2);
+  }
+  .theme-menu__name { flex: 1; }
+  .theme-menu__check {
+    color: var(--primary);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .theme-menu__item[aria-selected="true"] .theme-menu__check { opacity: 1; }
+  .theme-menu__item[aria-selected="true"] {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* ---------- Mock extension button (top-right of "synthetic page" demos) ---------- */
+  .ext-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+  .ext-button:hover { color: var(--primary); border-color: var(--primary); }
+
+  /* ---------- Swatch grid (variable contract) ---------- */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .swatch {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .swatch .chip {
+    height: 72px;
+    width: 100%;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .swatch .meta-row {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .swatch .var-name {
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+  }
+  .swatch .var-role {
+    font-size: 0.72rem;
+    color: var(--text-subtle);
+  }
+
+  /* ---------- Class catalog table ---------- */
+  .class-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .class-table th, .class-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+  .class-table tr:last-child td { border-bottom: 0; }
+  .class-table th {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .class-table td.code-cell {
+    font-family: ui-monospace, monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .class-table td.demo-cell { width: 140px; }
+  .demo-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    min-width: 100px;
+  }
+
+  /* ---------- Playground (live preview) ---------- */
+  .playground {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    margin-top: 1rem;
+  }
+  @media (max-width: 880px) {
+    .playground { grid-template-columns: 1fr; }
+  }
+  .playground-controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    align-self: start;
+    position: sticky;
+    top: 6rem;
+  }
+  .playground-controls h4 {
+    margin: 0 0 1rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .picker-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+  .picker-row label {
+    flex: 1;
+    color: var(--text-muted);
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+  }
+  .picker-row input[type="color"] {
+    width: 36px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+  }
+  .preset-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .preset-btn {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--canvas);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .preset-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .preset-btn.active { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+
+  .copy-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+  .copy-btn {
+    padding: 8px;
+    background: var(--text);
+    color: var(--canvas);
+    border: 0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+  .copy-btn:hover { opacity: 0.85; }
+  .copy-btn.success { background: var(--success); color: var(--on-success); }
+
+  .preview-stage {
+    background: var(--canvas);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+  }
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .preview-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .preview-card .card-meta {
+    color: var(--text-subtle);
+    font-size: 0.82rem;
+    margin: 0 0 12px;
+  }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .btn-primary   { background: var(--primary);   color: var(--on-primary); }
+  .btn-secondary { background: var(--secondary); color: var(--on-secondary); }
+  .btn-ghost     { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 8px;
+  }
+  .alert-success { background: color-mix(in srgb, var(--success) 12%, var(--canvas)); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 30%, transparent); }
+  .alert-warning { background: color-mix(in srgb, var(--warning) 12%, var(--canvas)); color: var(--warning); border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent); }
+  .alert-danger  { background: color-mix(in srgb, var(--danger) 12%, var(--canvas)); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent); }
+
+  /* ---------- Code blocks ---------- */
+  pre.code-block {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.55;
+  }
+  code.inline {
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--text);
+  }
+
+  /* ---------- Conversion before/after ---------- */
+  .ba-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) { .ba-grid { grid-template-columns: 1fr; } }
+  .ba-panel {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    background: var(--surface);
+  }
+  .ba-panel .ba-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
+    margin-bottom: 8px;
+  }
+
+  /* ---------- Tree / repo structure ---------- */
+  .tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    line-height: 1.7;
+    font-size: 0.9rem;
+  }
+  .tree .file { color: var(--text); }
+  .tree .dir { color: var(--primary); font-weight: 500; }
+  .tree .annot { color: var(--text-subtle); margin-left: 8px; }
+
+  /* ---------- Architecture diagram ---------- */
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ---------- Open questions cards ---------- */
+  .q-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .q-card .q-tag {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .q-card .q-title { font-size: 0.95rem; font-weight: 600; margin: 0 0 6px; }
+  .q-card .q-body { color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; }
+
+  /* ---------- TOC sidebar ---------- */
+  .toc {
+    position: fixed;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  @media (max-width: 1280px) { .toc { display: none; } }
+  .toc a {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 0;
+    transition: all 0.2s ease;
+  }
+  .toc a:hover, .toc a.active {
+    background: var(--primary);
+    transform: scale(1.4);
+  }
+
+  /* ---------- Mock extension panel ---------- */
+  .ext-panel {
+    width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px color-mix(in srgb, var(--text) 14%, transparent);
+    overflow: hidden;
+  }
+  .ext-panel header.ext-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ext-panel header.ext-head .lizard {
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-primary);
+    font-size: 14px;
+  }
+  .ext-panel .ext-head .ext-title { font-weight: 600; flex: 1; }
+  .ext-panel .ext-head .ext-version { color: var(--text-subtle); font-size: 0.72rem; }
+  .ext-panel section.ext-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .ext-panel section.ext-section:last-child { border-bottom: 0; }
+  .ext-panel .ext-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-subtle);
+    margin-bottom: 8px;
+  }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.88rem;
+  }
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .toggle.on { background: var(--primary); border-color: var(--primary); }
+  .toggle::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: var(--canvas);
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.18s ease;
+  }
+  .toggle.on::after { left: 18px; }
+
+  /* ---------- Pill / tag ---------- */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+  }
+  .pill-primary { background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary); border-color: transparent; }
+
+  /* small util */
+  .stack-sm > * + * { margin-top: 0.5rem; }
+  .stack-md > * + * { margin-top: 1rem; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- =============================================================
+     THEME RAIL — exactly the kind of UI the Chrome extension would inject
+     ============================================================= -->
+<div class="theme-rail">
+  <button class="theme-trigger" id="theme-trigger" type="button"
+          aria-haspopup="listbox" aria-expanded="false" aria-label="Theme: Light">
+    <span class="theme-swatch theme-swatch--current" aria-hidden="true"></span>
+    <svg class="theme-trigger__chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+      <path d="M2.5 4 L5 6.5 L7.5 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <div class="theme-menu" role="listbox" id="theme-menu" aria-label="Theme presets" hidden>
+    <button class="theme-menu__item" role="option" data-value="light" aria-selected="true">
+      <span class="theme-swatch theme-swatch--light" aria-hidden="true"></span>
+      <span class="theme-menu__name">Light</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="dark" aria-selected="false">
+      <span class="theme-swatch theme-swatch--dark" aria-hidden="true"></span>
+      <span class="theme-menu__name">Dark</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="sunset" aria-selected="false">
+      <span class="theme-swatch theme-swatch--sunset" aria-hidden="true"></span>
+      <span class="theme-menu__name">Sunset</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="forest" aria-selected="false">
+      <span class="theme-swatch theme-swatch--forest" aria-hidden="true"></span>
+      <span class="theme-menu__name">Forest</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="midnight" aria-selected="false">
+      <span class="theme-swatch theme-swatch--midnight" aria-hidden="true"></span>
+      <span class="theme-menu__name">Midnight</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- TOC dots -->
+<nav class="toc" aria-label="Section navigation">
+  <a href="#why" data-toc="why" title="Why"></a>
+  <a href="#overview" data-toc="overview" title="Overview"></a>
+  <a href="#variables" data-toc="variables" title="Variables"></a>
+  <a href="#classes" data-toc="classes" title="Classes"></a>
+  <a href="#playground" data-toc="playground" title="Playground"></a>
+  <a href="#conversion" data-toc="conversion" title="Conversion"></a>
+  <a href="#repo" data-toc="repo" title="Repo"></a>
+  <a href="#skill" data-toc="skill" title="Skill"></a>
+  <a href="#extension" data-toc="extension" title="Extension"></a>
+  <a href="#open" data-toc="open" title="Open"></a>
+</nav>
+
+<!-- =============================================================
+     HERO
+     ============================================================= -->
+<header class="hero">
+  <div class="row" style="margin-bottom: 1.25rem;">
+    <span class="pill pill-primary mono">html-chameleon · v1 · design.html</span>
+    <span class="pill mono">phase 0</span>
+  </div>
+  <h1>Chameleon <span aria-hidden="true" style="display: inline-block; transform: translateY(-0.05em); margin-left: 0.05em;">🦎</span></h1>
+  <p class="tagline">
+    Themable HTML, without the boilerplate.
+    Write semantic classes once — the browser, the user, or a Chrome extension can repaint everything.
+  </p>
+  <p class="meta">
+    A spec-as-playground. Try the <code>Light / Dark / Sunset / Forest / Midnight</code> buttons in the top-right —
+    every section below re-themes live, including this page itself.
+  </p>
+</header>
+
+<!-- =============================================================
+     WHY (Start with Why — content_writing rule)
+     ============================================================= -->
+<section id="why" class="numbered page">
+  <span class="section-num">00 — WHY</span>
+  <h2>Markdown got me reading. HTML keeps me in the loop.</h2>
+  <p class="lede">
+    Once Claude artifacts moved from a 30-line markdown file to a 200-line HTML one, two things happened.
+    The output got dramatically richer — diagrams, tables, embedded interactions.
+    But every artifact also started baking its own colors, its own dark-mode toggle, its own copy of "what looks good".
+  </p>
+  <p>
+    Chameleon is the smallest amount of structure that lets one Skill stop reinventing the palette,
+    one Chrome extension override every artifact's theme without touching the file,
+    and a future you read your own HTMLs in your own colors — three months later, on a different laptop, in a different mood.
+  </p>
+  <p style="color: var(--text-muted); margin-top: 1.25rem;">
+    The <em>Why</em> isn't "dark mode is nice". It's that <strong>the artifact and the viewer are different people now</strong> —
+    the model writes the structure, you bring the taste.
+  </p>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     01 — OVERVIEW
+     ============================================================= -->
+<section id="overview" class="numbered page">
+  <span class="section-num">01 — OVERVIEW</span>
+  <h2>Three components, one contract</h2>
+  <p class="lede">
+    Chameleon is the agreement between a CSS file, a Skill, and a Chrome extension.
+    Each is independently useful, but together they let any HTML behave like a Tailwind-themed site without ever importing Tailwind.
+  </p>
+
+  <div class="arch-diagram">
+    <svg viewBox="0 0 760 360" width="100%" style="max-width: 720px;" xmlns="http://www.w3.org/2000/svg">
+      <!-- center node: themed HTML -->
+      <g>
+        <rect x="290" y="140" width="180" height="80" rx="14"
+              fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="1.5"/>
+        <text x="380" y="170" text-anchor="middle" fill="var(--text)" font-family="ui-monospace, monospace" font-size="13" font-weight="600">your.html</text>
+        <text x="380" y="192" text-anchor="middle" fill="var(--text-muted)" font-size="11">themable artifact</text>
+        <text x="380" y="208" text-anchor="middle" fill="var(--text-subtle)" font-size="10" font-family="ui-monospace, monospace">class="bg-primary text-on-primary"</text>
+      </g>
+
+      <!-- top: theme.css -->
+      <g>
+        <rect x="80" y="30" width="200" height="80" rx="14"
+              fill="var(--primary)" opacity="0.92"/>
+        <text x="180" y="60" text-anchor="middle" fill="var(--on-primary)" font-weight="600" font-size="14">theme.css + theme.js</text>
+        <text x="180" y="80" text-anchor="middle" fill="var(--on-primary)" font-size="11" opacity="0.85">21 CSS variables · utility classes</text>
+        <text x="180" y="96" text-anchor="middle" fill="var(--on-primary)" font-size="10" opacity="0.7" font-family="ui-monospace, monospace">/v1/theme.css (GitHub Pages)</text>
+      </g>
+      <line x1="180" y1="110" x2="350" y2="148" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="240" y="135" fill="var(--text-muted)" font-size="11">&lt;link rel="stylesheet"&gt;</text>
+
+      <!-- left: skill -->
+      <g>
+        <rect x="40" y="240" width="200" height="80" rx="14"
+              fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+        <text x="140" y="270" text-anchor="middle" fill="var(--text)" font-weight="600" font-size="14">Claude Skill</text>
+        <text x="140" y="290" text-anchor="middle" fill="var(--text-muted)" font-size="11">generates / converts</text>
+        <text x="140" y="306" text-anchor="middle" fill="var(--text-subtle)" font-size="10" font-family="ui-monospace, monospace">/chameleon</text>
+      </g>
+      <line x1="240" y1="260" x2="290" y2="200" stroke="var(--text-muted)" stroke-width="1.5"/>
+      <polygon points="288,196 296,200 286,206" fill="var(--text-muted)"/>
+      <text x="218" y="232" fill="var(--text-muted)" font-size="11">writes</text>
+
+      <!-- right: extension -->
+      <g>
+        <rect x="480" y="240" width="200" height="80" rx="14"
+              fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+        <text x="580" y="270" text-anchor="middle" fill="var(--text)" font-weight="600" font-size="14">Chrome extension</text>
+        <text x="580" y="290" text-anchor="middle" fill="var(--text-muted)" font-size="11">live theme override</text>
+        <text x="580" y="306" text-anchor="middle" fill="var(--text-subtle)" font-size="10" font-family="ui-monospace, monospace">localStorage + content.js</text>
+      </g>
+      <line x1="480" y1="260" x2="430" y2="208" stroke="var(--text-muted)" stroke-width="1.5"/>
+      <polygon points="432,212 426,206 436,206" fill="var(--text-muted)"/>
+      <text x="492" y="232" fill="var(--text-muted)" font-size="11">repaints</text>
+    </svg>
+  </div>
+
+  <h3>How the three pieces split responsibility</h3>
+  <table class="class-table">
+    <thead>
+      <tr><th>Component</th><th>Owns</th><th>Output</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="code-cell">theme/v1/*</td>
+        <td>The contract: CSS variables &amp; utility class names</td>
+        <td>Two static files served from GitHub Pages</td>
+      </tr>
+      <tr>
+        <td class="code-cell">/skill</td>
+        <td>Claude-side authoring: emit / refactor HTML to use the contract</td>
+        <td>Generated or converted <code class="inline">.html</code> files</td>
+      </tr>
+      <tr>
+        <td class="code-cell">/extension</td>
+        <td>User-side viewing: settings UI &amp; runtime override</td>
+        <td>localStorage entry consumed by <code class="inline">theme.js</code></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     02 — VARIABLE CONTRACT
+     ============================================================= -->
+<section id="variables" class="numbered page">
+  <span class="section-num">02 — CONTRACT</span>
+  <h2>21 CSS variables, semantic names</h2>
+  <p class="lede">
+    Themes never address pixels — only roles. <code class="inline">--primary</code> is "the color you click",
+    not "blue". This is the entire contract a theme must implement; everything else is built from these.
+  </p>
+
+  <h3>Surface</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background: var(--canvas); border-bottom: 1px solid var(--border-subtle);"></div><div class="meta-row"><span class="var-name">--canvas</span><span class="var-role">page background</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--surface);"></div><div class="meta-row"><span class="var-name">--surface</span><span class="var-role">cards, panels</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--surface-2);"></div><div class="meta-row"><span class="var-name">--surface-2</span><span class="var-role">nested / elevated</span></div></div>
+  </div>
+
+  <h3>Text</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background: var(--text);"></div><div class="meta-row"><span class="var-name">--text</span><span class="var-role">primary body text</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--text-muted);"></div><div class="meta-row"><span class="var-name">--text-muted</span><span class="var-role">secondary text</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--text-subtle);"></div><div class="meta-row"><span class="var-name">--text-subtle</span><span class="var-role">hints, placeholders</span></div></div>
+  </div>
+
+  <h3>Brand</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background: var(--primary);"></div><div class="meta-row"><span class="var-name">--primary</span><span class="var-role">main CTA / brand</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--on-primary);"></div><div class="meta-row"><span class="var-name">--on-primary</span><span class="var-role">text on primary bg</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--secondary);"></div><div class="meta-row"><span class="var-name">--secondary</span><span class="var-role">secondary brand</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--on-secondary);"></div><div class="meta-row"><span class="var-name">--on-secondary</span><span class="var-role">text on secondary bg</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--accent);"></div><div class="meta-row"><span class="var-name">--accent</span><span class="var-role">playful accent</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--on-accent);"></div><div class="meta-row"><span class="var-name">--on-accent</span><span class="var-role">text on accent bg</span></div></div>
+  </div>
+
+  <h3>Borders</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background: var(--border);"></div><div class="meta-row"><span class="var-name">--border</span><span class="var-role">default border</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--border-subtle);"></div><div class="meta-row"><span class="var-name">--border-subtle</span><span class="var-role">softer divider</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--border-strong);"></div><div class="meta-row"><span class="var-name">--border-strong</span><span class="var-role">focus / emphasis</span></div></div>
+  </div>
+
+  <h3>Semantic states</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background: var(--success);"></div><div class="meta-row"><span class="var-name">--success</span><span class="var-role">positive / OK</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--warning);"></div><div class="meta-row"><span class="var-name">--warning</span><span class="var-role">caution</span></div></div>
+    <div class="swatch"><div class="chip" style="background: var(--danger);"></div><div class="meta-row"><span class="var-name">--danger</span><span class="var-role">destructive / error</span></div></div>
+  </div>
+
+  <p style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.92rem;">
+    <strong>Why these and not more?</strong> Every variable a theme has to define is a tax on contributors.
+    21 covers 95% of artifacts. Anything else (chart palettes, syntax-highlight colors) goes in a v2 namespace and stays optional.
+  </p>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     03 — UTILITY CLASSES
+     ============================================================= -->
+<section id="classes" class="numbered page">
+  <span class="section-num">03 — CLASSES</span>
+  <h2>Utility classes, Tailwind-shaped</h2>
+  <p class="lede">
+    The class names are intentionally close to Tailwind's mental model — but every value resolves to a CSS variable,
+    not a hardcoded hue. Compose them just like you would in Tailwind.
+  </p>
+
+  <table class="class-table">
+    <thead>
+      <tr><th>Class</th><th>Resolves to</th><th>Demo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="code-cell">bg-canvas</td>
+        <td><code class="inline">background: var(--canvas)</code></td>
+        <td class="demo-cell"><span class="demo-pill bg-canvas border" style="color: var(--text);">Canvas</span></td>
+      </tr>
+      <tr>
+        <td class="code-cell">bg-surface</td>
+        <td><code class="inline">background: var(--surface)</code></td>
+        <td class="demo-cell"><span class="demo-pill bg-surface border" style="color: var(--text);">Surface</span></td>
+      </tr>
+      <tr>
+        <td class="code-cell">bg-surface-2</td>
+        <td><code class="inline">background: var(--surface-2)</code></td>
+        <td class="demo-cell"><span class="demo-pill bg-surface-2 border" style="color: var(--text);">Elevated</span></td>
+      </tr>
+      <tr>
+        <td class="code-cell">bg-primary</td>
+        <td>bg + auto on-primary text</td>
+        <td class="demo-cell"><span class="demo-pill bg-primary">Primary</span></td>
+      </tr>
+      <tr>
+        <td class="code-cell">bg-secondary</td>
+        <td>bg + auto on-secondary text</td>
+        <td class="demo-cell"><span class="demo-pill bg-secondary">Secondary</span></td>
+      </tr>
+      <tr>
+        <td class="code-cell">bg-accent</td>
+        <td>bg + auto on-accent text</td>
+        <td class="demo-cell"><span class="demo-pill bg-accent">Accent</span></td>
+      </tr>
+      <tr>
+        <td class="code-cell">bg-success / warning / danger</td>
+        <td>state bg + matching text</td>
+        <td class="demo-cell">
+          <span class="demo-pill bg-success" style="min-width: 32px; padding: 4px 8px; font-size: 0.72rem;">OK</span>
+          <span class="demo-pill bg-warning" style="min-width: 32px; padding: 4px 8px; font-size: 0.72rem;">!</span>
+          <span class="demo-pill bg-danger" style="min-width: 32px; padding: 4px 8px; font-size: 0.72rem;">×</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="code-cell">text-base / muted / subtle</td>
+        <td>three text shades</td>
+        <td class="demo-cell">
+          <span class="text-base">Aa</span>
+          <span class="text-muted" style="margin-left: 6px;">Aa</span>
+          <span class="text-subtle" style="margin-left: 6px;">Aa</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="code-cell">text-primary / secondary / accent</td>
+        <td>brand-colored text</td>
+        <td class="demo-cell">
+          <span class="text-primary">Aa</span>
+          <span class="text-secondary" style="margin-left: 6px;">Aa</span>
+          <span class="text-accent" style="margin-left: 6px;">Aa</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="code-cell">border / border-subtle / border-strong</td>
+        <td>three border weights</td>
+        <td class="demo-cell">
+          <span class="demo-pill border" style="min-width: 24px; padding: 4px 8px;">·</span>
+          <span class="demo-pill border-subtle" style="min-width: 24px; padding: 4px 8px;">·</span>
+          <span class="demo-pill border-strong" style="min-width: 24px; padding: 4px 8px;">·</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="code-cell">rounded / rounded-lg / rounded-full</td>
+        <td>radius helpers</td>
+        <td class="demo-cell">
+          <span class="demo-pill bg-surface-2 rounded" style="min-width: 24px; padding: 4px 8px;">▢</span>
+          <span class="demo-pill bg-surface-2 rounded-lg" style="min-width: 24px; padding: 4px 8px;">▢</span>
+          <span class="demo-pill bg-surface-2 rounded-full" style="min-width: 24px; padding: 4px 8px;">●</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Layered with Tailwind?</h3>
+  <p style="color: var(--text-muted);">
+    Yes. Chameleon classes are intentionally narrow in scope (color &amp; border only). Spacing, layout, typography sizes —
+    keep using Tailwind, raw CSS, or whatever you prefer. Chameleon stays out of those decisions.
+  </p>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     04 — LIVE PLAYGROUND
+     ============================================================= -->
+<section id="playground" class="numbered page page--wide">
+  <span class="section-num">04 — PLAYGROUND</span>
+  <h2>Pick a theme. Watch the page change.</h2>
+  <p class="lede">
+    The picker on the left writes inline CSS variables on <code class="inline">:root</code> — exactly what the Chrome extension will do.
+    The preview, this page, and every Chameleon-themed artifact share the same variables.
+  </p>
+
+  <div class="playground">
+    <div class="playground-controls">
+      <h4>Presets</h4>
+      <div class="preset-row">
+        <button class="preset-btn active" data-preset="light">Light</button>
+        <button class="preset-btn" data-preset="dark">Dark</button>
+        <button class="preset-btn" data-preset="sunset">Sunset</button>
+        <button class="preset-btn" data-preset="forest">Forest</button>
+        <button class="preset-btn" data-preset="midnight">Midnight</button>
+      </div>
+
+      <h4>Custom override</h4>
+      <div class="picker-row">
+        <label for="pick-canvas">--canvas</label>
+        <input type="color" id="pick-canvas" data-var="canvas" />
+      </div>
+      <div class="picker-row">
+        <label for="pick-surface">--surface</label>
+        <input type="color" id="pick-surface" data-var="surface" />
+      </div>
+      <div class="picker-row">
+        <label for="pick-text">--text</label>
+        <input type="color" id="pick-text" data-var="text" />
+      </div>
+      <div class="picker-row">
+        <label for="pick-primary">--primary</label>
+        <input type="color" id="pick-primary" data-var="primary" />
+      </div>
+      <div class="picker-row">
+        <label for="pick-secondary">--secondary</label>
+        <input type="color" id="pick-secondary" data-var="secondary" />
+      </div>
+      <div class="picker-row">
+        <label for="pick-accent">--accent</label>
+        <input type="color" id="pick-accent" data-var="accent" />
+      </div>
+
+      <div class="copy-row">
+        <button class="copy-btn" id="copy-css">Copy CSS</button>
+        <button class="copy-btn" id="copy-json">Copy JSON</button>
+      </div>
+      <button class="copy-btn" id="copy-prompt" style="margin-top: 6px; width: 100%;">Copy as Claude prompt</button>
+    </div>
+
+    <div class="preview-stage">
+      <div class="ext-button" title="(mock) Chrome extension button">≡</div>
+
+      <div class="preview-card">
+        <h3 class="card-title">Onboarding email — March numbers</h3>
+        <p class="card-meta">Last updated 2 hours ago · <span class="text-success">▲ 12.4%</span></p>
+        <p style="margin: 0 0 14px; color: var(--text-muted); font-size: 0.92rem;">
+          Welcome flow A/B test concluded. Variant B (with progress bar) outperformed control on day-3 retention.
+          Recommend rolling out to 100% in the next release.
+        </p>
+        <div class="btn-row">
+          <button class="btn btn-primary">Approve rollout</button>
+          <button class="btn btn-secondary">Schedule for later</button>
+          <button class="btn btn-ghost">View raw data</button>
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <h3 class="card-title">System status</h3>
+        <div class="alert alert-success">All services nominal. Last incident 14 days ago.</div>
+        <div class="alert alert-warning">Cache hit rate dropped to 87% (target: 95%).</div>
+        <div class="alert alert-danger">Payment processor returned 5xx for 0.2% of requests in the last hour.</div>
+      </div>
+
+      <div class="preview-card">
+        <h3 class="card-title">Code review snippet</h3>
+        <pre class="code-block mono"><span class="text-subtle">// theme.js — load from localStorage, fall back to system pref</span>
+<span class="text-primary">const</span> stored = <span class="text-secondary">localStorage</span>.getItem(<span class="text-accent">'chameleon-theme'</span>);
+<span class="text-primary">const</span> theme  = stored ? JSON.<span class="text-secondary">parse</span>(stored) : { mode: <span class="text-accent">'light'</span> };
+<span class="text-secondary">document</span>.documentElement.dataset.theme = theme.mode;</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     05 — EXISTING HTML CONVERSION
+     ============================================================= -->
+<section id="conversion" class="numbered page">
+  <span class="section-num">05 — CONVERSION</span>
+  <h2>Existing HTMLs, retroactively themable</h2>
+  <p class="lede">
+    Most of the value is in retrofit — the dozens of HTML artifacts you already have.
+    The Skill scans inline styles, <code class="inline">&lt;style&gt;</code> blocks, and SVG <code class="inline">fill</code> attrs,
+    proposes a role mapping, and shows a dry-run before touching anything.
+  </p>
+
+  <div class="ba-grid">
+    <div class="ba-panel">
+      <div class="ba-label">Before — hardcoded</div>
+      <pre class="code-block mono" style="margin: 0;"><span class="text-muted">&lt;div style=<span class="text-accent">"background:#1a1a2e;</span>
+            <span class="text-accent">color:#e0e0e0;</span>
+            <span class="text-accent">border:1px solid #16213e"</span>&gt;
+  &lt;h2 style=<span class="text-accent">"color:#0f3460"</span>&gt;Report&lt;/h2&gt;
+  &lt;button style=<span class="text-accent">"background:#e94560;</span>
+                  <span class="text-accent">color:white"</span>&gt;
+    Run
+  &lt;/button&gt;
+&lt;/div&gt;</span></pre>
+    </div>
+    <div class="ba-panel">
+      <div class="ba-label">After — themed</div>
+      <pre class="code-block mono" style="margin: 0;"><span class="text-muted">&lt;div class=<span class="text-accent">"bg-surface text-base</span>
+            <span class="text-accent">border rounded"</span>&gt;
+  &lt;h2 class=<span class="text-accent">"text-primary"</span>&gt;Report&lt;/h2&gt;
+  &lt;button class=<span class="text-accent">"btn btn-primary"</span>&gt;
+    Run
+  &lt;/button&gt;
+&lt;/div&gt;
+
+<span class="text-subtle">// + &lt;link href="...theme.css"&gt;
+// + &lt;script src="...theme.js"&gt;</span></span></pre>
+    </div>
+  </div>
+
+  <h3>Proposed mapping (Skill output)</h3>
+  <table class="class-table">
+    <thead><tr><th>Original color</th><th>Proposed role</th><th>Confidence</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td class="code-cell">#1a1a2e</td><td class="code-cell">--surface</td><td><span class="pill" style="background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); border-color: transparent;">high · 92%</span></td><td>auto</td></tr>
+      <tr><td class="code-cell">#e94560</td><td class="code-cell">--primary</td><td><span class="pill" style="background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); border-color: transparent;">high · 88%</span></td><td>auto</td></tr>
+      <tr><td class="code-cell">#0f3460</td><td class="code-cell">--secondary</td><td><span class="pill" style="background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); border-color: transparent;">medium · 64%</span></td><td>confirm</td></tr>
+      <tr><td class="code-cell">#16213e</td><td class="code-cell">--border</td><td><span class="pill" style="background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); border-color: transparent;">medium · 58%</span></td><td>confirm</td></tr>
+      <tr><td class="code-cell">SVG fill (illustration)</td><td class="code-cell">— preserve —</td><td><span class="pill">opt-out</span></td><td>skip</td></tr>
+    </tbody>
+  </table>
+  <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">
+    Anything below 70% confidence pauses for your sign-off. Illustration / brand-locked colors get an explicit opt-out marker so they survive future passes.
+  </p>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     06 — REPO STRUCTURE
+     ============================================================= -->
+<section id="repo" class="numbered page">
+  <span class="section-num">06 — REPO</span>
+  <h2>What lives where</h2>
+  <p class="lede">
+    Everything ships from one repo. The contract files are versioned under <code class="inline">/v1</code> so a breaking change becomes <code class="inline">/v2</code> rather than a silent regression.
+  </p>
+
+  <pre class="tree mono"><span class="dir">html-chameleon/</span>
+├── <span class="dir">theme/</span>
+│   └── <span class="dir">v1/</span>
+│       ├── <span class="file">theme.css</span>          <span class="annot">21 CSS variables + utility classes</span>
+│       └── <span class="file">theme.js</span>           <span class="annot">localStorage loader, system-pref fallback</span>
+├── <span class="dir">skill/</span>
+│   ├── <span class="file">SKILL.md</span>           <span class="annot">Claude Code skill — generate / convert modes</span>
+│   └── <span class="dir">prompts/</span>
+│       ├── <span class="file">generate.md</span>
+│       └── <span class="file">convert.md</span>
+├── <span class="dir">extension/</span>
+│   ├── <span class="file">manifest.json</span>      <span class="annot">Chrome MV3</span>
+│   ├── <span class="file">popup.html</span>         <span class="annot">settings panel UI</span>
+│   ├── <span class="file">content.js</span>         <span class="annot">injects floating button + sets localStorage</span>
+│   └── <span class="file">background.js</span>      <span class="annot">cross-tab sync</span>
+├── <span class="dir">examples/</span>
+│   ├── <span class="file">basic.html</span>         <span class="annot">"hello world" themed page</span>
+│   ├── <span class="file">dashboard.html</span>     <span class="annot">complex layout demo</span>
+│   └── <span class="file">conversion.html</span>    <span class="annot">before/after sample</span>
+├── <span class="dir">docs/</span>
+│   └── <span class="file">design.html</span>        <span class="annot">↩ this file</span>
+├── <span class="file">README.md</span>
+└── <span class="file">LICENSE</span>               <span class="annot">MIT</span></pre>
+
+  <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 1rem;">
+    GitHub Pages serves <code class="inline">/theme/v1/theme.css</code> at a stable URL. Themed HTML files reference it with one
+    <code class="inline">&lt;link&gt;</code> tag. The contract is small enough that anyone reading the README can author a new preset in 5 minutes.
+  </p>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     07 — SKILL SPECIFICATION
+     ============================================================= -->
+<section id="skill" class="numbered page">
+  <span class="section-num">07 — SKILL</span>
+  <h2>The Claude-side authoring kit</h2>
+  <p class="lede">
+    A single Skill with two modes. It does <em>not</em> live in CLAUDE.md — it auto-triggers only when the request is HTML-related,
+    keeping the regular agent context lean.
+  </p>
+
+  <h3>Modes</h3>
+  <table class="class-table">
+    <thead><tr><th>Mode</th><th>Triggered by</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="code-cell">generate</td>
+        <td>"make an HTML…", "create an artifact…"</td>
+        <td>Emit new HTML with the standard <code class="inline">&lt;link&gt;</code>/<code class="inline">&lt;script&gt;</code> bootstrap and Chameleon classes throughout.</td>
+      </tr>
+      <tr>
+        <td class="code-cell">convert</td>
+        <td>"make this themable", "Chameleon-ify"</td>
+        <td>Read existing HTML → propose color→role mapping → dry-run preview → write on approval.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Bootstrap snippet (always emitted in generate mode)</h3>
+  <pre class="code-block mono">&lt;link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css"&gt;
+&lt;script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"&gt;&lt;/script&gt;
+&lt;html data-theme="light"&gt;  &lt;!-- default; overridden by extension/localStorage --&gt;</pre>
+
+  <h3>Convert mode contract</h3>
+  <ul style="color: var(--text-muted); line-height: 1.8;">
+    <li><strong>Always dry-run by default</strong> — show the proposed mapping table before any file write.</li>
+    <li><strong>Confidence threshold</strong> — anything below 70% requires explicit user confirmation.</li>
+    <li><strong>Preserve opt-outs</strong> — colors marked <code class="inline">data-chameleon="ignore"</code> on an element stay untouched on every future pass.</li>
+    <li><strong>Backup the original</strong> — write <code class="inline">file.original.html</code> alongside any in-place conversion.</li>
+  </ul>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     08 — CHROME EXTENSION
+     ============================================================= -->
+<section id="extension" class="numbered page">
+  <span class="section-num">08 — EXTENSION</span>
+  <h2>The viewer-side dial</h2>
+  <p class="lede">
+    The extension is purely additive: HTMLs work without it (they get the default theme baked into <code class="inline">theme.css</code>),
+    they just don't get the live picker. This keeps shareability intact.
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+    <div>
+      <h3>Mockup — popup panel</h3>
+      <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 32px; display: flex; justify-content: center;">
+        <div class="ext-panel">
+          <header class="ext-head">
+            <span class="lizard">🦎</span>
+            <span class="ext-title">Chameleon</span>
+            <span class="ext-version">v1.0</span>
+          </header>
+          <section class="ext-section">
+            <div class="ext-label">Theme</div>
+            <div class="preset-row">
+              <button class="preset-btn active">Light</button>
+              <button class="preset-btn">Dark</button>
+              <button class="preset-btn">Sunset</button>
+              <button class="preset-btn">Forest</button>
+            </div>
+          </section>
+          <section class="ext-section">
+            <div class="ext-label">Custom colors</div>
+            <div class="picker-row"><label>--primary</label><input type="color" value="#2563eb" disabled></div>
+            <div class="picker-row"><label>--accent</label><input type="color" value="#ec4899" disabled></div>
+          </section>
+          <section class="ext-section">
+            <div class="toggle-row">
+              <span>Apply to all sites</span>
+              <span class="toggle on"></span>
+            </div>
+            <div class="toggle-row">
+              <span>Sync via Chrome account</span>
+              <span class="toggle"></span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Behavior</h3>
+      <ul style="color: var(--text-muted); line-height: 1.8;">
+        <li>Detects <code class="inline">&lt;link&gt;</code> referencing <code class="inline">html-chameleon</code> and shows the floating dial.</li>
+        <li>Writes <code class="inline">localStorage['chameleon-theme']</code>; <code class="inline">theme.js</code> already listens for changes.</li>
+        <li>Optionally syncs across devices via <code class="inline">chrome.storage.sync</code>.</li>
+        <li>Per-site override: hold Shift while choosing to apply only to current origin.</li>
+      </ul>
+
+      <h3 style="margin-top: 1.5rem;">What it deliberately doesn't do</h3>
+      <ul style="color: var(--text-muted); line-height: 1.8;">
+        <li>Inject styles into pages that don't reference Chameleon — that would be CSS surgery on random sites and is out of scope.</li>
+        <li>Edit the underlying HTML file. Theme override is runtime-only.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="page" />
+
+<!-- =============================================================
+     09 — OPEN QUESTIONS
+     ============================================================= -->
+<section id="open" class="numbered page">
+  <span class="section-num">09 — OPEN</span>
+  <h2>Decisions still outstanding</h2>
+  <p class="lede">
+    Before the v1 contract gets locked at <code class="inline">/v1/theme.css</code>, these are the calls worth making explicitly.
+  </p>
+
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-tag">Naming</div>
+      <h4 class="q-title">Class collisions with Tailwind</h4>
+      <p class="q-body">Should we prefix utilities (<code>cm-bg-primary</code>) for safety, or stay clean and document the collision risk?</p>
+    </div>
+    <div class="q-card">
+      <div class="q-tag">Variables</div>
+      <h4 class="q-title">Add elevation / shadow tokens?</h4>
+      <p class="q-body">Right now Chameleon owns color only. Shadows are surprisingly theme-dependent in dark mode. Worth 3 more vars?</p>
+    </div>
+    <div class="q-card">
+      <div class="q-tag">Extension</div>
+      <h4 class="q-title">Auto-inject for unthemed pages?</h4>
+      <p class="q-body">If a page <em>doesn't</em> reference Chameleon, should the extension offer to inject the theme.css link client-side as a "force theme" mode?</p>
+    </div>
+    <div class="q-card">
+      <div class="q-tag">Skill</div>
+      <h4 class="q-title">Convert as Bash script or pure prompt?</h4>
+      <p class="q-body">Pure-prompt convert is portable; a small script could parse stylesheets more reliably. Maybe both, with prompt as fallback.</p>
+    </div>
+    <div class="q-card">
+      <div class="q-tag">Hosting</div>
+      <h4 class="q-title">CDN cache vs. GitHub Pages?</h4>
+      <p class="q-body">GitHub Pages has no edge cache headers control. For a globally-loaded stylesheet, jsDelivr or a tiny Cloudflare worker may be worth it later.</p>
+    </div>
+    <div class="q-card">
+      <div class="q-tag">Distribution</div>
+      <h4 class="q-title">Publish as npm too?</h4>
+      <p class="q-body">For non-Claude users embedding theme.css in build pipelines, an <code>html-chameleon</code> npm package costs nothing extra and widens reach.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="page" style="padding: 4rem 1.5rem 6rem; color: var(--text-subtle); font-size: 0.85rem; text-align: center;">
+  <p>Phase 0 design doc · Drafted 2026-05-09 · ready for review and redirection.</p>
+</footer>
+
+<!-- =============================================================
+     SCRIPT — theme.js prototype + playground wiring
+     ============================================================= -->
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Preset definitions (mirror the CSS above) ----------
+  const PRESETS = {
+    light: {
+      canvas: '#ffffff', surface: '#fafafa', 'surface-2': '#f4f4f5',
+      text: '#0a0a0a', 'text-muted': '#525252', 'text-subtle': '#a1a1aa',
+      primary: '#2563eb', 'on-primary': '#ffffff',
+      secondary: '#7c3aed', 'on-secondary': '#ffffff',
+      accent: '#ec4899', 'on-accent': '#ffffff',
+      border: '#e4e4e7', 'border-subtle': '#f0f0f0', 'border-strong': '#a1a1aa',
+      success: '#16a34a', 'on-success': '#ffffff',
+      warning: '#d97706', 'on-warning': '#ffffff',
+      danger: '#dc2626', 'on-danger': '#ffffff',
+    },
+    dark: {
+      canvas: '#0a0a0a', surface: '#141414', 'surface-2': '#1f1f23',
+      text: '#fafafa', 'text-muted': '#a1a1aa', 'text-subtle': '#71717a',
+      primary: '#60a5fa', 'on-primary': '#0a0a0a',
+      secondary: '#c4b5fd', 'on-secondary': '#1e1b4b',
+      accent: '#f472b6', 'on-accent': '#500724',
+      border: '#27272a', 'border-subtle': '#1f1f23', 'border-strong': '#52525b',
+      success: '#22c55e', 'on-success': '#052e16',
+      warning: '#fbbf24', 'on-warning': '#451a03',
+      danger: '#f87171', 'on-danger': '#450a0a',
+    },
+    sunset: {
+      canvas: '#fff7ed', surface: '#ffedd5', 'surface-2': '#fed7aa',
+      text: '#431407', 'text-muted': '#9a3412', 'text-subtle': '#c2410c',
+      primary: '#ea580c', 'on-primary': '#fff7ed',
+      secondary: '#db2777', 'on-secondary': '#fff7ed',
+      accent: '#facc15', 'on-accent': '#422006',
+      border: '#fdba74', 'border-subtle': '#fed7aa', 'border-strong': '#c2410c',
+      success: '#65a30d', 'on-success': '#ffffff',
+      warning: '#b45309', 'on-warning': '#ffffff',
+      danger: '#b91c1c', 'on-danger': '#ffffff',
+    },
+    forest: {
+      canvas: '#f0fdf4', surface: '#dcfce7', 'surface-2': '#bbf7d0',
+      text: '#052e16', 'text-muted': '#166534', 'text-subtle': '#16a34a',
+      primary: '#15803d', 'on-primary': '#f0fdf4',
+      secondary: '#0f766e', 'on-secondary': '#f0fdfa',
+      accent: '#ca8a04', 'on-accent': '#fefce8',
+      border: '#86efac', 'border-subtle': '#bbf7d0', 'border-strong': '#15803d',
+      success: '#15803d', 'on-success': '#ffffff',
+      warning: '#b45309', 'on-warning': '#ffffff',
+      danger: '#b91c1c', 'on-danger': '#ffffff',
+    },
+    midnight: {
+      canvas: '#030712', surface: '#0c0a18', 'surface-2': '#1e1b3a',
+      text: '#f3e8ff', 'text-muted': '#c4b5fd', 'text-subtle': '#8b5cf6',
+      primary: '#a78bfa', 'on-primary': '#1e1b3a',
+      secondary: '#67e8f9', 'on-secondary': '#083344',
+      accent: '#f0abfc', 'on-accent': '#4a044e',
+      border: '#1e1b3a', 'border-subtle': '#0c0a18', 'border-strong': '#6d28d9',
+      success: '#4ade80', 'on-success': '#052e16',
+      warning: '#fcd34d', 'on-warning': '#451a03',
+      danger: '#fb7185', 'on-danger': '#450a0a',
+    },
+  };
+
+  let currentPreset = 'light';
+  let customOverrides = {};
+
+  // ---------- Apply theme by preset name ----------
+  function applyPreset(name) {
+    if (!PRESETS[name]) return;
+    currentPreset = name;
+    customOverrides = {};
+    document.documentElement.setAttribute('data-theme', name);
+    // Clear inline overrides (they'd otherwise win over data-theme)
+    Object.keys(PRESETS.light).forEach(k => {
+      document.documentElement.style.removeProperty('--' + k);
+    });
+    syncControls();
+    persist();
+  }
+
+  // ---------- Apply a single variable override ----------
+  function applyOverride(varName, value) {
+    customOverrides[varName] = value;
+    document.documentElement.style.setProperty('--' + varName, value);
+    persist();
+  }
+
+  // ---------- Sync UI to current state ----------
+  function syncControls() {
+    const trigger = document.getElementById('theme-trigger');
+    if (trigger) {
+      const name = currentPreset[0].toUpperCase() + currentPreset.slice(1);
+      trigger.setAttribute('aria-label', 'Theme: ' + name);
+    }
+    document.querySelectorAll('#theme-menu [role="option"]').forEach(item => {
+      item.setAttribute('aria-selected', item.dataset.value === currentPreset ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-preset]').forEach(b => {
+      b.classList.toggle('active', b.dataset.preset === currentPreset);
+    });
+    const preset = PRESETS[currentPreset];
+    document.querySelectorAll('input[type="color"][data-var]').forEach(input => {
+      const varName = input.dataset.var;
+      const val = customOverrides[varName] || preset[varName];
+      if (val) input.value = val;
+    });
+  }
+
+  // ---------- Persistence (mirrors theme.js behavior) ----------
+  function persist() {
+    try {
+      localStorage.setItem('chameleon-theme', JSON.stringify({
+        mode: currentPreset, custom: customOverrides
+      }));
+    } catch (e) {}
+  }
+  function restore() {
+    try {
+      const raw = localStorage.getItem('chameleon-theme');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed.mode && PRESETS[parsed.mode]) {
+        applyPreset(parsed.mode);
+        if (parsed.custom) {
+          Object.entries(parsed.custom).forEach(([k, v]) => applyOverride(k, v));
+        }
+      }
+    } catch (e) {}
+  }
+
+  // ---------- Wire up controls ----------
+  function init() {
+    // Theme rail (top-right) — custom dropdown
+    const trigger = document.getElementById('theme-trigger');
+    const menu = document.getElementById('theme-menu');
+    if (trigger && menu) {
+      const closeMenu = () => {
+        trigger.setAttribute('aria-expanded', 'false');
+        menu.hidden = true;
+      };
+      const openMenu = () => {
+        trigger.setAttribute('aria-expanded', 'true');
+        menu.hidden = false;
+      };
+      trigger.addEventListener('click', e => {
+        e.stopPropagation();
+        if (trigger.getAttribute('aria-expanded') === 'true') closeMenu();
+        else openMenu();
+      });
+      menu.querySelectorAll('[role="option"]').forEach(item => {
+        item.addEventListener('click', e => {
+          e.stopPropagation();
+          applyPreset(item.dataset.value);
+          closeMenu();
+        });
+      });
+      document.addEventListener('click', e => {
+        if (!menu.contains(e.target) && !trigger.contains(e.target)) closeMenu();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeMenu();
+      });
+    }
+    // Playground presets
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+    });
+    // Color pickers
+    document.querySelectorAll('input[type="color"][data-var]').forEach(input => {
+      input.addEventListener('input', e => {
+        applyOverride(input.dataset.var, e.target.value);
+        // Mark theme as "custom" once any override is applied
+      });
+    });
+
+    // Copy buttons
+    document.getElementById('copy-css')?.addEventListener('click', e => {
+      copy(buildCSS(), e.target);
+    });
+    document.getElementById('copy-json')?.addEventListener('click', e => {
+      copy(buildJSON(), e.target);
+    });
+    document.getElementById('copy-prompt')?.addEventListener('click', e => {
+      copy(buildPrompt(), e.target);
+    });
+
+    // TOC active state on scroll
+    const sections = ['why','overview','variables','classes','playground','conversion','repo','skill','extension','open'];
+    const tocLinks = {};
+    sections.forEach(id => {
+      tocLinks[id] = document.querySelector('[data-toc="' + id + '"]');
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          Object.values(tocLinks).forEach(l => l?.classList.remove('active'));
+          tocLinks[entry.target.id]?.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    syncControls();
+    restore();
+  }
+
+  function buildCSS() {
+    const merged = { ...PRESETS[currentPreset], ...customOverrides };
+    const lines = Object.entries(merged).map(([k, v]) => `  --${k}: ${v};`).join('\n');
+    return `:root,\n[data-theme="${currentPreset}"] {\n${lines}\n}`;
+  }
+  function buildJSON() {
+    const merged = { ...PRESETS[currentPreset], ...customOverrides };
+    return JSON.stringify({ name: currentPreset, vars: merged }, null, 2);
+  }
+  function buildPrompt() {
+    return `Use the html-chameleon Skill to apply this theme to the current artifact:\n\n` +
+           '```json\n' + buildJSON() + '\n```\n\n' +
+           `Reference: https://churin1116.github.io/html-chameleon/theme/v1/theme.css`;
+  }
+  function copy(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('success');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('success');
+      }, 1200);
+    }).catch(() => {
+      btn.textContent = 'Copy failed';
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

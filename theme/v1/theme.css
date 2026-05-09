@@ -1,0 +1,280 @@
+/*!
+ * Chameleon v1 — themable HTML, without the boilerplate.
+ * https://github.com/churin1116/html-chameleon
+ * MIT License
+ *
+ * Drop in via:
+ *   <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/v1/theme.css">
+ */
+
+/* ============================================================
+   PRESETS — 21 CSS variables per theme.
+   Add a new theme by defining the same set under [data-theme="..."]
+   ============================================================ */
+
+:root,
+[data-theme="light"] {
+  --canvas: #ffffff;
+  --surface: #fafafa;
+  --surface-2: #f4f4f5;
+
+  --text: #0a0a0a;
+  --text-muted: #525252;
+  --text-subtle: #a1a1aa;
+
+  --primary: #2563eb;
+  --on-primary: #ffffff;
+  --secondary: #7c3aed;
+  --on-secondary: #ffffff;
+  --accent: #ec4899;
+  --on-accent: #ffffff;
+
+  --border: #e4e4e7;
+  --border-subtle: #f0f0f0;
+  --border-strong: #a1a1aa;
+
+  --success: #16a34a;
+  --on-success: #ffffff;
+  --warning: #d97706;
+  --on-warning: #ffffff;
+  --danger: #dc2626;
+  --on-danger: #ffffff;
+}
+
+[data-theme="dark"] {
+  --canvas: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1f1f23;
+
+  --text: #fafafa;
+  --text-muted: #a1a1aa;
+  --text-subtle: #71717a;
+
+  --primary: #60a5fa;
+  --on-primary: #0a0a0a;
+  --secondary: #c4b5fd;
+  --on-secondary: #1e1b4b;
+  --accent: #f472b6;
+  --on-accent: #500724;
+
+  --border: #27272a;
+  --border-subtle: #1f1f23;
+  --border-strong: #52525b;
+
+  --success: #22c55e;
+  --on-success: #052e16;
+  --warning: #fbbf24;
+  --on-warning: #451a03;
+  --danger: #f87171;
+  --on-danger: #450a0a;
+}
+
+[data-theme="sunset"] {
+  --canvas: #fff7ed;
+  --surface: #ffedd5;
+  --surface-2: #fed7aa;
+
+  --text: #431407;
+  --text-muted: #9a3412;
+  --text-subtle: #c2410c;
+
+  --primary: #ea580c;
+  --on-primary: #fff7ed;
+  --secondary: #db2777;
+  --on-secondary: #fff7ed;
+  --accent: #facc15;
+  --on-accent: #422006;
+
+  --border: #fdba74;
+  --border-subtle: #fed7aa;
+  --border-strong: #c2410c;
+
+  --success: #65a30d;
+  --on-success: #ffffff;
+  --warning: #b45309;
+  --on-warning: #ffffff;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+}
+
+[data-theme="forest"] {
+  --canvas: #f0fdf4;
+  --surface: #dcfce7;
+  --surface-2: #bbf7d0;
+
+  --text: #052e16;
+  --text-muted: #166534;
+  --text-subtle: #16a34a;
+
+  --primary: #15803d;
+  --on-primary: #f0fdf4;
+  --secondary: #0f766e;
+  --on-secondary: #f0fdfa;
+  --accent: #ca8a04;
+  --on-accent: #fefce8;
+
+  --border: #86efac;
+  --border-subtle: #bbf7d0;
+  --border-strong: #15803d;
+
+  --success: #15803d;
+  --on-success: #ffffff;
+  --warning: #b45309;
+  --on-warning: #ffffff;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+}
+
+[data-theme="midnight"] {
+  --canvas: #030712;
+  --surface: #0c0a18;
+  --surface-2: #1e1b3a;
+
+  --text: #f3e8ff;
+  --text-muted: #c4b5fd;
+  --text-subtle: #8b5cf6;
+
+  --primary: #a78bfa;
+  --on-primary: #1e1b3a;
+  --secondary: #67e8f9;
+  --on-secondary: #083344;
+  --accent: #f0abfc;
+  --on-accent: #4a044e;
+
+  --border: #1e1b3a;
+  --border-subtle: #0c0a18;
+  --border-strong: #6d28d9;
+
+  --success: #4ade80;
+  --on-success: #052e16;
+  --warning: #fcd34d;
+  --on-warning: #451a03;
+  --danger: #fb7185;
+  --on-danger: #450a0a;
+}
+
+/* ============================================================
+   BASE — minimal page-level wiring
+   ============================================================ */
+
+body {
+  background: var(--canvas);
+  color: var(--text);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+a { color: var(--primary); }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+/* ============================================================
+   UTILITY CLASSES — color/border only (Tailwind-shaped)
+   ============================================================ */
+
+/* Backgrounds (state/brand variants auto-set matching text color) */
+.bg-canvas    { background: var(--canvas); }
+.bg-surface   { background: var(--surface); }
+.bg-surface-2 { background: var(--surface-2); }
+.bg-primary   { background: var(--primary);   color: var(--on-primary); }
+.bg-secondary { background: var(--secondary); color: var(--on-secondary); }
+.bg-accent    { background: var(--accent);    color: var(--on-accent); }
+.bg-success   { background: var(--success);   color: var(--on-success); }
+.bg-warning   { background: var(--warning);   color: var(--on-warning); }
+.bg-danger    { background: var(--danger);    color: var(--on-danger); }
+
+/* Text */
+.text-base         { color: var(--text); }
+.text-muted        { color: var(--text-muted); }
+.text-subtle       { color: var(--text-subtle); }
+.text-primary      { color: var(--primary); }
+.text-secondary    { color: var(--secondary); }
+.text-accent       { color: var(--accent); }
+.text-success      { color: var(--success); }
+.text-warning      { color: var(--warning); }
+.text-danger       { color: var(--danger); }
+.text-on-primary   { color: var(--on-primary); }
+.text-on-secondary { color: var(--on-secondary); }
+
+/* Borders */
+.border         { border: 1px solid var(--border); }
+.border-subtle  { border: 1px solid var(--border-subtle); }
+.border-strong  { border: 1px solid var(--border-strong); }
+.border-primary { border: 1px solid var(--primary); }
+
+/* Radius */
+.rounded      { border-radius: 8px; }
+.rounded-lg   { border-radius: 14px; }
+.rounded-full { border-radius: 9999px; }
+
+/* ============================================================
+   COMPONENT CLASSES — common patterns
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--text);
+  transition: opacity 0.15s ease;
+}
+.btn:hover { opacity: 0.88; }
+.btn-primary   { background: var(--primary);   color: var(--on-primary); }
+.btn-secondary { background: var(--secondary); color: var(--on-secondary); }
+.btn-ghost     { border: 1px solid var(--border); background: transparent; color: var(--text); }
+
+.alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.alert-success {
+  background: color-mix(in srgb, var(--success) 12%, var(--canvas));
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 30%, transparent);
+}
+.alert-warning {
+  background: color-mix(in srgb, var(--warning) 12%, var(--canvas));
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 30%, transparent);
+}
+.alert-danger {
+  background: color-mix(in srgb, var(--danger) 12%, var(--canvas));
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}

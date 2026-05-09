@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chameleon — Basic example</title>
+
+<!-- Chameleon: load theme.css then theme.js (no defer; runs synchronously to avoid FOUC) -->
+<link rel="stylesheet" href="../theme/v1/theme.css">
+<script src="../theme/v1/theme.js"></script>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .lede {
+    font-size: 1.1rem;
+    margin: 0 0 2rem;
+  }
+  .card { margin-bottom: 1rem; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .theme-picker {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body class="bg-canvas">
+
+<select class="theme-picker" onchange="Chameleon.setTheme({mode: this.value})" aria-label="Select theme">
+  <option value="light">Light</option>
+  <option value="dark">Dark</option>
+  <option value="sunset">Sunset</option>
+  <option value="forest">Forest</option>
+  <option value="midnight">Midnight</option>
+</select>
+
+<div class="wrap">
+  <h1 class="text-base">Hello, themed world 🦎</h1>
+  <p class="lede text-muted">
+    This page is styled entirely with Chameleon utility classes.
+    Pick a theme in the top-right — the preference persists in <code>localStorage</code>.
+  </p>
+
+  <div class="card">
+    <h3 style="margin-top: 0;">A card</h3>
+    <p class="text-muted" style="margin-bottom: 1rem;">
+      Cards use <code>.card</code> which resolves to <code>--surface</code> background and a 1px <code>--border</code> outline.
+    </p>
+    <div class="row">
+      <button class="btn btn-primary">Primary</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-ghost">Ghost</button>
+    </div>
+  </div>
+
+  <div class="alert alert-success">Operation completed successfully.</div>
+  <div class="alert alert-warning">Heads up — something to note.</div>
+  <div class="alert alert-danger">Something went wrong.</div>
+
+  <p class="text-subtle" style="margin-top: 2rem; font-size: 0.85rem;">
+    <a href="https://github.com/churin1116/html-chameleon">github.com/churin1116/html-chameleon</a>
+    · No frameworks. Just CSS variables and ~150 lines of CSS.
+  </p>
+</div>
+
+<script>
+  // Reflect persisted choice in the picker
+  document.querySelector('.theme-picker').value = Chameleon.getTheme().mode;
+</script>
+
+</body>
+</html>

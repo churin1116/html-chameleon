@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chameleon</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<div class="popup">
+
+  <header class="popup__head">
+    <span class="popup__brand">Chameleon 🦎</span>
+    <span class="popup__version">v1.0</span>
+  </header>
+
+  <section class="popup__section">
+    <div class="popup__label">Theme</div>
+    <div class="presets" id="presets">
+      <button class="preset" data-mode="light">
+        <span class="preset__swatch" style="background: linear-gradient(135deg, #ffffff 50%, #2563eb 50%);"></span>
+        <span class="preset__name">Light</span>
+        <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="preset" data-mode="dark">
+        <span class="preset__swatch" style="background: linear-gradient(135deg, #0a0a0a 50%, #60a5fa 50%);"></span>
+        <span class="preset__name">Dark</span>
+        <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="preset" data-mode="sunset">
+        <span class="preset__swatch" style="background: linear-gradient(135deg, #fff7ed 50%, #ea580c 50%);"></span>
+        <span class="preset__name">Sunset</span>
+        <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="preset" data-mode="forest">
+        <span class="preset__swatch" style="background: linear-gradient(135deg, #f0fdf4 50%, #15803d 50%);"></span>
+        <span class="preset__name">Forest</span>
+        <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="preset" data-mode="midnight">
+        <span class="preset__swatch" style="background: linear-gradient(135deg, #030712 50%, #a78bfa 50%);"></span>
+        <span class="preset__name">Midnight</span>
+        <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <section class="popup__section popup__footer">
+    <a href="https://github.com/churin1116/html-chameleon" target="_blank" rel="noopener">github.com/churin1116/html-chameleon</a>
+  </section>
+
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

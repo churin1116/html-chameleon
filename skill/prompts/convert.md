@@ -1,0 +1,88 @@
+# Convert mode — prompt template
+
+When given an existing HTML file with hardcoded colors, retrofit it to use Chameleon
+WITHOUT writing the file in a single shot. Always dry-run first.
+
+## Workflow
+
+### Step 1 — Scan
+
+Extract every color literal in the file:
+
+- Inline `style="color: #..."` / `background: #...` / `border: 1px solid #...`
+- `<style>` blocks: every `color:`, `background:`, `border-color:`, `box-shadow:` value
+- SVG attributes: `fill="..."`, `stroke="..."`, `stop-color="..."`
+- Computed via `var()` already? Skip — already themed.
+
+Build a deduplicated list with usage counts.
+
+### Step 2 — Cluster + propose roles
+
+Group visually similar colors (within ~ΔE 5–10) and propose a Chameleon role for each cluster:
+
+| Original color(s) | Usage hint | Proposed role | Confidence |
+| --- | --- | --- | --- |
+| `#1a1a2e` (12 uses) | most common dark, used as page bg | `--canvas` | 92% |
+| `#e94560` (4 uses) | used on `<button>` and CTA `<a>` | `--primary` | 88% |
+| `#0f3460` (2 uses) | used on `<h2>` color | `--secondary` | 64% |
+| `#16213e` (3 uses) | used as `border-color` | `--border` | 58% |
+
+**Confidence rubric:**
+
+- **≥90%**: Color is on a structural element with obvious semantic role (page bg, primary button, etc.)
+- **70–89%**: Role is plausible but element type is ambiguous
+- **<70%**: Pause and ASK the user before mapping
+
+### Step 3 — Dry-run preview
+
+Show the proposed mapping table. Do NOT touch the file yet. Wait for the user to:
+
+- Approve all
+- Approve some, reject others
+- Suggest different role assignments
+
+### Step 4 — Apply
+
+Once approved:
+
+1. Save the original as `<filename>.original.html` (or `.bak.html`).
+2. Replace each color literal with the corresponding Chameleon class or `var(--role)` reference.
+3. Add the `<link>` and `<script>` for theme.css / theme.js to `<head>`.
+4. Add `data-theme="light"` to `<html>` if not present.
+5. Print a summary: N colors converted, N classes added, N elements opted out via `data-chameleon="ignore"`.
+
+## Replacement strategy
+
+Prefer the most specific representation:
+
+- Pure background → `class="bg-surface"` (drop the inline `background`)
+- Pure text color → `class="text-muted"` (drop the inline `color`)
+- Border → `class="border"` (drop the inline `border-color`, keep `border-width` if non-standard)
+- Mixed inline (color + bg + radius) → keep `<style>` but change values to `var(--*)`
+
+## Opt-outs
+
+NEVER touch elements with:
+
+- `data-chameleon="ignore"` — explicit user opt-out
+- Brand-locked colors (logos, icons, illustrations) — heuristic: SVG paths inside elements with class containing "logo" or "icon"
+- `<img>` with PNG/JPG sources (can't theme raster colors)
+
+When in doubt, mark as `confidence: low` and ask.
+
+## Reporting
+
+After Step 4, output a summary block:
+
+```
+Chameleon retrofit summary
+──────────────────────────
+File:        report.html
+Converted:   17 color literals → 6 roles
+Added:       <link> + <script> in <head>, data-theme="light" on <html>
+Opted out:   3 SVG illustrations (preserved)
+Backup:      report.original.html
+Open issues: 2 colors with confidence <70% (see review block above)
+```
+
+If any open issues remain, list them so the user can apply manual fixes.

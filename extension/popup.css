@@ -1,0 +1,79 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #ffffff;
+  color: #0a0a0a;
+  width: 260px;
+}
+
+.popup { display: flex; flex-direction: column; }
+
+.popup__head {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.popup__brand { font-weight: 600; font-size: 0.95rem; }
+.popup__version { color: #a1a1aa; font-size: 0.75rem; font-family: ui-monospace, monospace; }
+
+.popup__section {
+  padding: 10px 8px 12px;
+  border-bottom: 1px solid #f4f4f5;
+}
+.popup__section:last-child { border-bottom: 0; }
+
+.popup__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a1a1aa;
+  font-weight: 600;
+  padding: 0 8px 8px;
+}
+
+.presets { display: flex; flex-direction: column; gap: 1px; }
+
+.preset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #0a0a0a;
+  font-family: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+.preset:hover { background: #f4f4f5; }
+.preset.active { color: #2563eb; font-weight: 600; }
+.preset__name { flex: 1; }
+.preset__swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.preset__check {
+  color: #2563eb;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.preset.active .preset__check { opacity: 1; }
+
+.popup__footer {
+  padding: 10px 16px 12px;
+  font-size: 0.74rem;
+  color: #a1a1aa;
+}
+.popup__footer a { color: inherit; text-decoration: none; }
+.popup__footer a:hover { color: #2563eb; }
