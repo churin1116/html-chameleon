@@ -8,6 +8,8 @@ description: |
 
   Triggers on: "make this themable", "chameleon-ify", "create a themable HTML",
   "apply the chameleon theme", "themable HTML artifact", "Chameleon", "html-chameleon".
+user-invocable: true
+arguments: "[generate|convert] <optional-file-path>"
 ---
 
 # Chameleon Skill
