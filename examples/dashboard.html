@@ -70,15 +70,25 @@
     font-size: 1.6rem;
     letter-spacing: -0.01em;
   }
-  .theme-picker {
+  .ext-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 7px 14px;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    font-family: inherit;
     font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
   }
+  .ext-cta:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .ext-cta .lizard { font-size: 1rem; line-height: 1; }
 
   /* Stats */
   .stats {
@@ -167,13 +177,10 @@
   <main class="main">
     <header class="head">
       <h1>Overview</h1>
-      <select class="theme-picker" onchange="Chameleon.setTheme({mode: this.value})" aria-label="Theme">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="sunset">Sunset</option>
-        <option value="forest">Forest</option>
-        <option value="midnight">Midnight</option>
-      </select>
+      <a class="ext-cta" href="https://github.com/churin1116/html-chameleon/tree/main/extension" target="_blank" rel="noopener">
+        <span class="lizard" aria-hidden="true">🦎</span>
+        <span>Theme with Chameleon</span>
+      </a>
     </header>
 
     <h2 class="section">Key metrics</h2>
@@ -236,16 +243,12 @@
     </div>
 
     <p class="text-subtle" style="font-size: 0.85rem; margin-top: 32px; text-align: center;">
-      Themed by <a href="https://github.com/churin1116/html-chameleon">Chameleon</a>.
-      Reload after picking a theme — the preference persists.
+      Themed by <a href="https://github.com/churin1116/html-chameleon">Chameleon</a> ·
+      install the extension above to repaint everything in one click.
     </p>
   </main>
 
 </div>
-
-<script>
-  document.querySelector('.theme-picker').value = Chameleon.getTheme().mode;
-</script>
 
 </body>
 </html>

@@ -31,29 +31,37 @@
   }
   .card { margin-bottom: 1rem; }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .theme-picker {
+  .ext-cta {
     position: fixed;
     top: 1rem;
     right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 14px;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    font-family: inherit;
     font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--text) 10%, transparent);
+    transition: border-color 0.15s ease, color 0.15s ease;
   }
+  .ext-cta:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .ext-cta .lizard { font-size: 1rem; line-height: 1; }
 </style>
 </head>
 <body class="bg-canvas">
 
-<select class="theme-picker" onchange="Chameleon.setTheme({mode: this.value})" aria-label="Select theme">
-  <option value="light">Light</option>
-  <option value="dark">Dark</option>
-  <option value="sunset">Sunset</option>
-  <option value="forest">Forest</option>
-  <option value="midnight">Midnight</option>
-</select>
+<a class="ext-cta" href="https://github.com/churin1116/html-chameleon/tree/main/extension" target="_blank" rel="noopener">
+  <span class="lizard" aria-hidden="true">🦎</span>
+  <span>Theme with Chameleon</span>
+</a>
 
 <div class="wrap">
   <h1 class="text-base">Hello, themed world 🦎</h1>
@@ -83,11 +91,6 @@
     · No frameworks. Just CSS variables and ~150 lines of CSS.
   </p>
 </div>
-
-<script>
-  // Reflect persisted choice in the picker
-  document.querySelector('.theme-picker').value = Chameleon.getTheme().mode;
-</script>
 
 </body>
 </html>
