@@ -24,7 +24,7 @@
   const RAIL_ID = '__chameleon-rail';
   const STYLE_ID = '__chameleon-rail-style';
   const VALID_POSITIONS = ['tl', 'tr', 'bl', 'br'];
-  const DEFAULT_POSITION = 'br';
+  const DEFAULT_POSITION = 'tr';
 
   const PRESETS = [
     // 'system' is a meta-mode: theme.js resolves it to light/dark via
@@ -35,6 +35,14 @@
     { mode: 'sunset',   label: 'Sunset',   gradient: 'linear-gradient(135deg, #fff7ed 50%, #ea580c 50%)' },
     { mode: 'forest',   label: 'Forest',   gradient: 'linear-gradient(135deg, #f0fdf4 50%, #15803d 50%)' },
     { mode: 'midnight', label: 'Midnight', gradient: 'linear-gradient(135deg, #030712 50%, #a78bfa 50%)' },
+  ];
+
+  // Style axis — orthogonal to PRESETS. Each renders "Aa" in its own font as
+  // an inline preview so the user can compare typefaces before choosing.
+  const STYLES = [
+    { id: 'default',   label: 'Default',   font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' },
+    { id: 'editorial', label: 'Editorial', font: 'ui-serif, "Charter", Georgia, "Times New Roman", serif' },
+    { id: 'mono',      label: 'Mono',      font: 'ui-monospace, "SF Mono", "JetBrains Mono", monospace' },
   ];
 
   // ---------- Apply theme via CustomEvent (CSP-safe; no inline script injection) ----------
@@ -101,11 +109,22 @@
       document.head.appendChild(style);
     }
 
-    // Build markup
+    // Build markup — color (mode) section
     const items = PRESETS.map(p => `
       <button class="__cm-item" data-mode="${p.mode}" role="option" aria-selected="false" type="button">
         <span class="__cm-item-swatch" style="background: ${p.gradient};" aria-hidden="true"></span>
         <span class="__cm-item-name">${p.label}</span>
+        <svg class="__cm-item-check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+          <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    `).join('');
+
+    // Style section
+    const styleItems = STYLES.map(s => `
+      <button class="__cm-item __cm-style-item" data-style="${s.id}" role="option" aria-selected="false" type="button">
+        <span class="__cm-style-preview" style="font-family: ${s.font};" aria-hidden="true">Aa</span>
+        <span class="__cm-item-name">${s.label}</span>
         <svg class="__cm-item-check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
           <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -124,6 +143,8 @@
       </button>
       <div class="__cm-menu" role="listbox" hidden>
         ${items}
+        <div class="__cm-divider" role="separator"></div>
+        ${styleItems}
         <div class="__cm-divider" role="separator"></div>
         <button class="__cm-settings-toggle" type="button" aria-expanded="false" aria-controls="__cm-position-panel">
           <svg class="__cm-settings-icon" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -169,11 +190,28 @@
       if (trigger.getAttribute('aria-expanded') === 'true') close(); else open();
     });
 
-    rail.querySelectorAll('.__cm-item').forEach(item => {
+    // Color (mode) clicks — merge with existing state so style is preserved.
+    rail.querySelectorAll('.__cm-item[data-mode]').forEach(item => {
       item.addEventListener('click', e => {
         e.stopPropagation();
         const mode = item.dataset.mode;
-        chrome.storage.local.set({ [STORAGE_KEY]: { mode } });
+        chrome.storage.local.get(STORAGE_KEY, data => {
+          const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
+          chrome.storage.local.set({ [STORAGE_KEY]: Object.assign({}, current, { mode }) });
+        });
+        close();
+      });
+    });
+
+    // Style clicks — merge with existing state so mode is preserved.
+    rail.querySelectorAll('.__cm-item[data-style]').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        const style = item.dataset.style;
+        chrome.storage.local.get(STORAGE_KEY, data => {
+          const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
+          chrome.storage.local.set({ [STORAGE_KEY]: Object.assign({}, current, { style }) });
+        });
         close();
       });
     });
@@ -226,16 +264,20 @@
   }
 
   function syncPaletteState(theme) {
-    if (!theme || !theme.mode) return;
+    if (!theme) return;
     const rail = document.getElementById(RAIL_ID);
     if (rail) {
-      // Mark the rail when stored mode is 'system' so the trigger swatch can
-      // render the System icon (half-white / half-black) instead of the
-      // resolved theme's CSS-variable gradient.
       rail.classList.toggle('__cm-mode-system', theme.mode === 'system');
     }
-    document.querySelectorAll('#' + RAIL_ID + ' .__cm-item').forEach(item => {
-      item.setAttribute('aria-selected', item.dataset.mode === theme.mode ? 'true' : 'false');
+    // Color axis
+    const mode = theme.mode || 'system';
+    document.querySelectorAll('#' + RAIL_ID + ' .__cm-item[data-mode]').forEach(item => {
+      item.setAttribute('aria-selected', item.dataset.mode === mode ? 'true' : 'false');
+    });
+    // Style axis
+    const style = theme.style || 'default';
+    document.querySelectorAll('#' + RAIL_ID + ' .__cm-item[data-style]').forEach(item => {
+      item.setAttribute('aria-selected', item.dataset.style === style ? 'true' : 'false');
     });
   }
 
@@ -373,6 +415,18 @@
         height: 18px !important;
         border-radius: 50% !important;
         flex-shrink: 0 !important;
+      }
+      .__cm-style-preview {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        height: 18px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        color: var(--text, #0a0a0a) !important;
+        flex-shrink: 0 !important;
+        line-height: 1 !important;
       }
       .__cm-item-name { flex: 1 !important; }
       .__cm-item-check {

@@ -18,6 +18,8 @@
   // 'system' is a meta-mode: it resolves to light/dark via prefers-color-scheme
   // at apply-time. It has no CSS block of its own.
   var VALID_MODES = BUILTIN_THEMES.concat(['system']);
+  // Style is the orthogonal axis (fonts, radius, shadows). Independent of mode.
+  var VALID_STYLES = ['default', 'editorial', 'mono'];
 
   function resolveMode(mode) {
     if (mode === 'system') {
@@ -36,6 +38,10 @@
       if (BUILTIN_THEMES.indexOf(actualMode) !== -1) {
         root.setAttribute('data-theme', actualMode);
       }
+    }
+
+    if (theme.style && VALID_STYLES.indexOf(theme.style) !== -1) {
+      root.setAttribute('data-style', theme.style);
     }
 
     // Clear previous custom-variable overrides before applying new ones.
@@ -112,12 +118,28 @@
     else if (mq.addListener) mq.addListener(listener);
   }
 
+  // Convenience helpers that merge with stored state instead of replacing
+  // (so changing mode preserves style and vice versa).
+  function setMode(mode) {
+    var current = readStored() || defaultTheme();
+    current.mode = mode;
+    setTheme(current);
+  }
+  function setStyle(style) {
+    var current = readStored() || defaultTheme();
+    current.style = style;
+    setTheme(current);
+  }
+
   // Public API.
   window.Chameleon = {
-    version: '1.0.0',
+    version: '1.1.0',
     presets: BUILTIN_THEMES.slice(),
     modes: VALID_MODES.slice(),
+    styles: VALID_STYLES.slice(),
     setTheme: setTheme,
+    setMode: setMode,
+    setStyle: setStyle,
     getTheme: function () { return readStored() || defaultTheme(); },
     reset: function () {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}

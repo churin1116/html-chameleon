@@ -3,64 +3,73 @@
  *
  * On open: check whether the active tab declares Chameleon (meta / link / data
  * attribute), and whether the extension is allowed to run on file:// URLs when
- * the active tab is a local file. Toggles the matching notice. The picker
- * always works — chosen theme persists for any future Chameleon-aware page.
+ * the active tab is a local file. Toggle the matching notice. The pickers
+ * always work — chosen mode and style persist independently for any future
+ * Chameleon-aware page.
  */
 const STORAGE_KEY = 'chameleon-theme';
-const VALID_MODES = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight'];
+const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight'];
+const VALID_STYLES = ['default', 'editorial', 'mono'];
 
 async function getCurrent() {
   const data = await chrome.storage.local.get(STORAGE_KEY);
-  return data[STORAGE_KEY] || { mode: 'light' };
+  const stored = data[STORAGE_KEY];
+  return (stored && typeof stored === 'object') ? stored : { mode: 'system', style: 'default' };
 }
 
-async function setTheme(mode) {
-  if (!VALID_MODES.includes(mode)) return;
-  const theme = { mode };
-
-  await chrome.storage.local.set({ [STORAGE_KEY]: theme });
-
-  // Apply to the active tab if it's injectable.
+async function applyToActiveTab(theme) {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.id) {
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        world: 'MAIN',
-        args: [theme],
-        func: (t) => {
-          try {
-            localStorage.setItem('chameleon-theme', JSON.stringify(t));
-            if (window.Chameleon && typeof window.Chameleon.setTheme === 'function') {
-              window.Chameleon.setTheme(t);
-            }
-          } catch (e) { /* CSP / non-injectable */ }
-        }
-      });
-    }
+    if (!tab?.id) return;
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      world: 'MAIN',
+      args: [theme],
+      func: (t) => {
+        try {
+          localStorage.setItem('chameleon-theme', JSON.stringify(t));
+          if (window.Chameleon && typeof window.Chameleon.setTheme === 'function') {
+            window.Chameleon.setTheme(t);
+          }
+        } catch (e) { /* CSP / non-injectable */ }
+      }
+    });
   } catch (e) { /* tab may be chrome:// etc. */ }
-
-  highlight(mode);
 }
 
-function highlight(mode) {
-  document.querySelectorAll('.preset').forEach(b => {
+async function setMode(mode) {
+  if (!VALID_MODES.includes(mode)) return;
+  const current = await getCurrent();
+  current.mode = mode;
+  await chrome.storage.local.set({ [STORAGE_KEY]: current });
+  await applyToActiveTab(current);
+  highlight(current);
+}
+
+async function setStyle(style) {
+  if (!VALID_STYLES.includes(style)) return;
+  const current = await getCurrent();
+  current.style = style;
+  await chrome.storage.local.set({ [STORAGE_KEY]: current });
+  await applyToActiveTab(current);
+  highlight(current);
+}
+
+function highlight(theme) {
+  const mode = theme.mode || 'system';
+  const style = theme.style || 'default';
+  document.querySelectorAll('.preset[data-mode]').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  document.querySelectorAll('.preset[data-style]').forEach(b => {
+    b.classList.toggle('active', b.dataset.style === style);
   });
 }
 
-async function getActiveTab() {
+async function checkActiveTabDetection() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    return tab || null;
-  } catch (e) {
-    return null;
-  }
-}
-
-async function checkActiveTabDetection(tab) {
-  if (!tab?.id) return false;
-  try {
+    if (!tab?.id) return false;
     const [result] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: () => !!(
@@ -71,7 +80,6 @@ async function checkActiveTabDetection(tab) {
     });
     return !!(result && result.result);
   } catch (e) {
-    // chrome://, file:// without permission, etc.
     return false;
   }
 }
@@ -90,8 +98,20 @@ function checkFileAccess() {
   });
 }
 
-document.querySelectorAll('.preset').forEach(b => {
-  b.addEventListener('click', () => setTheme(b.dataset.mode));
+async function getActiveTab() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tab || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+document.querySelectorAll('.preset[data-mode]').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+document.querySelectorAll('.preset[data-style]').forEach(b => {
+  b.addEventListener('click', () => setStyle(b.dataset.style));
 });
 
 document.getElementById('open-settings-btn')?.addEventListener('click', e => {
@@ -102,14 +122,13 @@ document.getElementById('open-settings-btn')?.addEventListener('click', e => {
 (async () => {
   const tab = await getActiveTab();
   const [detected, current, fileAccess] = await Promise.all([
-    checkActiveTabDetection(tab),
+    checkActiveTabDetection(),
     getCurrent(),
     checkFileAccess()
   ]);
 
   const isFileUrl = !!(tab?.url && tab.url.startsWith('file://'));
   const showFileNotice = isFileUrl && !fileAccess;
-  // Mutually exclusive: file-access issue is root cause, hide "not detected" if it's set
   const showNotDetectedNotice = !showFileNotice && !detected;
 
   document.getElementById('file-access-notice').hidden = !showFileNotice;
@@ -120,9 +139,9 @@ document.getElementById('open-settings-btn')?.addEventListener('click', e => {
     statusPill.textContent = 'on';
     statusPill.classList.add('is-active');
   } else {
-    statusPill.textContent = 'v1.0';
+    statusPill.textContent = 'v1.1';
     statusPill.classList.remove('is-active');
   }
 
-  highlight(current.mode);
+  highlight(current);
 })();

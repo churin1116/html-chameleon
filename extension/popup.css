@@ -110,6 +110,18 @@ body {
   border-radius: 50%;
   flex-shrink: 0;
 }
+.preset__aa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #0a0a0a;
+  flex-shrink: 0;
+  line-height: 1;
+}
 .preset__check {
   color: #2563eb;
   opacity: 0;
