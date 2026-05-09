@@ -39,6 +39,7 @@ Always emit:
 <!DOCTYPE html>
 <html data-theme="light">
 <head>
+  <meta name="chameleon" content="v1">
   <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
   <script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
   <!-- ... -->
@@ -48,6 +49,12 @@ Always emit:
 </body>
 </html>
 ```
+
+The `<meta name="chameleon">` tag is **mandatory** — it's the strongest detection
+signal the Chrome extension uses to decide whether to activate on a page. theme.js
+also marks the document via `data-chameleon` at runtime, but the meta tag is
+explicit, parses earlier, and survives even if theme.js is stripped or fails to
+load.
 
 Keep custom CSS minimal — color/border styles MUST go through the variables.
 Layout, spacing, typography sizes are free game.

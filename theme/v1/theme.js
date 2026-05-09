@@ -66,6 +66,10 @@
     } catch (e) { /* storage unavailable */ }
   }
 
+  // Mark the document as Chameleon-aware so the Chrome extension can detect us
+  // even if the author forgot the <meta name="chameleon"> tag.
+  try { document.documentElement.setAttribute('data-chameleon', 'v1'); } catch (e) {}
+
   // Apply ASAP — runs synchronously on script eval to prevent FOUC.
   applyTheme(readStored() || defaultTheme());
 

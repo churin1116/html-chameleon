@@ -1,6 +1,10 @@
 /*
- * Chameleon Chrome extension — popup logic
- * Picks a theme, saves to chrome.storage, applies to the active tab.
+ * Chameleon Chrome extension — popup logic.
+ *
+ * On open: check whether the active tab declares Chameleon (meta / link / data
+ * attribute). Toggle the "not detected" notice accordingly. The picker still
+ * works on non-Chameleon pages — the chosen theme persists for the next
+ * Chameleon-aware page the user visits.
  */
 const STORAGE_KEY = 'chameleon-theme';
 const VALID_MODES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
@@ -16,7 +20,7 @@ async function setTheme(mode) {
 
   await chrome.storage.local.set({ [STORAGE_KEY]: theme });
 
-  // Apply to active tab right away (cross-tab content scripts will handle the rest).
+  // Apply to the active tab if it's injectable.
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
@@ -30,7 +34,7 @@ async function setTheme(mode) {
             if (window.Chameleon && typeof window.Chameleon.setTheme === 'function') {
               window.Chameleon.setTheme(t);
             }
-          } catch (e) { /* CSP / non-injectable URL */ }
+          } catch (e) { /* CSP / non-injectable */ }
         }
       });
     }
@@ -45,11 +49,43 @@ function highlight(mode) {
   });
 }
 
+async function checkActiveTabDetection() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return false;
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => !!(
+        document.querySelector('meta[name="chameleon"]') ||
+        document.querySelector('link[rel="stylesheet"][href*="html-chameleon"]') ||
+        document.documentElement.hasAttribute('data-chameleon')
+      )
+    });
+    return !!(result && result.result);
+  } catch (e) {
+    return false;
+  }
+}
+
 document.querySelectorAll('.preset').forEach(b => {
   b.addEventListener('click', () => setTheme(b.dataset.mode));
 });
 
 (async () => {
-  const current = await getCurrent();
+  const [detected, current] = await Promise.all([
+    checkActiveTabDetection(),
+    getCurrent()
+  ]);
+
+  document.getElementById('not-detected-notice').hidden = detected;
+  const statusPill = document.getElementById('status-pill');
+  if (detected) {
+    statusPill.textContent = 'on';
+    statusPill.classList.add('is-active');
+  } else {
+    statusPill.textContent = 'v1.0';
+    statusPill.classList.remove('is-active');
+  }
+
   highlight(current.mode);
 })();

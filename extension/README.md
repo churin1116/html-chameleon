@@ -12,9 +12,22 @@ HTML page open in your browser.
 
 ## How it works
 
-1. **popup.html / popup.js** — UI for picking one of the 5 built-in themes. On click, writes to `chrome.storage.local["chameleon-theme"]` and runs a script in the active tab to apply immediately.
-2. **content.js** — runs at `document_start` on every page. Reads the persisted theme from `chrome.storage` and injects an inline script that writes to the page's `localStorage`, where `theme.js` picks it up.
-3. **chrome.storage.onChanged** — when the popup updates the theme, content scripts in every tab receive the change and propagate it.
+1. **popup.html / popup.js** — UI for picking one of the 5 built-in themes. On click, writes to `chrome.storage.local["chameleon-theme"]` and runs a script in the active tab to apply immediately. On open, runs detection on the active tab and shows a "not detected" notice if the page doesn't declare Chameleon.
+2. **content.js** — runs at `document_start` on every page. Reads the persisted theme from `chrome.storage` and injects an inline script that writes to the page's `localStorage`, where `theme.js` picks it up. After `DOMContentLoaded`, runs detection and reports the result to the background service worker.
+3. **background.js** — receives detection messages and sets a per-tab toolbar badge ("ON" in Chameleon green) so the user can tell at a glance which tabs the extension is active on.
+4. **chrome.storage.onChanged** — when the popup updates the theme, content scripts in every tab receive the change and propagate it.
+
+## Detection signals
+
+The extension considers a page to be Chameleon-aware if any of these are present:
+
+| Signal | Where | Set by |
+| --- | --- | --- |
+| `<meta name="chameleon" content="v1">` | `<head>` | Skill (generate mode), authors |
+| `<link rel="stylesheet" href="*html-chameleon*">` | `<head>` | Anyone using the GitHub Pages CSS |
+| `<html data-chameleon="v1">` | document root | `theme.js` at load time |
+
+The badge stays empty on pages that match none of these.
 
 ## Known limitations (v1 stub)
 

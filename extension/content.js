@@ -1,29 +1,33 @@
 /*
  * Chameleon Chrome extension — content script (ISOLATED world).
- * On every page, reads the persisted theme from chrome.storage and writes it
- * into the page's localStorage so theme.js picks it up.
  *
- * Uses script-tag injection because the ISOLATED world cannot directly access
- * the page's localStorage. Pages with strict CSP that disallow inline scripts
- * will fall back to whatever theme.js reads on its own.
+ * 1) document_start: write the persisted theme into the page's localStorage so
+ *    theme.js picks it up before first paint (FOUC-free).
+ * 2) DOMContentLoaded: detect whether this page declares Chameleon. Report the
+ *    result to the background service worker so the toolbar badge reflects it.
+ *
+ * Detection layers (any one is sufficient):
+ *   - <meta name="chameleon" ...>          (strongest, explicit declaration)
+ *   - <link href*="html-chameleon">        (catches anyone using the hosted CSS)
+ *   - <html data-chameleon>                (set automatically by theme.js)
  */
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'chameleon-theme';
 
-  function injectInPage(themeJson) {
+  function injectInPage(payloadJson) {
     try {
       const script = document.createElement('script');
       script.textContent = `
 (function () {
   try {
-    var t = ${themeJson};
+    var t = ${payloadJson};
     localStorage.setItem('chameleon-theme', JSON.stringify(t));
     if (window.Chameleon && typeof window.Chameleon.setTheme === 'function') {
       window.Chameleon.setTheme(t);
     }
-  } catch (e) { /* swallow */ }
+  } catch (e) {}
 })();
       `;
       (document.head || document.documentElement).appendChild(script);
@@ -31,7 +35,7 @@
     } catch (e) { /* swallow */ }
   }
 
-  // 1) On load: pull current theme from extension storage and apply.
+  // 1) Apply persisted theme as early as possible.
   chrome.storage.local.get(STORAGE_KEY, function (data) {
     const theme = data[STORAGE_KEY];
     if (theme && typeof theme === 'object') {
@@ -39,7 +43,7 @@
     }
   });
 
-  // 2) When popup updates the theme, broadcast to this tab too.
+  // 2) Listen for changes from popup → propagate to current tab.
   chrome.storage.onChanged.addListener(function (changes, area) {
     if (area !== 'local' || !changes[STORAGE_KEY]) return;
     const next = changes[STORAGE_KEY].newValue;
@@ -47,4 +51,32 @@
       injectInPage(JSON.stringify(next));
     }
   });
+
+  // 3) Detection — runs after the head is parsed (theme.js will have set
+  //    data-chameleon on <html> by then if the page uses the runtime).
+  function detect() {
+    if (document.querySelector('meta[name="chameleon"]')) {
+      return { detected: true, signal: 'meta' };
+    }
+    if (document.querySelector('link[rel="stylesheet"][href*="html-chameleon"]')) {
+      return { detected: true, signal: 'link' };
+    }
+    if (document.documentElement.hasAttribute('data-chameleon')) {
+      return { detected: true, signal: 'data-attr' };
+    }
+    return { detected: false };
+  }
+
+  function report() {
+    const result = detect();
+    try {
+      chrome.runtime.sendMessage({ type: 'chameleon:detection', ...result });
+    } catch (e) { /* extension may have been reloaded — ignore */ }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', report);
+  } else {
+    report();
+  }
 })();

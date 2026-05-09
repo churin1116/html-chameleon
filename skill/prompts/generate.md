@@ -11,6 +11,7 @@ that uses the Chameleon contract.
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="chameleon" content="v1">
   <title><title></title>
   <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
   <script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
@@ -23,6 +24,10 @@ that uses the Chameleon contract.
 </body>
 </html>
 ```
+
+The `<meta name="chameleon" content="v1">` tag is **mandatory** in generate mode.
+The Chrome extension uses it to detect whether a page should be themable, and
+displays a "not detected" notice on pages that lack it.
 
 ## Rules
 
@@ -56,6 +61,7 @@ that uses the Chameleon contract.
 
 ## Final self-check before emitting
 
+- [ ] `<meta name="chameleon" content="v1">` is in the `<head>`.
 - [ ] No hardcoded hex/rgb in markup or custom CSS (except theme presets if defining one).
 - [ ] `<link>` and `<script>` for theme.css/js are in `<head>`, theme.js without `defer`.
 - [ ] `data-theme="light"` on `<html>`.
