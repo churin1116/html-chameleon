@@ -28,31 +28,26 @@
     { mode: 'midnight', label: 'Midnight', gradient: 'linear-gradient(135deg, #030712 50%, #a78bfa 50%)' },
   ];
 
-  // ---------- Inject script into MAIN world to update page localStorage ----------
-  function injectInPage(payloadJson) {
-    try {
-      const script = document.createElement('script');
-      script.textContent = `
-(function () {
-  try {
-    var t = ${payloadJson};
-    localStorage.setItem('chameleon-theme', JSON.stringify(t));
-    if (window.Chameleon && typeof window.Chameleon.setTheme === 'function') {
-      window.Chameleon.setTheme(t);
+  // ---------- Apply theme via CustomEvent (CSP-safe; no inline script injection) ----------
+  function applyToPage(theme) {
+    function fire() {
+      try {
+        window.dispatchEvent(new CustomEvent('chameleon:apply-theme', { detail: theme }));
+      } catch (e) { /* swallow */ }
     }
-  } catch (e) {}
-})();
-      `;
-      (document.head || document.documentElement).appendChild(script);
-      script.remove();
-    } catch (e) { /* swallow */ }
+    fire();
+    // theme.js's listener is registered at parse time; if we fire before the
+    // page has parsed it (rare race at document_start), retry once after DOM.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fire, { once: true });
+    }
   }
 
   // 1) Apply persisted theme as early as possible.
   chrome.storage.local.get(STORAGE_KEY, function (data) {
     const theme = data[STORAGE_KEY];
     if (theme && typeof theme === 'object') {
-      injectInPage(JSON.stringify(theme));
+      applyToPage(theme);
     }
   });
 
@@ -61,7 +56,7 @@
     if (area !== 'local' || !changes[STORAGE_KEY]) return;
     const next = changes[STORAGE_KEY].newValue;
     if (next && typeof next === 'object') {
-      injectInPage(JSON.stringify(next));
+      applyToPage(next);
       syncPaletteState(next);
     }
   });

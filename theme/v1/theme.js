@@ -104,4 +104,14 @@
       applyTheme(defaultTheme());
     }
   };
+
+  // Bridge for the Chrome extension (and any other page-context caller).
+  // The extension content script lives in an isolated world and cannot directly
+  // touch window.Chameleon, but DOM events cross the world boundary cleanly —
+  // and unlike inline <script> injection, they are not blocked by CSP.
+  window.addEventListener('chameleon:apply-theme', function (e) {
+    if (e && e.detail && typeof e.detail === 'object') {
+      setTheme(e.detail);
+    }
+  });
 })();
