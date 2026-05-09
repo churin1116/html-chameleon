@@ -227,6 +227,13 @@
 
   function syncPaletteState(theme) {
     if (!theme || !theme.mode) return;
+    const rail = document.getElementById(RAIL_ID);
+    if (rail) {
+      // Mark the rail when stored mode is 'system' so the trigger swatch can
+      // render the System icon (half-white / half-black) instead of the
+      // resolved theme's CSS-variable gradient.
+      rail.classList.toggle('__cm-mode-system', theme.mode === 'system');
+    }
     document.querySelectorAll('#' + RAIL_ID + ' .__cm-item').forEach(item => {
       item.setAttribute('aria-selected', item.dataset.mode === theme.mode ? 'true' : 'false');
     });
@@ -277,6 +284,9 @@
         border-radius: 50% !important;
         flex-shrink: 0 !important;
         background: linear-gradient(135deg, var(--canvas, #fff) 50%, var(--primary, #2563eb) 50%) !important;
+      }
+      #${RAIL_ID}.__cm-mode-system .__cm-swatch {
+        background: linear-gradient(135deg, #ffffff 50%, #0a0a0a 50%) !important;
       }
       .__cm-chevron {
         color: var(--text-muted, #525252) !important;
