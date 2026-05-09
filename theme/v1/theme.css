@@ -153,6 +153,146 @@
   --on-danger: #450a0a;
 }
 
+[data-theme="ocean"] {
+  --canvas: #f0f9ff;
+  --surface: #e0f2fe;
+  --surface-2: #bae6fd;
+
+  --text: #0c4a6e;
+  --text-muted: #075985;
+  --text-subtle: #0369a1;
+
+  --primary: #0284c7;
+  --on-primary: #f0f9ff;
+  --secondary: #14b8a6;
+  --on-secondary: #f0fdfa;
+  --accent: #06b6d4;
+  --on-accent: #ecfeff;
+
+  --border: #7dd3fc;
+  --border-subtle: #bae6fd;
+  --border-strong: #0284c7;
+
+  --success: #16a34a;
+  --on-success: #ffffff;
+  --warning: #d97706;
+  --on-warning: #ffffff;
+  --danger: #dc2626;
+  --on-danger: #ffffff;
+}
+
+[data-theme="rose"] {
+  --canvas: #fff1f2;
+  --surface: #ffe4e6;
+  --surface-2: #fecdd3;
+
+  --text: #4c0519;
+  --text-muted: #881337;
+  --text-subtle: #be123c;
+
+  --primary: #e11d48;
+  --on-primary: #fff1f2;
+  --secondary: #f59e0b;
+  --on-secondary: #fefce8;
+  --accent: #d946ef;
+  --on-accent: #fdf4ff;
+
+  --border: #fda4af;
+  --border-subtle: #fecdd3;
+  --border-strong: #e11d48;
+
+  --success: #16a34a;
+  --on-success: #ffffff;
+  --warning: #d97706;
+  --on-warning: #ffffff;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+}
+
+[data-theme="slate"] {
+  --canvas: #f8fafc;
+  --surface: #f1f5f9;
+  --surface-2: #e2e8f0;
+
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-subtle: #94a3b8;
+
+  --primary: #475569;
+  --on-primary: #f8fafc;
+  --secondary: #0ea5e9;
+  --on-secondary: #f0f9ff;
+  --accent: #f59e0b;
+  --on-accent: #fefce8;
+
+  --border: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --border-strong: #475569;
+
+  --success: #16a34a;
+  --on-success: #ffffff;
+  --warning: #d97706;
+  --on-warning: #ffffff;
+  --danger: #dc2626;
+  --on-danger: #ffffff;
+}
+
+[data-theme="lavender"] {
+  --canvas: #faf5ff;
+  --surface: #f3e8ff;
+  --surface-2: #e9d5ff;
+
+  --text: #3b0764;
+  --text-muted: #6b21a8;
+  --text-subtle: #9333ea;
+
+  --primary: #9333ea;
+  --on-primary: #faf5ff;
+  --secondary: #db2777;
+  --on-secondary: #fdf2f8;
+  --accent: #c084fc;
+  --on-accent: #4a044e;
+
+  --border: #d8b4fe;
+  --border-subtle: #e9d5ff;
+  --border-strong: #9333ea;
+
+  --success: #16a34a;
+  --on-success: #ffffff;
+  --warning: #d97706;
+  --on-warning: #ffffff;
+  --danger: #dc2626;
+  --on-danger: #ffffff;
+}
+
+[data-theme="mint"] {
+  --canvas: #f0fdfa;
+  --surface: #ccfbf1;
+  --surface-2: #99f6e4;
+
+  --text: #042f2e;
+  --text-muted: #115e59;
+  --text-subtle: #14b8a6;
+
+  --primary: #0d9488;
+  --on-primary: #f0fdfa;
+  --secondary: #84cc16;
+  --on-secondary: #f7fee7;
+  --accent: #06b6d4;
+  --on-accent: #ecfeff;
+
+  --border: #5eead4;
+  --border-subtle: #99f6e4;
+  --border-strong: #0d9488;
+
+  --success: #16a34a;
+  --on-success: #ffffff;
+  --warning: #d97706;
+  --on-warning: #ffffff;
+  --danger: #dc2626;
+  --on-danger: #ffffff;
+}
+
 /* ============================================================
    STYLES — orthogonal axis: fonts, radius, shadows.
    ([data-style] is independent from [data-theme]; combine freely.)

@@ -14,7 +14,10 @@
   'use strict';
 
   var STORAGE_KEY = 'chameleon-theme';
-  var BUILTIN_THEMES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+  var BUILTIN_THEMES = [
+    'light', 'dark', 'sunset', 'forest', 'midnight',
+    'ocean', 'rose', 'slate', 'lavender', 'mint'
+  ];
   // 'system' is a meta-mode: it resolves to light/dark via prefers-color-scheme
   // at apply-time. It has no CSS block of its own.
   var VALID_MODES = BUILTIN_THEMES.concat(['system']);

@@ -13,16 +13,27 @@ const BADGE_TEXT = 'ON';
 const BADGE_BG = '#84cc16'; // Chameleon green (lime-500)
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
-  if (msg?.type !== 'chameleon:detection' || !sender.tab?.id) return;
-  const tabId = sender.tab.id;
-  if (msg.detected) {
-    chrome.action.setBadgeText({ tabId, text: BADGE_TEXT });
-    chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_BG });
-    if (chrome.action.setBadgeTextColor) {
-      chrome.action.setBadgeTextColor({ tabId, color: '#ffffff' });
+  // Detection result → toolbar badge
+  if (msg?.type === 'chameleon:detection' && sender.tab?.id) {
+    const tabId = sender.tab.id;
+    if (msg.detected) {
+      chrome.action.setBadgeText({ tabId, text: BADGE_TEXT });
+      chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_BG });
+      if (chrome.action.setBadgeTextColor) {
+        chrome.action.setBadgeTextColor({ tabId, color: '#ffffff' });
+      }
+    } else {
+      chrome.action.setBadgeText({ tabId, text: '' });
     }
-  } else {
-    chrome.action.setBadgeText({ tabId, text: '' });
+    return;
+  }
+
+  // Page-side request to open the favorites/options page (basic.html etc.).
+  // Content scripts can't call chrome.runtime.openOptionsPage themselves;
+  // the background service worker must do it.
+  if (msg?.type === 'chameleon:open-options') {
+    chrome.runtime.openOptionsPage();
+    return;
   }
 });
 

@@ -21,20 +21,28 @@
 
   const STORAGE_KEY = 'chameleon-theme';
   const POSITION_KEY = 'chameleon-position';
+  const FAVORITES_KEY = 'chameleon-favorites';
   const RAIL_ID = '__chameleon-rail';
   const STYLE_ID = '__chameleon-rail-style';
   const VALID_POSITIONS = ['tl', 'tr', 'bl', 'br'];
   const DEFAULT_POSITION = 'tr';
+  const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
 
   const PRESETS = [
     // 'system' is a meta-mode: theme.js resolves it to light/dark via
     // prefers-color-scheme. The half-white/half-black swatch hints at "auto".
+    // 'system' is always shown regardless of favorites.
     { mode: 'system',   label: 'System',   gradient: 'linear-gradient(135deg, #ffffff 50%, #0a0a0a 50%)' },
     { mode: 'light',    label: 'Light',    gradient: 'linear-gradient(135deg, #ffffff 50%, #2563eb 50%)' },
     { mode: 'dark',     label: 'Dark',     gradient: 'linear-gradient(135deg, #0a0a0a 50%, #60a5fa 50%)' },
     { mode: 'sunset',   label: 'Sunset',   gradient: 'linear-gradient(135deg, #fff7ed 50%, #ea580c 50%)' },
     { mode: 'forest',   label: 'Forest',   gradient: 'linear-gradient(135deg, #f0fdf4 50%, #15803d 50%)' },
     { mode: 'midnight', label: 'Midnight', gradient: 'linear-gradient(135deg, #030712 50%, #a78bfa 50%)' },
+    { mode: 'ocean',    label: 'Ocean',    gradient: 'linear-gradient(135deg, #f0f9ff 50%, #0284c7 50%)' },
+    { mode: 'rose',     label: 'Rose',     gradient: 'linear-gradient(135deg, #fff1f2 50%, #e11d48 50%)' },
+    { mode: 'slate',    label: 'Slate',    gradient: 'linear-gradient(135deg, #f8fafc 50%, #475569 50%)' },
+    { mode: 'lavender', label: 'Lavender', gradient: 'linear-gradient(135deg, #faf5ff 50%, #9333ea 50%)' },
+    { mode: 'mint',     label: 'Mint',     gradient: 'linear-gradient(135deg, #f0fdfa 50%, #0d9488 50%)' },
   ];
 
   // Style axis — orthogonal to PRESETS. Each renders "Aa" in its own font as
@@ -66,7 +74,7 @@
     }
   });
 
-  // 2) Listen for storage changes (theme + rail position).
+  // 2) Listen for storage changes (theme + rail position + favorites).
   chrome.storage.onChanged.addListener(function (changes, area) {
     if (area !== 'local') return;
     if (changes[STORAGE_KEY]) {
@@ -82,6 +90,10 @@
         applyPositionToRail(pos);
       }
     }
+    if (changes[FAVORITES_KEY]) {
+      const favs = changes[FAVORITES_KEY].newValue;
+      applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
+    }
   });
 
   // ---------- Floating palette injection (only on detected pages) ----------
@@ -89,16 +101,18 @@
     if (document.getElementById(RAIL_ID)) return;
     if (!document.body) return;
 
-    chrome.storage.local.get([POSITION_KEY, STORAGE_KEY], function (data) {
+    chrome.storage.local.get([POSITION_KEY, STORAGE_KEY, FAVORITES_KEY], function (data) {
       const pos = VALID_POSITIONS.indexOf(data[POSITION_KEY]) !== -1
         ? data[POSITION_KEY] : DEFAULT_POSITION;
       const theme = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object')
         ? data[STORAGE_KEY] : { mode: 'light' };
-      buildRail(pos, theme);
+      const favorites = (Array.isArray(data[FAVORITES_KEY]) && data[FAVORITES_KEY].length)
+        ? data[FAVORITES_KEY] : DEFAULT_FAVORITES;
+      buildRail(pos, theme, favorites);
     });
   }
 
-  function buildRail(initialPos, initialTheme) {
+  function buildRail(initialPos, initialTheme, initialFavorites) {
     if (document.getElementById(RAIL_ID)) return;
 
     // Inject style tag (page CSS variables with safe fallbacks)
@@ -146,6 +160,12 @@
         <div class="__cm-divider" role="separator"></div>
         ${styleItems}
         <div class="__cm-divider" role="separator"></div>
+        <button class="__cm-action" data-action="manage" type="button">
+          <svg class="__cm-action-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span class="__cm-action-name">Manage themes</span>
+        </button>
         <button class="__cm-settings-toggle" type="button" aria-expanded="false" aria-controls="__cm-position-panel">
           <svg class="__cm-settings-icon" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="2" y="2" width="12" height="12" rx="2"/>
@@ -223,6 +243,16 @@
       positionPanel.hidden = expanded;
     });
 
+    rail.querySelectorAll('[data-action="manage"]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        try {
+          chrome.runtime.sendMessage({ type: 'chameleon:open-options' });
+        } catch (err) { /* extension may have been reloaded */ }
+        close();
+      });
+    });
+
     rail.querySelectorAll('.__cm-pos-cell').forEach(cell => {
       cell.addEventListener('click', e => {
         e.stopPropagation();
@@ -247,6 +277,18 @@
     // Initial state
     syncPaletteState(initialTheme);
     syncPositionCells(initialPos);
+    applyFavorites(initialFavorites || DEFAULT_FAVORITES);
+  }
+
+  function applyFavorites(favorites) {
+    const favSet = {};
+    favorites.forEach(id => { favSet[id] = true; });
+    document.querySelectorAll('#' + RAIL_ID + ' .__cm-item[data-mode]').forEach(item => {
+      const mode = item.dataset.mode;
+      // 'system' is always visible regardless of favorites.
+      const visible = mode === 'system' || favSet[mode];
+      item.classList.toggle('__cm-hidden', !visible);
+    });
   }
 
   function applyPositionToRail(pos) {
@@ -440,6 +482,7 @@
         color: var(--primary, #2563eb) !important;
         font-weight: 600 !important;
       }
+      .__cm-item.__cm-hidden { display: none !important; }
 
       .__cm-divider {
         height: 1px !important;
@@ -447,7 +490,8 @@
         margin: 5px 6px !important;
       }
 
-      .__cm-settings-toggle {
+      .__cm-settings-toggle,
+      .__cm-action {
         display: flex !important;
         align-items: center !important;
         gap: 10px !important;
@@ -463,7 +507,10 @@
         text-align: left !important;
         width: 100% !important;
       }
-      .__cm-settings-toggle:hover { background: var(--surface-2, #f4f4f5) !important; color: var(--text, #0a0a0a) !important; }
+      .__cm-settings-toggle:hover,
+      .__cm-action:hover { background: var(--surface-2, #f4f4f5) !important; color: var(--text, #0a0a0a) !important; }
+      .__cm-action-icon { color: #facc15 !important; flex-shrink: 0 !important; }
+      .__cm-action-name { flex: 1 !important; }
       .__cm-settings-icon { flex-shrink: 0 !important; }
       .__cm-settings-name { flex: 1 !important; }
       .__cm-settings-chevron {
@@ -542,4 +589,13 @@
   } else {
     report();
   }
+
+  // Page-side scripts (e.g. an "Manage themes" button on basic.html) can
+  // request the options page via this CustomEvent. The actual openOptionsPage
+  // call must happen in the background service worker.
+  window.addEventListener('chameleon:open-options', function () {
+    try {
+      chrome.runtime.sendMessage({ type: 'chameleon:open-options' });
+    } catch (e) { /* extension may have been reloaded */ }
+  });
 })();

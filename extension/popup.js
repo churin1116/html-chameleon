@@ -6,15 +6,27 @@
  * the active tab is a local file. Toggle the matching notice. The pickers
  * always work — chosen mode and style persist independently for any future
  * Chameleon-aware page.
+ *
+ * Theme list is filtered to the user's favorites (managed on the options
+ * page). 'system' is always visible regardless of favorites.
  */
 const STORAGE_KEY = 'chameleon-theme';
-const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight'];
+const FAVORITES_KEY = 'chameleon-favorites';
+const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint'];
 const VALID_STYLES = ['default', 'editorial', 'mono'];
+const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
 
 async function getCurrent() {
   const data = await chrome.storage.local.get(STORAGE_KEY);
   const stored = data[STORAGE_KEY];
   return (stored && typeof stored === 'object') ? stored : { mode: 'system', style: 'default' };
+}
+
+async function getFavorites() {
+  const data = await chrome.storage.local.get(FAVORITES_KEY);
+  const stored = data[FAVORITES_KEY];
+  if (Array.isArray(stored) && stored.length > 0) return stored;
+  return DEFAULT_FAVORITES.slice();
 }
 
 async function applyToActiveTab(theme) {
@@ -63,6 +75,16 @@ function highlight(theme) {
   });
   document.querySelectorAll('.preset[data-style]').forEach(b => {
     b.classList.toggle('active', b.dataset.style === style);
+  });
+}
+
+function applyFavorites(favorites) {
+  const favSet = new Set(favorites);
+  document.querySelectorAll('.preset[data-mode]').forEach(b => {
+    const mode = b.dataset.mode;
+    // 'system' is always visible regardless of favorites
+    const visible = mode === 'system' || favSet.has(mode);
+    b.classList.toggle('preset--hidden', !visible);
   });
 }
 
@@ -119,12 +141,26 @@ document.getElementById('open-settings-btn')?.addEventListener('click', e => {
   chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
 });
 
+document.getElementById('manage-themes-btn')?.addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
+});
+
+// Re-render visibility when favorites change in another context.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  if (changes[FAVORITES_KEY]) {
+    const favs = changes[FAVORITES_KEY].newValue;
+    applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
+  }
+});
+
 (async () => {
   const tab = await getActiveTab();
-  const [detected, current, fileAccess] = await Promise.all([
+  const [detected, current, fileAccess, favorites] = await Promise.all([
     checkActiveTabDetection(),
     getCurrent(),
-    checkFileAccess()
+    checkFileAccess(),
+    getFavorites()
   ]);
 
   const isFileUrl = !!(tab?.url && tab.url.startsWith('file://'));
@@ -139,9 +175,10 @@ document.getElementById('open-settings-btn')?.addEventListener('click', e => {
     statusPill.textContent = 'on';
     statusPill.classList.add('is-active');
   } else {
-    statusPill.textContent = 'v1.1';
+    statusPill.textContent = 'v1.2';
     statusPill.classList.remove('is-active');
   }
 
+  applyFavorites(favorites);
   highlight(current);
 })();
