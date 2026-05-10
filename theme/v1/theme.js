@@ -19,8 +19,11 @@
     'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude'
   ];
   // 'system' is a meta-mode: it resolves to light/dark via prefers-color-scheme
-  // at apply-time. It has no CSS block of its own.
-  var VALID_MODES = BUILTIN_THEMES.concat(['system']);
+  // at apply-time. 'custom' is a meta-mode for user-defined palettes — the
+  // extension resolves a palette id into the actual variable overrides before
+  // dispatch, so theme.js just sees `{ mode: 'custom', custom: {...} }`.
+  // Neither has a CSS block of its own.
+  var VALID_MODES = BUILTIN_THEMES.concat(['system', 'custom']);
   // Style is the orthogonal axis (fonts, radius, shadows). Independent of mode.
   var VALID_STYLES = ['default', 'editorial', 'mono'];
 
@@ -36,7 +39,11 @@
     if (!theme || typeof theme !== 'object') return;
     var root = document.documentElement;
 
-    if (theme.mode && VALID_MODES.indexOf(theme.mode) !== -1) {
+    if (theme.mode === 'custom') {
+      // No CSS block backs 'custom'; the inline custom: {...} overrides win
+      // anyway. Setting the attribute lets devtools / debugging show "custom".
+      root.setAttribute('data-theme', 'custom');
+    } else if (theme.mode && VALID_MODES.indexOf(theme.mode) !== -1) {
       var actualMode = resolveMode(theme.mode);
       if (BUILTIN_THEMES.indexOf(actualMode) !== -1) {
         root.setAttribute('data-theme', actualMode);
@@ -156,7 +163,7 @@
 
   // Public API.
   window.Chameleon = {
-    version: '1.2.0',
+    version: '1.3.0',
     presets: BUILTIN_THEMES.slice(),
     modes: VALID_MODES.slice(),
     styles: VALID_STYLES.slice(),

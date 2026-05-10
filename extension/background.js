@@ -36,6 +36,12 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     return;
   }
 
+  // Open the customise palette editor in a new tab.
+  if (msg?.type === 'chameleon:open-customize') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('customize.html') });
+    return;
+  }
+
   // Open the side-panel chat. chrome.sidePanel.open() must be called from a
   // user-gesture handler — it's allowed inside chrome.runtime.onMessage when
   // the message originated from a content-script click event.

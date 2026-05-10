@@ -22,6 +22,7 @@
   const STORAGE_KEY = 'chameleon-theme';
   const POSITION_KEY = 'chameleon-position';
   const FAVORITES_KEY = 'chameleon-favorites';
+  const PALETTES_KEY = 'chameleon-custom-palettes';
   const RAIL_ID = '__chameleon-rail';
   const STYLE_ID = '__chameleon-rail-style';
   const VALID_POSITIONS = ['tl', 'tr', 'bl', 'br'];
@@ -55,16 +56,38 @@
   ];
 
   // ---------- Apply theme via CustomEvent (CSP-safe; no inline script injection) ----------
+  // For mode === 'custom' we resolve the palette id into the actual variable
+  // overrides before dispatch — theme.js never needs to know about palette
+  // storage; it just receives `{ mode: 'custom', custom: {...} }`.
+  function resolveTheme(theme, cb) {
+    if (theme && theme.mode === 'custom' && theme.customId) {
+      chrome.storage.local.get(PALETTES_KEY, function (data) {
+        const palettes = data[PALETTES_KEY] || {};
+        const palette = palettes[theme.customId];
+        if (palette && palette.vars) {
+          cb(Object.assign({}, theme, { custom: palette.vars }));
+        } else {
+          // Palette was deleted — fall back gracefully to the previously-set base.
+          cb(Object.assign({}, theme, { mode: 'claude', custom: undefined }));
+        }
+      });
+    } else {
+      cb(theme);
+    }
+  }
+
   function applyToPage(theme) {
-    function fire() {
-      try {
-        window.dispatchEvent(new CustomEvent('chameleon:apply-theme', { detail: theme }));
-      } catch (e) { /* swallow */ }
-    }
-    fire();
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fire, { once: true });
-    }
+    resolveTheme(theme, function (resolved) {
+      function fire() {
+        try {
+          window.dispatchEvent(new CustomEvent('chameleon:apply-theme', { detail: resolved }));
+        } catch (e) { /* swallow */ }
+      }
+      fire();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fire, { once: true });
+      }
+    });
   }
 
   // 1) Apply persisted theme as early as possible.
@@ -95,6 +118,16 @@
       const favs = changes[FAVORITES_KEY].newValue;
       applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
     }
+    if (changes[PALETTES_KEY]) {
+      // Re-render the custom-palette section of the rail so adds / renames /
+      // deletes show up immediately on already-open tabs.
+      rebuildCustomSection(changes[PALETTES_KEY].newValue || {});
+      // If the active palette is the one that just changed, re-resolve & apply.
+      chrome.storage.local.get(STORAGE_KEY, function (data) {
+        const t = data[STORAGE_KEY];
+        if (t && t.mode === 'custom') applyToPage(t);
+      });
+    }
   });
 
   // ---------- Floating palette injection (only on detected pages) ----------
@@ -102,18 +135,20 @@
     if (document.getElementById(RAIL_ID)) return;
     if (!document.body) return;
 
-    chrome.storage.local.get([POSITION_KEY, STORAGE_KEY, FAVORITES_KEY], function (data) {
+    chrome.storage.local.get([POSITION_KEY, STORAGE_KEY, FAVORITES_KEY, PALETTES_KEY], function (data) {
       const pos = VALID_POSITIONS.indexOf(data[POSITION_KEY]) !== -1
         ? data[POSITION_KEY] : DEFAULT_POSITION;
       const theme = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object')
         ? data[STORAGE_KEY] : { mode: 'light' };
       const favorites = (Array.isArray(data[FAVORITES_KEY]) && data[FAVORITES_KEY].length)
         ? data[FAVORITES_KEY] : DEFAULT_FAVORITES;
-      buildRail(pos, theme, favorites);
+      const palettes = (data[PALETTES_KEY] && typeof data[PALETTES_KEY] === 'object')
+        ? data[PALETTES_KEY] : {};
+      buildRail(pos, theme, favorites, palettes);
     });
   }
 
-  function buildRail(initialPos, initialTheme, initialFavorites) {
+  function buildRail(initialPos, initialTheme, initialFavorites, initialPalettes) {
     if (document.getElementById(RAIL_ID)) return;
 
     // Inject style tag (page CSS variables with safe fallbacks)
@@ -158,6 +193,8 @@
       </button>
       <div class="__cm-menu" role="listbox" hidden>
         ${items}
+        <div class="__cm-divider __cm-divider-custom" role="separator" data-custom-divider hidden></div>
+        <div class="__cm-custom-section" data-custom-section></div>
         <div class="__cm-divider" role="separator"></div>
         ${styleItems}
         <div class="__cm-divider" role="separator"></div>
@@ -166,6 +203,13 @@
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           <span class="__cm-action-name">Manage themes</span>
+        </button>
+        <button class="__cm-action" data-action="customize" type="button">
+          <svg class="__cm-action-icon __cm-action-icon-customize" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3a9 9 0 0 1 0 18c-1.7 0-2-1-1.5-1.7.6-.7 1-1.5.5-2.3-.5-.7-1.7-.4-2.3-.2C7.5 17.4 6 16 6 14.4c0-.9.7-1.6 1.7-1.6 1 0 1.6-.7 1.6-1.4 0-.9-1-1-1-2 0-1 1-1.7 2.2-1.7 1 0 1.5.5 2.5.5"/>
+          </svg>
+          <span class="__cm-action-name">Customize palette</span>
         </button>
         ${isLocalFile() ? `
         <button class="__cm-action __cm-action-chat" data-action="chat" type="button">
@@ -223,13 +267,17 @@
     });
 
     // Color (mode) clicks — merge with existing state so style is preserved.
+    // Picking a built-in clears any stale customId carried over from a previous
+    // custom palette selection.
     rail.querySelectorAll('.__cm-item[data-mode]').forEach(item => {
       item.addEventListener('click', e => {
         e.stopPropagation();
         const mode = item.dataset.mode;
         chrome.storage.local.get(STORAGE_KEY, data => {
           const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
-          chrome.storage.local.set({ [STORAGE_KEY]: Object.assign({}, current, { mode }) });
+          const next = Object.assign({}, current, { mode });
+          delete next.customId;
+          chrome.storage.local.set({ [STORAGE_KEY]: next });
         });
         close();
       });
@@ -260,6 +308,16 @@
         e.stopPropagation();
         try {
           chrome.runtime.sendMessage({ type: 'chameleon:open-options' });
+        } catch (err) { /* extension may have been reloaded */ }
+        close();
+      });
+    });
+
+    rail.querySelectorAll('[data-action="customize"]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        try {
+          chrome.runtime.sendMessage({ type: 'chameleon:open-customize' });
         } catch (err) { /* extension may have been reloaded */ }
         close();
       });
@@ -300,6 +358,68 @@
     syncPaletteState(initialTheme);
     syncPositionCells(initialPos);
     applyFavorites(initialFavorites || DEFAULT_FAVORITES);
+    rebuildCustomSection(initialPalettes || {});
+  }
+
+  /* ----------------------------------------------------------------
+     Custom palette section in the rail menu — renders one item per
+     saved palette. Re-rendered when chrome.storage.local[PALETTES_KEY]
+     changes (palette added / renamed / deleted from the customize page).
+     ---------------------------------------------------------------- */
+  function rebuildCustomSection(palettes) {
+    const container = document.querySelector('#' + RAIL_ID + ' [data-custom-section]');
+    const divider = document.querySelector('#' + RAIL_ID + ' [data-custom-divider]');
+    if (!container) return;
+    const ids = Object.keys(palettes || {}).sort(function (a, b) {
+      return (palettes[b].updatedAt || 0) - (palettes[a].updatedAt || 0);
+    });
+    if (ids.length === 0) {
+      container.innerHTML = '';
+      if (divider) divider.hidden = true;
+      return;
+    }
+    if (divider) divider.hidden = false;
+    container.innerHTML = ids.map(function (id) {
+      const p = palettes[id];
+      const canvas = (p.vars && p.vars.canvas) || '#ffffff';
+      const primary = (p.vars && p.vars.primary) || '#000000';
+      const grad = 'linear-gradient(135deg, ' + canvas + ' 50%, ' + primary + ' 50%)';
+      const safeName = String(p.name || 'Untitled').replace(/[<>"&]/g, function (c) {
+        return ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', '&': '&amp;' })[c];
+      });
+      return '<button class="__cm-item" data-mode="custom" data-custom-id="' + id +
+             '" role="option" aria-selected="false" type="button">' +
+             '<span class="__cm-item-swatch" style="background: ' + grad + ';" aria-hidden="true"></span>' +
+             '<span class="__cm-item-name">' + safeName + '</span>' +
+             '<svg class="__cm-item-check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">' +
+             '<path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+             '</svg></button>';
+    }).join('');
+
+    // Wire click handlers for the new items
+    container.querySelectorAll('.__cm-item[data-custom-id]').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const customId = item.dataset.customId;
+        chrome.storage.local.get(STORAGE_KEY, function (data) {
+          const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
+          chrome.storage.local.set({
+            [STORAGE_KEY]: Object.assign({}, current, { mode: 'custom', customId: customId }),
+          });
+        });
+        // Close the menu after click
+        const trigger = document.querySelector('#' + RAIL_ID + ' .__cm-trigger');
+        const menu = document.querySelector('#' + RAIL_ID + ' .__cm-menu');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        if (menu) menu.hidden = true;
+      });
+    });
+
+    // Refresh selection state for new items if active theme is one of these
+    chrome.storage.local.get(STORAGE_KEY, function (data) {
+      const t = data[STORAGE_KEY] || {};
+      syncPaletteState(t);
+    });
   }
 
   function applyFavorites(favorites) {
@@ -335,8 +455,16 @@
     }
     // Color axis
     const mode = theme.mode || 'system';
+    const activeCustomId = mode === 'custom' ? (theme.customId || null) : null;
     document.querySelectorAll('#' + RAIL_ID + ' .__cm-item[data-mode]').forEach(item => {
-      item.setAttribute('aria-selected', item.dataset.mode === mode ? 'true' : 'false');
+      let selected;
+      if (item.dataset.mode === 'custom') {
+        // Custom items disambiguate by id, not just mode
+        selected = (mode === 'custom' && item.dataset.customId === activeCustomId);
+      } else {
+        selected = (item.dataset.mode === mode);
+      }
+      item.setAttribute('aria-selected', selected ? 'true' : 'false');
     });
     // Style axis
     const style = theme.style || 'default';
@@ -533,6 +661,9 @@
       .__cm-action:hover { background: var(--surface-2, #f4f4f5) !important; color: var(--text, #0a0a0a) !important; }
       .__cm-action-icon { color: #facc15 !important; flex-shrink: 0 !important; }
       .__cm-action-icon-chat { color: var(--primary, #2563eb) !important; }
+      .__cm-action-icon-customize { color: var(--accent, #ec4899) !important; }
+      .__cm-divider-custom { display: none !important; }
+      .__cm-divider-custom:not([hidden]) { display: block !important; }
       .__cm-action-name { flex: 1 !important; }
       .__cm-settings-icon { flex-shrink: 0 !important; }
       .__cm-settings-name { flex: 1 !important; }

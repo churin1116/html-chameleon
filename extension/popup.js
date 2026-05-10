@@ -12,7 +12,8 @@
  */
 const STORAGE_KEY = 'chameleon-theme';
 const FAVORITES_KEY = 'chameleon-favorites';
-const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude'];
+const PALETTES_KEY = 'chameleon-custom-palettes';
+const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude', 'custom'];
 const VALID_STYLES = ['default', 'editorial', 'mono'];
 const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight', 'claude'];
 
@@ -29,14 +30,34 @@ async function getFavorites() {
   return DEFAULT_FAVORITES.slice();
 }
 
+async function getPalettes() {
+  const data = await chrome.storage.local.get(PALETTES_KEY);
+  return (data[PALETTES_KEY] && typeof data[PALETTES_KEY] === 'object') ? data[PALETTES_KEY] : {};
+}
+
+/* For mode === 'custom', resolve the palette id into the actual variable
+   overrides before sending to the page — page-side theme.js doesn't know
+   about the palettes store, only `{ mode, custom: {...} }`. */
+async function resolveTheme(theme) {
+  if (theme && theme.mode === 'custom' && theme.customId) {
+    const palettes = await getPalettes();
+    const palette = palettes[theme.customId];
+    if (palette && palette.vars) {
+      return Object.assign({}, theme, { custom: palette.vars });
+    }
+  }
+  return theme;
+}
+
 async function applyToActiveTab(theme) {
   try {
+    const resolved = await resolveTheme(theme);
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) return;
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       world: 'MAIN',
-      args: [theme],
+      args: [resolved],
       func: (t) => {
         try {
           localStorage.setItem('chameleon-theme', JSON.stringify(t));
@@ -49,10 +70,15 @@ async function applyToActiveTab(theme) {
   } catch (e) { /* tab may be chrome:// etc. */ }
 }
 
-async function setMode(mode) {
+async function setMode(mode, customId) {
   if (!VALID_MODES.includes(mode)) return;
   const current = await getCurrent();
   current.mode = mode;
+  if (mode === 'custom' && customId) {
+    current.customId = customId;
+  } else {
+    delete current.customId;
+  }
   await chrome.storage.local.set({ [STORAGE_KEY]: current });
   await applyToActiveTab(current);
   highlight(current);
@@ -70,11 +96,55 @@ async function setStyle(style) {
 function highlight(theme) {
   const mode = theme.mode || 'system';
   const style = theme.style || 'default';
+  const customId = mode === 'custom' ? (theme.customId || null) : null;
   document.querySelectorAll('.preset[data-mode]').forEach(b => {
-    b.classList.toggle('active', b.dataset.mode === mode);
+    if (b.dataset.mode === 'custom') {
+      b.classList.toggle('active', mode === 'custom' && b.dataset.customId === customId);
+    } else {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    }
   });
   document.querySelectorAll('.preset[data-style]').forEach(b => {
     b.classList.toggle('active', b.dataset.style === style);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function renderCustomPalettes(palettes, currentTheme) {
+  const container = document.getElementById('custom-palettes');
+  if (!container) return;
+  const ids = Object.keys(palettes).sort((a, b) => (palettes[b].updatedAt || 0) - (palettes[a].updatedAt || 0));
+  if (ids.length === 0) {
+    container.hidden = true;
+    container.innerHTML = '';
+    return;
+  }
+  container.hidden = false;
+  const activeCustomId = currentTheme.mode === 'custom' ? (currentTheme.customId || null) : null;
+  container.innerHTML = `
+    <div class="popup__divider" role="separator"></div>
+    <div class="popup__sublabel">Your palettes</div>
+    ${ids.map(id => {
+      const p = palettes[id];
+      const canvas = (p.vars && p.vars.canvas) || '#ffffff';
+      const primary = (p.vars && p.vars.primary) || '#000000';
+      const isActive = id === activeCustomId;
+      return `
+        <button class="preset ${isActive ? 'active' : ''}" data-mode="custom" data-custom-id="${id}" type="button">
+          <span class="preset__swatch" style="background: linear-gradient(135deg, ${canvas} 50%, ${primary} 50%);"></span>
+          <span class="preset__name">${escapeHtml(p.name || 'Untitled')}</span>
+          <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      `;
+    }).join('')}
+  `;
+  container.querySelectorAll('.preset[data-custom-id]').forEach(b => {
+    b.addEventListener('click', () => setMode('custom', b.dataset.customId));
   });
 }
 
@@ -145,22 +215,35 @@ document.getElementById('manage-themes-btn')?.addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
-// Re-render visibility when favorites change in another context.
-chrome.storage.onChanged.addListener((changes, area) => {
+document.getElementById('customize-palette-btn')?.addEventListener('click', () => {
+  try {
+    chrome.runtime.sendMessage({ type: 'chameleon:open-customize' });
+  } catch (e) { /* extension may have been reloaded */ }
+  window.close();
+});
+
+// Re-render visibility when favorites or custom palettes change in another context.
+chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== 'local') return;
   if (changes[FAVORITES_KEY]) {
     const favs = changes[FAVORITES_KEY].newValue;
     applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
   }
+  if (changes[PALETTES_KEY] || changes[STORAGE_KEY]) {
+    const [palettes, current] = await Promise.all([getPalettes(), getCurrent()]);
+    renderCustomPalettes(palettes, current);
+    highlight(current);
+  }
 });
 
 (async () => {
   const tab = await getActiveTab();
-  const [detected, current, fileAccess, favorites] = await Promise.all([
+  const [detected, current, fileAccess, favorites, palettes] = await Promise.all([
     checkActiveTabDetection(),
     getCurrent(),
     checkFileAccess(),
-    getFavorites()
+    getFavorites(),
+    getPalettes(),
   ]);
 
   const isFileUrl = !!(tab?.url && tab.url.startsWith('file://'));
@@ -175,10 +258,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
     statusPill.textContent = 'on';
     statusPill.classList.add('is-active');
   } else {
-    statusPill.textContent = 'v1.2';
+    statusPill.textContent = 'v1.3';
     statusPill.classList.remove('is-active');
   }
 
   applyFavorites(favorites);
+  renderCustomPalettes(palettes, current);
   highlight(current);
 })();

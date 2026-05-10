@@ -90,11 +90,22 @@
         <svg class="preset__check" width="11" height="11" viewBox="0 0 10 10"><path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
+
+    <!-- Custom palettes (populated from chrome.storage by popup.js) -->
+    <div class="popup__custom-palettes" id="custom-palettes" hidden></div>
+
     <button class="popup__manage" id="manage-themes-btn" type="button">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
       </svg>
       <span>Manage themes</span>
+    </button>
+    <button class="popup__manage" id="customize-palette-btn" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3a9 9 0 0 1 0 18c-1.7 0-2-1-1.5-1.7.6-.7 1-1.5.5-2.3-.5-.7-1.7-.4-2.3-.2C7.5 17.4 6 16 6 14.4c0-.9.7-1.6 1.7-1.6 1 0 1.6-.7 1.6-1.4 0-.9-1-1-1-2 0-1 1-1.7 2.2-1.7 1 0 1.5.5 2.5.5"/>
+      </svg>
+      <span>Customize palette</span>
     </button>
   </section>
 

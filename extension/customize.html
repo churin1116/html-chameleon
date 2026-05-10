@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="claude" data-style="default">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="chameleon" content="v1">
+<title>Chameleon — Customize palette</title>
+
+<link rel="icon" type="image/png" href="icons/icon-128.png">
+<link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
+<script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
+
+<link rel="stylesheet" href="customize.css">
+</head>
+<body class="bg-canvas">
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="lizard" aria-hidden="true">🦎</span>
+    <span class="topbar__title">Chameleon · Customize palette</span>
+  </div>
+  <a href="https://github.com/churin1116/html-chameleon" target="_blank" rel="noopener" class="topbar__link text-subtle">github ↗</a>
+</header>
+
+<main class="layout">
+
+  <!-- ========================================================
+       Sidebar: palette list + CRUD
+       ======================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <h2 class="sidebar__title">Your palettes</h2>
+      <button class="btn btn-primary btn-sm" id="btn-new" type="button">+ New</button>
+    </div>
+    <ul class="palette-list" id="palette-list" role="listbox" aria-label="Saved palettes"></ul>
+    <p class="sidebar__hint text-subtle" id="empty-hint" hidden>
+      No palettes yet. Click <strong>+ New</strong> to create one — it'll start as a copy of the Claude theme.
+    </p>
+  </aside>
+
+  <!-- ========================================================
+       Editor: name + 23-var picker grid + actions
+       ======================================================== -->
+  <section class="editor" id="editor" hidden>
+    <div class="editor__head">
+      <input class="editor__name" id="palette-name" type="text" placeholder="Palette name" maxlength="40">
+      <div class="editor__actions">
+        <button class="btn btn-ghost btn-sm" id="btn-duplicate" type="button" title="Duplicate this palette">Duplicate</button>
+        <button class="btn btn-ghost btn-sm" id="btn-delete" type="button" title="Delete this palette">Delete</button>
+        <button class="btn btn-primary" id="btn-apply" type="button">Apply this palette</button>
+      </div>
+    </div>
+
+    <p class="editor__status text-subtle" id="editor-status">Edits auto-save. Apply to make this the active theme on every Chameleon page.</p>
+
+    <!-- Color picker grid - grouped by role family -->
+    <div class="groups" id="groups"></div>
+
+    <!-- Live preview -->
+    <div class="preview-wrap">
+      <span class="eyebrow">Live preview · this card uses your palette</span>
+      <div class="preview-card card" id="preview-card">
+        <div class="preview-row">
+          <h3 class="preview-h3">Hello, themed world</h3>
+          <span class="badge badge-success">shipped</span>
+          <span class="badge badge-info">info</span>
+          <span class="badge badge-warning">due soon</span>
+        </div>
+        <p class="text-muted preview-body">
+          Card body uses <code>--surface</code>, this paragraph uses <code>--text-muted</code>,
+          and the <a href="#" onclick="return false">link</a> uses <code>--primary</code>.
+        </p>
+        <div class="preview-row">
+          <button class="btn btn-primary" type="button">Primary</button>
+          <button class="btn btn-secondary" type="button">Secondary</button>
+          <button class="btn btn-ghost" type="button">Ghost</button>
+          <button class="btn btn-danger" type="button">Danger</button>
+        </div>
+        <div class="alert alert-info" style="margin-top: 12px;">Heads-up — alert-info uses <code>--info</code>.</div>
+        <div class="bg-warning-soft" style="padding: 10px 12px; margin-top: 8px; border-radius: var(--radius-md);">Soft warning callout — <code>bg-warning-soft</code>.</div>
+      </div>
+    </div>
+
+    <!-- Bulk paste & AI prompt -->
+    <details class="bulk" id="bulk" open>
+      <summary class="bulk__summary">
+        <span class="bulk__title">Paste CSS or generate with AI</span>
+        <span class="text-subtle bulk__hint">paste a <code>:root { ... }</code> block, or copy the AI prompt below</span>
+      </summary>
+      <div class="bulk__body">
+        <textarea
+          class="bulk__textarea"
+          id="bulk-textarea"
+          rows="9"
+          placeholder=":root {&#10;  --canvas: #...;&#10;  --surface: #...;&#10;  --text: #...;&#10;  --primary: #...;&#10;  ...&#10;}"
+          spellcheck="false"
+        ></textarea>
+        <div class="bulk__actions">
+          <button class="btn btn-primary" id="btn-apply-css" type="button">Apply CSS to fields</button>
+          <button class="btn btn-ghost" id="btn-copy-prompt" type="button">📋 Copy AI prompt</button>
+          <button class="btn btn-ghost" id="btn-export-css" type="button">⬇ Export current as CSS</button>
+        </div>
+        <p class="bulk__feedback text-subtle" id="bulk-feedback" aria-live="polite"></p>
+      </div>
+    </details>
+  </section>
+
+  <!-- Empty state when no palette is selected -->
+  <section class="welcome" id="welcome">
+    <div class="welcome__inner">
+      <span class="welcome__logo" aria-hidden="true">🦎</span>
+      <h2>Build your own Chameleon palette</h2>
+      <p class="text-muted">
+        Create a fully customised theme — edit each of the 23 semantic variables, paste a CSS block from your favourite AI, and apply it to every Chameleon-aware page in one click.
+      </p>
+      <button class="btn btn-primary" id="btn-new-welcome" type="button">+ Create your first palette</button>
+    </div>
+  </section>
+
+</main>
+
+<script src="customize.js"></script>
+</body>
+</html>
