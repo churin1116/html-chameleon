@@ -96,9 +96,11 @@
     if (pageMode && VALID_MODES.indexOf(pageMode) !== -1) {
       theme.mode = pageMode;
     } else {
-      var prefersDark = !!(window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
-      theme.mode = prefersDark ? 'dark' : 'light';
+      // Default to the meta-mode 'system' so the page stays in lockstep with
+      // the OS preference (resolveMode resolves to 'light'/'dark' at apply
+      // time, and the matchMedia listener re-applies on OS flips). This also
+      // matches the extension popup's default which already shows "System".
+      theme.mode = 'system';
     }
 
     var pageStyle = root.getAttribute('data-style');
@@ -163,7 +165,7 @@
 
   // Public API.
   window.Chameleon = {
-    version: '1.3.0',
+    version: '1.3.1',
     presets: BUILTIN_THEMES.slice(),
     modes: VALID_MODES.slice(),
     styles: VALID_STYLES.slice(),

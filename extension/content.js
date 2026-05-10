@@ -268,7 +268,8 @@
 
     // Color (mode) clicks — merge with existing state so style is preserved.
     // Picking a built-in clears any stale customId carried over from a previous
-    // custom palette selection.
+    // custom palette selection. The menu stays open after selection so the user
+    // can preview multiple themes without reopening; click outside to dismiss.
     rail.querySelectorAll('.__cm-item[data-mode]').forEach(item => {
       item.addEventListener('click', e => {
         e.stopPropagation();
@@ -279,11 +280,11 @@
           delete next.customId;
           chrome.storage.local.set({ [STORAGE_KEY]: next });
         });
-        close();
       });
     });
 
     // Style clicks — merge with existing state so mode is preserved.
+    // Same stay-open behaviour as colour selection.
     rail.querySelectorAll('.__cm-item[data-style]').forEach(item => {
       item.addEventListener('click', e => {
         e.stopPropagation();
@@ -292,7 +293,6 @@
           const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
           chrome.storage.local.set({ [STORAGE_KEY]: Object.assign({}, current, { style }) });
         });
-        close();
       });
     });
 
@@ -396,7 +396,8 @@
              '</svg></button>';
     }).join('');
 
-    // Wire click handlers for the new items
+    // Wire click handlers for the new items. Same stay-open behaviour as
+    // built-in mode/style selection — outside-click closes the menu.
     container.querySelectorAll('.__cm-item[data-custom-id]').forEach(function (item) {
       item.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -407,11 +408,6 @@
             [STORAGE_KEY]: Object.assign({}, current, { mode: 'custom', customId: customId }),
           });
         });
-        // Close the menu after click
-        const trigger = document.querySelector('#' + RAIL_ID + ' .__cm-trigger');
-        const menu = document.querySelector('#' + RAIL_ID + ' .__cm-menu');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
-        if (menu) menu.hidden = true;
       });
     });
 
