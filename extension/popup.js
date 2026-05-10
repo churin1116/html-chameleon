@@ -13,9 +13,12 @@
 const STORAGE_KEY = 'chameleon-theme';
 const FAVORITES_KEY = 'chameleon-favorites';
 const PALETTES_KEY = 'chameleon-custom-palettes';
+const PROJECT_KEY_PREFIX = 'chameleon-project:';
 const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude', 'graphite', 'nocturne', 'custom'];
 const VALID_STYLES = ['default', 'editorial', 'mono'];
 const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight', 'claude'];
+
+let CURRENT_PROJECT_KEY = null; // detected per active tab in the boot sequence
 
 async function getCurrent() {
   const data = await chrome.storage.local.get(STORAGE_KEY);
@@ -33,6 +36,75 @@ async function getFavorites() {
 async function getPalettes() {
   const data = await chrome.storage.local.get(PALETTES_KEY);
   return (data[PALETTES_KEY] && typeof data[PALETTES_KEY] === 'object') ? data[PALETTES_KEY] : {};
+}
+
+/* Project key: probe the active tab's <meta name="chameleon-project">.
+   Returns null for chrome://, file:// without permission, or untagged pages.
+   When non-null, the popup's mode/customId writes route to chrome.storage.sync
+   under chameleon-project:<key> instead of the global chameleon-theme. */
+async function detectProjectKey() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return null;
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        try {
+          const meta = document.querySelector('meta[name="chameleon-project"]');
+          if (!meta) return null;
+          const raw = (meta.getAttribute('content') || '').trim();
+          return raw.replace(/[^a-zA-Z0-9._-]+/g, '-').slice(0, 64) || null;
+        } catch (e) { return null; }
+      },
+    });
+    return (result && result.result) || null;
+  } catch (e) { return null; }
+}
+
+async function getActiveTheme() {
+  const local = await chrome.storage.local.get(STORAGE_KEY);
+  const globalTheme = (local[STORAGE_KEY] && typeof local[STORAGE_KEY] === 'object') ? local[STORAGE_KEY] : {};
+  if (CURRENT_PROJECT_KEY) {
+    const k = PROJECT_KEY_PREFIX + CURRENT_PROJECT_KEY;
+    const sync = await chrome.storage.sync.get(k);
+    const projectTheme = sync[k];
+    if (projectTheme && typeof projectTheme === 'object') {
+      return Object.assign({}, globalTheme, projectTheme);
+    }
+  }
+  return Object.assign({ mode: 'system', style: 'default' }, globalTheme);
+}
+
+async function patchActiveTheme(patch) {
+  const local = await chrome.storage.local.get(STORAGE_KEY);
+  const globalTheme = (local[STORAGE_KEY] && typeof local[STORAGE_KEY] === 'object')
+    ? Object.assign({}, local[STORAGE_KEY]) : {};
+  if ('style' in patch && patch.style !== undefined) globalTheme.style = patch.style;
+
+  const isColorPatch = ('mode' in patch) || ('customId' in patch);
+  if (CURRENT_PROJECT_KEY && isColorPatch) {
+    const k = PROJECT_KEY_PREFIX + CURRENT_PROJECT_KEY;
+    const sync = await chrome.storage.sync.get(k);
+    const existing = (sync[k] && typeof sync[k] === 'object') ? Object.assign({}, sync[k]) : {};
+    if ('mode' in patch) existing.mode = patch.mode;
+    if ('customId' in patch) {
+      if (patch.customId == null) delete existing.customId;
+      else existing.customId = patch.customId;
+    } else if (patch.mode && patch.mode !== 'custom') {
+      delete existing.customId;
+    }
+    await chrome.storage.sync.set({ [k]: existing });
+    if ('style' in patch) await chrome.storage.local.set({ [STORAGE_KEY]: globalTheme });
+  } else {
+    if ('mode' in patch) globalTheme.mode = patch.mode;
+    if ('customId' in patch) {
+      if (patch.customId == null) delete globalTheme.customId;
+      else globalTheme.customId = patch.customId;
+    } else if (patch.mode && patch.mode !== 'custom') {
+      delete globalTheme.customId;
+    }
+    await chrome.storage.local.set({ [STORAGE_KEY]: globalTheme });
+  }
 }
 
 /* For mode === 'custom', resolve the palette id into the actual variable
@@ -72,23 +144,19 @@ async function applyToActiveTab(theme) {
 
 async function setMode(mode, customId) {
   if (!VALID_MODES.includes(mode)) return;
-  const current = await getCurrent();
-  current.mode = mode;
-  if (mode === 'custom' && customId) {
-    current.customId = customId;
-  } else {
-    delete current.customId;
-  }
-  await chrome.storage.local.set({ [STORAGE_KEY]: current });
+  const patch = { mode };
+  if (mode === 'custom' && customId) patch.customId = customId;
+  else patch.customId = null; // clear any stale custom binding
+  await patchActiveTheme(patch);
+  const current = await getActiveTheme();
   await applyToActiveTab(current);
   highlight(current);
 }
 
 async function setStyle(style) {
   if (!VALID_STYLES.includes(style)) return;
-  const current = await getCurrent();
-  current.style = style;
-  await chrome.storage.local.set({ [STORAGE_KEY]: current });
+  await patchActiveTheme({ style });
+  const current = await getActiveTheme();
   await applyToActiveTab(current);
   highlight(current);
 }
@@ -222,25 +290,49 @@ document.getElementById('customize-palette-btn')?.addEventListener('click', () =
   window.close();
 });
 
-// Re-render visibility when favorites or custom palettes change in another context.
+// Re-render visibility when favorites, palettes, or per-project storage changes.
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area !== 'local') return;
-  if (changes[FAVORITES_KEY]) {
-    const favs = changes[FAVORITES_KEY].newValue;
-    applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
+  if (area === 'local') {
+    if (changes[FAVORITES_KEY]) {
+      const favs = changes[FAVORITES_KEY].newValue;
+      applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
+    }
+    if (changes[PALETTES_KEY] || changes[STORAGE_KEY]) {
+      const [palettes, current] = await Promise.all([getPalettes(), getActiveTheme()]);
+      renderCustomPalettes(palettes, current);
+      highlight(current);
+    }
+    return;
   }
-  if (changes[PALETTES_KEY] || changes[STORAGE_KEY]) {
-    const [palettes, current] = await Promise.all([getPalettes(), getCurrent()]);
-    renderCustomPalettes(palettes, current);
-    highlight(current);
+  if (area === 'sync' && CURRENT_PROJECT_KEY) {
+    const k = PROJECT_KEY_PREFIX + CURRENT_PROJECT_KEY;
+    if (changes[k]) {
+      const [palettes, current] = await Promise.all([getPalettes(), getActiveTheme()]);
+      renderCustomPalettes(palettes, current);
+      highlight(current);
+    }
   }
 });
 
+function renderProjectBadge() {
+  const badge = document.getElementById('project-badge');
+  if (!badge) return;
+  if (CURRENT_PROJECT_KEY) {
+    badge.hidden = false;
+    badge.querySelector('.project-badge__name').textContent = CURRENT_PROJECT_KEY;
+  } else {
+    badge.hidden = true;
+  }
+}
+
 (async () => {
+  // Detect project key BEFORE the first read so getActiveTheme routes correctly.
+  CURRENT_PROJECT_KEY = await detectProjectKey();
+
   const tab = await getActiveTab();
   const [detected, current, fileAccess, favorites, palettes] = await Promise.all([
     checkActiveTabDetection(),
-    getCurrent(),
+    getActiveTheme(),
     checkFileAccess(),
     getFavorites(),
     getPalettes(),
@@ -258,10 +350,11 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
     statusPill.textContent = 'on';
     statusPill.classList.add('is-active');
   } else {
-    statusPill.textContent = 'v1.4';
+    statusPill.textContent = 'v1.5';
     statusPill.classList.remove('is-active');
   }
 
+  renderProjectBadge();
   applyFavorites(favorites);
   renderCustomPalettes(palettes, current);
   highlight(current);

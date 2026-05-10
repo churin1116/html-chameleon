@@ -6,6 +6,7 @@
  * Stored as chrome.storage.local['chameleon-favorites'] = [<theme-id>, ...].
  */
 const FAVORITES_KEY = 'chameleon-favorites';
+const PROJECT_KEY_PREFIX = 'chameleon-project:';
 
 const ALL_THEMES = [
   { id: 'light',    label: 'Light',    gradient: 'linear-gradient(135deg, #ffffff 50%, #2563eb 50%)' },
@@ -126,8 +127,108 @@ document.getElementById('approve-input')?.addEventListener('change', async e => 
   await chrome.storage.local.set({ [APPROVE_KEY]: e.target.checked });
 });
 
+/* ----------------------------------------------------------------
+   Per-project overrides — read all chameleon-project:* entries from
+   chrome.storage.sync, render as a deletable list. Each row shows the
+   project tag, a tiny swatch derived from the saved palette/preset,
+   and a "Reset" button that removes the override (the project then
+   falls back to the page-declared <html data-theme>).
+   ---------------------------------------------------------------- */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+async function getAllProjectOverrides() {
+  return new Promise(resolve => {
+    chrome.storage.sync.get(null, items => {
+      const out = {};
+      Object.keys(items || {}).forEach(k => {
+        if (k.startsWith(PROJECT_KEY_PREFIX)) {
+          out[k.slice(PROJECT_KEY_PREFIX.length)] = items[k];
+        }
+      });
+      resolve(out);
+    });
+  });
+}
+
+function projectThemeLabel(theme) {
+  if (!theme) return '—';
+  if (theme.mode === 'custom' && theme.customId) return 'custom · ' + theme.customId.slice(0, 8);
+  return theme.mode || '—';
+}
+
+async function renderProjects() {
+  const list = document.getElementById('project-list');
+  const empty = document.getElementById('project-empty');
+  if (!list) return;
+  const overrides = await getAllProjectOverrides();
+  const ids = Object.keys(overrides).sort();
+  if (ids.length === 0) {
+    list.innerHTML = '';
+    if (empty) empty.hidden = false;
+    return;
+  }
+  if (empty) empty.hidden = true;
+  // Get palettes to derive swatch colours for custom-mode entries
+  const palettesData = await chrome.storage.local.get('chameleon-custom-palettes');
+  const palettes = palettesData['chameleon-custom-palettes'] || {};
+  // Map each built-in mode to a swatch gradient (matches PRESETS in content.js)
+  const BUILTIN_GRADIENTS = {
+    light:    'linear-gradient(135deg, #ffffff 50%, #2563eb 50%)',
+    dark:     'linear-gradient(135deg, #0a0a0a 50%, #60a5fa 50%)',
+    sunset:   'linear-gradient(135deg, #fff7ed 50%, #ea580c 50%)',
+    forest:   'linear-gradient(135deg, #f0fdf4 50%, #15803d 50%)',
+    midnight: 'linear-gradient(135deg, #030712 50%, #a78bfa 50%)',
+    ocean:    'linear-gradient(135deg, #f0f9ff 50%, #0284c7 50%)',
+    rose:     'linear-gradient(135deg, #fff1f2 50%, #e11d48 50%)',
+    slate:    'linear-gradient(135deg, #f8fafc 50%, #475569 50%)',
+    lavender: 'linear-gradient(135deg, #faf5ff 50%, #9333ea 50%)',
+    mint:     'linear-gradient(135deg, #f0fdfa 50%, #0d9488 50%)',
+    claude:   'linear-gradient(135deg, #faf9f5 50%, #d97757 50%)',
+    graphite: 'linear-gradient(135deg, #0b0c0d 50%, #14b8a6 50%)',
+    nocturne: 'linear-gradient(135deg, #0a0d12 50%, #54acbf 50%)',
+  };
+  list.innerHTML = ids.map(name => {
+    const t = overrides[name];
+    let grad = BUILTIN_GRADIENTS[t.mode] || 'linear-gradient(135deg, #888 50%, #444 50%)';
+    if (t.mode === 'custom' && t.customId && palettes[t.customId]) {
+      const v = palettes[t.customId].vars || {};
+      grad = `linear-gradient(135deg, ${v.canvas || '#fff'} 50%, ${v.primary || '#000'} 50%)`;
+    }
+    return `
+      <li class="project-row" role="listitem">
+        <span class="project-row__swatch" style="background: ${grad};" aria-hidden="true"></span>
+        <span class="project-row__name">${escapeHtml(name)}</span>
+        <span class="project-row__theme">${escapeHtml(projectThemeLabel(t))}</span>
+        <button class="project-row__delete" type="button" data-project="${escapeHtml(name)}">Reset</button>
+      </li>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.project-row__delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const name = btn.dataset.project;
+      if (!confirm(`Reset per-project override for "${name}"? The project will fall back to its page-declared default.`)) return;
+      await chrome.storage.sync.remove(PROJECT_KEY_PREFIX + name);
+      await renderProjects();
+    });
+  });
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync') {
+    if (Object.keys(changes).some(k => k.startsWith(PROJECT_KEY_PREFIX))) {
+      renderProjects();
+    }
+  }
+});
+
 (async () => {
   const favs = await getFavorites();
   render(favs);
+  await renderProjects();
   await loadSettings();
 })();

@@ -86,6 +86,8 @@ Style is an orthogonal axis (`data-style`): **Default** (sans), **Editorial** (s
 
 Authors can declare their preferred initial appearance via `<html data-theme="..." data-style="...">` — these page-declared defaults apply on first visit and are overridden once the reader picks any theme via the extension (the reader's choice is sticky across all Chameleon pages thereafter).
 
+For multi-file projects, add `<meta name="chameleon-project" content="my-project">` to each file. The reader's theme pick is then stored **per project** in `chrome.storage.sync` (account-synced across Chrome installs, immune to file moves since the tag travels with the file). The project's colour identity stays separate from the global preference; data-style remains shared across all pages.
+
 Utility classes mirror Tailwind's mental model but resolve to the variables above:
 
 ```html

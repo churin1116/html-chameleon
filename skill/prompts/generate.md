@@ -12,6 +12,7 @@ that uses the Chameleon contract.
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="chameleon" content="v1">
+  <!-- Optional: <meta name="chameleon-project" content="<my-project>"> -->
   <title><title></title>
   <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
   <script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
@@ -24,6 +25,14 @@ that uses the Chameleon contract.
 </body>
 </html>
 ```
+
+The optional `<meta name="chameleon-project" content="...">` tag opts the page into
+**per-project preference storage**. When present, the reader's chosen colour theme is
+saved against the project name in `chrome.storage.sync` (account-synced) instead of
+the global preference. Useful when the page is part of a multi-file project that
+should remember its own theme separately from other Chameleon-aware pages — and
+resilient to file moves (the tag travels with the file). Add the same tag to every
+file in the project group; omit it for one-off artifacts.
 
 The `<meta name="chameleon" content="v1">` tag is **mandatory** in generate mode.
 The Chrome extension uses it to detect whether a page should be themable, and

@@ -77,6 +77,13 @@ all Chameleon pages and the page-declared defaults stop applying. Pick values
 that match the artifact's intent (e.g. `claude` + `editorial` for warm/serif
 Anthropic-style pages).
 
+For multi-file projects (a docs site, a roadmap, a dashboard split across many
+HTMLs), add `<meta name="chameleon-project" content="<short-name>">` to every
+file. The reader's theme pick is then stored per-project in `chrome.storage.sync`
+(account-synced, file-move-resilient) instead of the global preference — the
+project remembers its own theme separately from other Chameleon-aware pages.
+Omit the tag for one-off artifacts that should share the global default.
+
 Keep custom CSS minimal — color/border styles MUST go through the variables.
 Layout, spacing, typography sizes are free game.
 

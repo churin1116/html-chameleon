@@ -23,7 +23,32 @@
   const POSITION_KEY = 'chameleon-position';
   const FAVORITES_KEY = 'chameleon-favorites';
   const PALETTES_KEY = 'chameleon-custom-palettes';
+  const PROJECT_KEY_PREFIX = 'chameleon-project:';
   const RAIL_ID = '__chameleon-rail';
+
+  // Read the page's <meta name="chameleon-project" content="..."> declaration.
+  // Pages that opt in get their colour preference (mode + customId) stored
+  // under chrome.storage.sync at chameleon-project:<sanitised-key> — durable
+  // against file moves (the tag travels with the file) and synced across
+  // Chrome installs on the same Google account. Pages without the tag fall
+  // back to the existing global chameleon-theme storage.
+  function readProjectKey() {
+    try {
+      const meta = document.querySelector('meta[name="chameleon-project"]');
+      if (!meta) return null;
+      const raw = (meta.getAttribute('content') || '').trim();
+      // Sanitise: allow alnum / hyphen / underscore / dot, max 64 chars.
+      const cleaned = raw.replace(/[^a-zA-Z0-9._-]+/g, '-').slice(0, 64);
+      return cleaned || null;
+    } catch (e) { return null; }
+  }
+  let CURRENT_PROJECT_KEY = null; // computed once at injection
+
+  function escapeText(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
   const STYLE_ID = '__chameleon-rail-style';
   const VALID_POSITIONS = ['tl', 'tr', 'bl', 'br'];
   const DEFAULT_POSITION = 'tr';
@@ -56,6 +81,79 @@
     { id: 'editorial', label: 'Editorial', font: 'ui-serif, "Charter", Georgia, "Times New Roman", serif' },
     { id: 'mono',      label: 'Mono',      font: 'ui-monospace, "SF Mono", "JetBrains Mono", monospace' },
   ];
+
+  /* ----------------------------------------------------------------
+     Project-aware storage helpers — read/write the user's preference
+     against the right backing store depending on whether the page
+     declares a chameleon-project tag.
+     ---------------------------------------------------------------- */
+  function getActiveTheme(cb) {
+    chrome.storage.local.get(STORAGE_KEY, function (local) {
+      const globalTheme = (local[STORAGE_KEY] && typeof local[STORAGE_KEY] === 'object') ? local[STORAGE_KEY] : {};
+      if (CURRENT_PROJECT_KEY) {
+        const k = PROJECT_KEY_PREFIX + CURRENT_PROJECT_KEY;
+        chrome.storage.sync.get(k, function (sync) {
+          const projectTheme = sync[k];
+          if (projectTheme && typeof projectTheme === 'object') {
+            // Per-project mode/customId override; global style preserved.
+            cb(Object.assign({}, globalTheme, projectTheme));
+          } else {
+            // Tagged page with no per-project pref → inherit global.
+            cb(globalTheme);
+          }
+        });
+      } else {
+        cb(globalTheme);
+      }
+    });
+  }
+
+  function patchActiveTheme(patch) {
+    // patch may carry mode, customId, style. style ALWAYS goes to global;
+    // mode/customId go to per-project storage when on a tagged page.
+    chrome.storage.local.get(STORAGE_KEY, function (local) {
+      const globalTheme = (local[STORAGE_KEY] && typeof local[STORAGE_KEY] === 'object')
+        ? Object.assign({}, local[STORAGE_KEY]) : {};
+
+      if ('style' in patch && patch.style !== undefined) {
+        globalTheme.style = patch.style;
+      }
+
+      const isColorPatch = ('mode' in patch) || ('customId' in patch);
+      if (CURRENT_PROJECT_KEY && isColorPatch) {
+        const k = PROJECT_KEY_PREFIX + CURRENT_PROJECT_KEY;
+        chrome.storage.sync.get(k, function (sync) {
+          const existing = (sync[k] && typeof sync[k] === 'object') ? Object.assign({}, sync[k]) : {};
+          if ('mode' in patch) existing.mode = patch.mode;
+          if ('customId' in patch) {
+            if (patch.customId === undefined || patch.customId === null) {
+              delete existing.customId;
+            } else {
+              existing.customId = patch.customId;
+            }
+          } else if (patch.mode && patch.mode !== 'custom') {
+            // Switching to a built-in mode clears stale customId.
+            delete existing.customId;
+          }
+          chrome.storage.sync.set({ [k]: existing });
+          if ('style' in patch) chrome.storage.local.set({ [STORAGE_KEY]: globalTheme });
+        });
+      } else {
+        // Untagged page (or style-only patch): write everything to global.
+        if ('mode' in patch) globalTheme.mode = patch.mode;
+        if ('customId' in patch) {
+          if (patch.customId === undefined || patch.customId === null) {
+            delete globalTheme.customId;
+          } else {
+            globalTheme.customId = patch.customId;
+          }
+        } else if (patch.mode && patch.mode !== 'custom') {
+          delete globalTheme.customId;
+        }
+        chrome.storage.local.set({ [STORAGE_KEY]: globalTheme });
+      }
+    });
+  }
 
   // ---------- Apply theme via CustomEvent (CSP-safe; no inline script injection) ----------
   // For mode === 'custom' we resolve the palette id into the actual variable
@@ -92,23 +190,44 @@
     });
   }
 
-  // 1) Apply persisted theme as early as possible.
-  chrome.storage.local.get(STORAGE_KEY, function (data) {
-    const theme = data[STORAGE_KEY];
-    if (theme && typeof theme === 'object') {
+  // Resolve project key once at script start (before first apply).
+  CURRENT_PROJECT_KEY = readProjectKey();
+
+  // 1) Apply persisted theme as early as possible — project-aware.
+  getActiveTheme(function (theme) {
+    if (theme && typeof theme === 'object' && Object.keys(theme).length > 0) {
       applyToPage(theme);
     }
   });
 
-  // 2) Listen for storage changes (theme + rail position + favorites).
+  // 2) Listen for storage changes (theme + rail position + favorites + per-project).
   chrome.storage.onChanged.addListener(function (changes, area) {
+    // Per-project entries live under chrome.storage.sync.
+    if (area === 'sync') {
+      if (CURRENT_PROJECT_KEY) {
+        const k = PROJECT_KEY_PREFIX + CURRENT_PROJECT_KEY;
+        if (changes[k]) {
+          getActiveTheme(function (next) {
+            if (next && typeof next === 'object') {
+              applyToPage(next);
+              syncPaletteState(next);
+            }
+          });
+        }
+      }
+      return;
+    }
     if (area !== 'local') return;
     if (changes[STORAGE_KEY]) {
-      const next = changes[STORAGE_KEY].newValue;
-      if (next && typeof next === 'object') {
-        applyToPage(next);
-        syncPaletteState(next);
-      }
+      // Global change — only re-apply on this page if the page is untagged
+      // (tagged pages are driven by per-project storage). Style is global
+      // though, so even on tagged pages a style change should re-apply.
+      getActiveTheme(function (next) {
+        if (next && typeof next === 'object') {
+          applyToPage(next);
+          syncPaletteState(next);
+        }
+      });
     }
     if (changes[POSITION_KEY]) {
       const pos = changes[POSITION_KEY].newValue;
@@ -194,6 +313,15 @@
         </svg>
       </button>
       <div class="__cm-menu" role="listbox" hidden>
+        ${CURRENT_PROJECT_KEY ? `
+          <div class="__cm-project-banner" role="note" aria-label="Editing per-project preference">
+            <svg class="__cm-project-pin" width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 1.5l2 4.5 4.5.6-3.3 3.1.8 4.6L8 12l-4 2.3.8-4.6L1.5 6.6 6 6z" fill="currentColor"/>
+            </svg>
+            <span class="__cm-project-label">project · ${escapeText(CURRENT_PROJECT_KEY)}</span>
+          </div>
+          <div class="__cm-divider" role="separator"></div>
+        ` : ''}
         ${items}
         <div class="__cm-divider __cm-divider-custom" role="separator" data-custom-divider hidden></div>
         <div class="__cm-custom-section" data-custom-section></div>
@@ -268,33 +396,22 @@
       if (trigger.getAttribute('aria-expanded') === 'true') close(); else open();
     });
 
-    // Color (mode) clicks — merge with existing state so style is preserved.
-    // Picking a built-in clears any stale customId carried over from a previous
-    // custom palette selection. The menu stays open after selection so the user
-    // can preview multiple themes without reopening; click outside to dismiss.
+    // Color (mode) clicks. Routes through patchActiveTheme so tagged pages
+    // save to chrome.storage.sync[chameleon-project:<key>], untagged pages
+    // save to the global chameleon-theme. Menu stays open after click.
     rail.querySelectorAll('.__cm-item[data-mode]').forEach(item => {
       item.addEventListener('click', e => {
         e.stopPropagation();
-        const mode = item.dataset.mode;
-        chrome.storage.local.get(STORAGE_KEY, data => {
-          const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
-          const next = Object.assign({}, current, { mode });
-          delete next.customId;
-          chrome.storage.local.set({ [STORAGE_KEY]: next });
-        });
+        patchActiveTheme({ mode: item.dataset.mode });
       });
     });
 
-    // Style clicks — merge with existing state so mode is preserved.
-    // Same stay-open behaviour as colour selection.
+    // Style clicks — style is *always* a global setting, even on tagged
+    // pages, so the writes land in local chameleon-theme.style.
     rail.querySelectorAll('.__cm-item[data-style]').forEach(item => {
       item.addEventListener('click', e => {
         e.stopPropagation();
-        const style = item.dataset.style;
-        chrome.storage.local.get(STORAGE_KEY, data => {
-          const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
-          chrome.storage.local.set({ [STORAGE_KEY]: Object.assign({}, current, { style }) });
-        });
+        patchActiveTheme({ style: item.dataset.style });
       });
     });
 
@@ -399,17 +516,12 @@
     }).join('');
 
     // Wire click handlers for the new items. Same stay-open behaviour as
-    // built-in mode/style selection — outside-click closes the menu.
+    // built-in mode/style selection — outside-click closes the menu. Routed
+    // through patchActiveTheme for project-aware storage.
     container.querySelectorAll('.__cm-item[data-custom-id]').forEach(function (item) {
       item.addEventListener('click', function (e) {
         e.stopPropagation();
-        const customId = item.dataset.customId;
-        chrome.storage.local.get(STORAGE_KEY, function (data) {
-          const current = (data[STORAGE_KEY] && typeof data[STORAGE_KEY] === 'object') ? data[STORAGE_KEY] : {};
-          chrome.storage.local.set({
-            [STORAGE_KEY]: Object.assign({}, current, { mode: 'custom', customId: customId }),
-          });
-        });
+        patchActiveTheme({ mode: 'custom', customId: item.dataset.customId });
       });
     });
 
@@ -660,6 +772,25 @@
       .__cm-action-icon { color: #facc15 !important; flex-shrink: 0 !important; }
       .__cm-action-icon-chat { color: var(--primary, #2563eb) !important; }
       .__cm-action-icon-customize { color: var(--accent, #ec4899) !important; }
+
+      .__cm-project-banner {
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        padding: 7px 11px 6px !important;
+        margin: 0 !important;
+        font-family: ui-monospace, "SF Mono", "JetBrains Mono", monospace !important;
+        font-size: 11px !important;
+        letter-spacing: 0.04em !important;
+        color: var(--primary, #2563eb) !important;
+      }
+      .__cm-project-pin { color: inherit !important; flex-shrink: 0 !important; }
+      .__cm-project-label {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 220px !important;
+      }
       .__cm-divider-custom { display: none !important; }
       .__cm-divider-custom:not([hidden]) { display: block !important; }
       .__cm-action-name { flex: 1 !important; }
