@@ -30,7 +30,7 @@ Three components, one shared theme contract.
 
 | Folder | What it does |
 | --- | --- |
-| [`theme/v1/`](./theme/v1) | The contract: 21 CSS variables + Tailwind-shaped utility classes. Two static files served from GitHub Pages. |
+| [`theme/v1/`](./theme/v1) | The contract: 23 CSS variables + Tailwind-shaped utility classes. Two static files served from GitHub Pages. |
 | [`skill/`](./skill) | Claude Code Skill — generates new themed HTML, retrofits existing files via dry-run. |
 | [`extension/`](./extension) | Chrome MV3 extension — picks a theme, writes localStorage, every Chameleon-themed artifact repaints. |
 | [`examples/`](./examples) | Minimal pages demonstrating the contract. |
@@ -106,14 +106,6 @@ See [`theme/v1/theme.css`](./theme/v1/theme.css) for the full list — including
 ## Versioning
 
 The contract files live under `/theme/v1/`. A breaking change becomes `/theme/v2/`, never a silent regression of `/v1`. Existing HTMLs that pin to `/v1/theme.css` keep working forever.
-
-## Roadmap
-
-- [x] **Phase 0** — Interactive design.html spec
-- [x] **Phase 1** — Theme contract files + Skill stub + extension stub
-- [ ] **Phase 2** — Skill `convert` mode (retrofit existing HTML with confidence-based dry-run)
-- [ ] **Phase 3** — Chrome extension polish + Web Store submission
-- [ ] **Phase 4** — npm package, jsDelivr mirror
 
 ## Contributing
 

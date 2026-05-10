@@ -1,6 +1,6 @@
 # Chameleon — project notes
 
-OSS theme contract for HTML artifacts (21 CSS variables + utility classes), distributed
+OSS theme contract for HTML artifacts (23 CSS variables + utility classes), distributed
 via GitHub Pages, consumed by a Skill (authoring) and a Chrome extension (viewing).
 Full interactive spec: [docs/design.html](docs/design.html).
 
