@@ -4,7 +4,7 @@
 
 **Themable HTML, without the boilerplate.**
 
-<video src="https://github.com/churin1116/html-chameleon/raw/main/docs/chameleon-demo.mp4" controls width="720"></video>
+<video src="https://github.com/user-attachments/assets/a614ebbc-151e-490b-98fc-6b4410f52c62" controls width="720"></video>
 
 [Interactive design doc](https://churin1116.github.io/html-chameleon/docs/design.html) · [Examples](./examples) · [Skill](./skill) · [Chrome extension](./extension)
 
