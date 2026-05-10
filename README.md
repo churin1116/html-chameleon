@@ -80,7 +80,7 @@ The `extension/` directory is a working MV3 stub. Load it from `chrome://extensi
 - **Borders:** `--border`, `--border-subtle`, `--border-strong`
 - **States:** `--success`, `--on-success`, `--warning`, `--on-warning`, `--danger`, `--on-danger`, `--info`, `--on-info`
 
-Eleven built-in presets ship with v1: **Light · Dark · Sunset · Forest · Midnight · Ocean · Rose · Slate · Lavender · Mint · Claude**. Defining a new preset is ~25 lines of CSS — PRs welcome.
+Thirteen built-in presets ship with v1: **Light · Dark · Sunset · Forest · Midnight · Ocean · Rose · Slate · Lavender · Mint · Claude · Graphite · Nocturne**. Defining a new preset is ~25 lines of CSS — PRs welcome.
 
 Style is an orthogonal axis (`data-style`): **Default** (sans), **Editorial** (serif headings, paper-like cards), **Mono** (terminal/ASCII). Combine freely with any theme — e.g. `data-theme="claude" data-style="editorial"`.
 

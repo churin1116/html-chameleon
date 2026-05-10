@@ -16,7 +16,8 @@
   var STORAGE_KEY = 'chameleon-theme';
   var BUILTIN_THEMES = [
     'light', 'dark', 'sunset', 'forest', 'midnight',
-    'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude'
+    'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude',
+    'graphite', 'nocturne'
   ];
   // 'system' is a meta-mode: it resolves to light/dark via prefers-color-scheme
   // at apply-time. 'custom' is a meta-mode for user-defined palettes — the
@@ -165,7 +166,7 @@
 
   // Public API.
   window.Chameleon = {
-    version: '1.3.1',
+    version: '1.4.0',
     presets: BUILTIN_THEMES.slice(),
     modes: VALID_MODES.slice(),
     styles: VALID_STYLES.slice(),

@@ -13,7 +13,7 @@
 const STORAGE_KEY = 'chameleon-theme';
 const FAVORITES_KEY = 'chameleon-favorites';
 const PALETTES_KEY = 'chameleon-custom-palettes';
-const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude', 'custom'];
+const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude', 'graphite', 'nocturne', 'custom'];
 const VALID_STYLES = ['default', 'editorial', 'mono'];
 const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight', 'claude'];
 
@@ -258,7 +258,7 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
     statusPill.textContent = 'on';
     statusPill.classList.add('is-active');
   } else {
-    statusPill.textContent = 'v1.3';
+    statusPill.textContent = 'v1.4';
     statusPill.classList.remove('is-active');
   }
 

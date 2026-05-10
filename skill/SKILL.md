@@ -124,7 +124,7 @@ Utility classes (Tailwind-shaped):
 
 ## Built-in presets
 
-**Color (`data-theme`):** `light` (default) · `dark` · `sunset` · `forest` · `midnight` · `ocean` · `rose` · `slate` · `lavender` · `mint` · `claude`
+**Color (`data-theme`):** `light` (default) · `dark` · `sunset` · `forest` · `midnight` · `ocean` · `rose` · `slate` · `lavender` · `mint` · `claude` · `graphite` · `nocturne`
 
 **Style (`data-style`):** `default` (sans) · `editorial` (serif headings, paper-like cards) · `mono` (terminal/ASCII)
 

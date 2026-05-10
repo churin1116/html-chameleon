@@ -231,6 +231,35 @@
     --on-info: #ffffff;
   }
 
+
+  /* ---------- Graphite preset (dark charcoal + teal) ---------- */
+  [data-theme="graphite"] {
+    --canvas: #0b0c0d; --surface: #141516; --surface-2: #1c1d1e;
+    --text: #eaeaea; --text-muted: #9a9a9a; --text-subtle: #6b6d70;
+    --primary: #14b8a6; --on-primary: #042f2e;
+    --secondary: #0d8f84; --on-secondary: #f0fdfa;
+    --accent: #2dd4bf; --on-accent: #042f2e;
+    --border: #2a2c2e; --border-subtle: #1c1d1e; --border-strong: #41444a;
+    --success: #14b8a6; --on-success: #042f2e;
+    --warning: #d4a843; --on-warning: #1f1700;
+    --danger: #e26565; --on-danger: #1f0a0a;
+    --info: #2dd4bf; --on-info: #042f2e;
+  }
+
+  /* ---------- Nocturne preset (deep cool blue + cyan) ---------- */
+  [data-theme="nocturne"] {
+    --canvas: #0a0d12; --surface: #0f1319; --surface-2: #141a23;
+    --text: #e2e8ee; --text-muted: #5a7a8c; --text-subtle: #3d5a6e;
+    --primary: #54acbf; --on-primary: #011c40;
+    --secondary: #a855f7; --on-secondary: #2e1065;
+    --accent: #a7ebf2; --on-accent: #011c40;
+    --border: #1e2a38; --border-subtle: #141a23; --border-strong: #2d4a5e;
+    --success: #4aff8b; --on-success: #022c0d;
+    --warning: #fbbf24; --on-warning: #1f1700;
+    --danger: #ef4444; --on-danger: #1f0a0a;
+    --info: #a7ebf2; --on-info: #011c40;
+  }
+
   /* ---------- Mint preset (fresh green-teal) ---------- */
   [data-theme="mint"] {
     --canvas: #f0fdfa; --surface: #ccfbf1; --surface-2: #99f6e4;
@@ -448,6 +477,8 @@
   .theme-swatch--lavender { background: linear-gradient(135deg, #faf5ff 50%, #9333ea 50%); }
   .theme-swatch--mint     { background: linear-gradient(135deg, #f0fdfa 50%, #0d9488 50%); }
   .theme-swatch--claude   { background: linear-gradient(135deg, #faf9f5 50%, #d97757 50%); }
+  .theme-swatch--graphite { background: linear-gradient(135deg, #0b0c0d 50%, #14b8a6 50%); }
+  .theme-swatch--nocturne { background: linear-gradient(135deg, #0a0d12 50%, #54acbf 50%); }
 
   .theme-menu {
     position: absolute;
@@ -1014,6 +1045,20 @@
         <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
+    <button class="theme-menu__item" role="option" data-value="graphite" aria-selected="false">
+      <span class="theme-swatch theme-swatch--graphite" aria-hidden="true"></span>
+      <span class="theme-menu__name">Graphite</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="nocturne" aria-selected="false">
+      <span class="theme-swatch theme-swatch--nocturne" aria-hidden="true"></span>
+      <span class="theme-menu__name">Nocturne</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 </div>
 
@@ -1045,7 +1090,7 @@
     Write semantic classes once — the browser, the user, or a Chrome extension can repaint everything.
   </p>
   <p class="meta">
-    A spec-as-playground. Try the <code>Light / Dark / Sunset / Forest / Midnight / Ocean / Rose / Slate / Lavender / Mint / Claude</code> buttons in the top-right —
+    A spec-as-playground. Try the <code>Light / Dark / Sunset / Forest / Midnight / Ocean / Rose / Slate / Lavender / Mint / Claude / Graphite / Nocturne</code> buttons in the top-right —
     every section below re-themes live, including this page itself.
   </p>
 </header>
@@ -1346,6 +1391,8 @@
         <button class="preset-btn" data-preset="lavender">Lavender</button>
         <button class="preset-btn" data-preset="mint">Mint</button>
         <button class="preset-btn" data-preset="claude">Claude</button>
+        <button class="preset-btn" data-preset="graphite">Graphite</button>
+        <button class="preset-btn" data-preset="nocturne">Nocturne</button>
       </div>
 
       <h4>Custom override</h4>
@@ -1597,6 +1644,8 @@
               <button class="preset-btn">Lavender</button>
               <button class="preset-btn">Mint</button>
               <button class="preset-btn">Claude</button>
+              <button class="preset-btn">Graphite</button>
+              <button class="preset-btn">Nocturne</button>
             </div>
           </section>
           <section class="ext-section">
@@ -1825,6 +1874,30 @@
       warning: '#c78e3f', 'on-warning': '#ffffff',
       danger: '#b04a4a', 'on-danger': '#ffffff',
       info: '#5c7ca3', 'on-info': '#ffffff',
+    },
+    graphite: {
+      canvas: '#0b0c0d', surface: '#141516', 'surface-2': '#1c1d1e',
+      text: '#eaeaea', 'text-muted': '#9a9a9a', 'text-subtle': '#6b6d70',
+      primary: '#14b8a6', 'on-primary': '#042f2e',
+      secondary: '#0d8f84', 'on-secondary': '#f0fdfa',
+      accent: '#2dd4bf', 'on-accent': '#042f2e',
+      border: '#2a2c2e', 'border-subtle': '#1c1d1e', 'border-strong': '#41444a',
+      success: '#14b8a6', 'on-success': '#042f2e',
+      warning: '#d4a843', 'on-warning': '#1f1700',
+      danger: '#e26565', 'on-danger': '#1f0a0a',
+      info: '#2dd4bf', 'on-info': '#042f2e',
+    },
+    nocturne: {
+      canvas: '#0a0d12', surface: '#0f1319', 'surface-2': '#141a23',
+      text: '#e2e8ee', 'text-muted': '#5a7a8c', 'text-subtle': '#3d5a6e',
+      primary: '#54acbf', 'on-primary': '#011c40',
+      secondary: '#a855f7', 'on-secondary': '#2e1065',
+      accent: '#a7ebf2', 'on-accent': '#011c40',
+      border: '#1e2a38', 'border-subtle': '#141a23', 'border-strong': '#2d4a5e',
+      success: '#4aff8b', 'on-success': '#022c0d',
+      warning: '#fbbf24', 'on-warning': '#1f1700',
+      danger: '#ef4444', 'on-danger': '#1f0a0a',
+      info: '#a7ebf2', 'on-info': '#011c40',
     },
   };
 
