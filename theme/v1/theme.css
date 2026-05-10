@@ -265,6 +265,34 @@
   --on-danger: #ffffff;
 }
 
+[data-theme="claude"] {
+  --canvas: #faf9f5;
+  --surface: #ffffff;
+  --surface-2: #f0eee6;
+
+  --text: #141413;
+  --text-muted: #3d3d3a;
+  --text-subtle: #87867f;
+
+  --primary: #d97757;
+  --on-primary: #ffffff;
+  --secondary: #788c5d;
+  --on-secondary: #ffffff;
+  --accent: #e3dacc;
+  --on-accent: #141413;
+
+  --border: #d1cfc5;
+  --border-subtle: #f0eee6;
+  --border-strong: #87867f;
+
+  --success: #788c5d;
+  --on-success: #ffffff;
+  --warning: #c78e3f;
+  --on-warning: #ffffff;
+  --danger: #b04a4a;
+  --on-danger: #ffffff;
+}
+
 [data-theme="mint"] {
   --canvas: #f0fdfa;
   --surface: #ccfbf1;

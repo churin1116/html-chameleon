@@ -7,7 +7,7 @@ that uses the Chameleon contract.
 
 ```html
 <!DOCTYPE html>
-<html lang="<lang>" data-theme="light">
+<html lang="<lang>" data-theme="light" data-style="default">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,6 +28,21 @@ that uses the Chameleon contract.
 The `<meta name="chameleon" content="v1">` tag is **mandatory** in generate mode.
 The Chrome extension uses it to detect whether a page should be themable, and
 displays a "not detected" notice on pages that lack it.
+
+## Page-declared defaults (`data-theme` / `data-style`)
+
+`<html data-theme="..." data-style="...">` declares the artifact's **preferred
+initial appearance**. theme.js applies this on first visit when the reader has
+no stored preference yet. Once the reader picks any theme/style via the Chrome
+extension, that choice becomes sticky across all Chameleon pages and the
+page-declared defaults stop applying.
+
+- Pick the `data-theme` that best fits the artifact's purpose: `claude` for
+  warm/editorial Anthropic-feeling pages, `midnight` for moody decks, `forest`
+  for calm/natural pages, etc. — see `theme/v1/theme.css` for the full list.
+- Pick the `data-style` that fits the typographic feel: `default` (sans),
+  `editorial` (serif headings + paper-like cards), `mono` (terminal/ASCII).
+- When uncertain, default to `data-theme="light" data-style="default"`.
 
 ## Rules
 
@@ -64,6 +79,6 @@ displays a "not detected" notice on pages that lack it.
 - [ ] `<meta name="chameleon" content="v1">` is in the `<head>`.
 - [ ] No hardcoded hex/rgb in markup or custom CSS (except theme presets if defining one).
 - [ ] `<link>` and `<script>` for theme.css/js are in `<head>`, theme.js without `defer`.
-- [ ] `data-theme="light"` on `<html>`.
+- [ ] `<html>` has both `data-theme` and `data-style` set (page-declared defaults — chosen to fit the artifact, or `light`/`default` when in doubt).
 - [ ] Custom `<style>` only contains layout/spacing/typography (no colors).
 - [ ] Body uses `bg-canvas` (or another `bg-*` variant).

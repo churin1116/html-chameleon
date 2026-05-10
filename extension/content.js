@@ -43,6 +43,7 @@
     { mode: 'slate',    label: 'Slate',    gradient: 'linear-gradient(135deg, #f8fafc 50%, #475569 50%)' },
     { mode: 'lavender', label: 'Lavender', gradient: 'linear-gradient(135deg, #faf5ff 50%, #9333ea 50%)' },
     { mode: 'mint',     label: 'Mint',     gradient: 'linear-gradient(135deg, #f0fdfa 50%, #0d9488 50%)' },
+    { mode: 'claude',   label: 'Claude',   gradient: 'linear-gradient(135deg, #faf9f5 50%, #d97757 50%)' },
   ];
 
   // Style axis — orthogonal to PRESETS. Each renders "Aa" in its own font as

@@ -67,7 +67,7 @@ Once approved:
 2. Replace each color literal with the corresponding Chameleon class or `var(--role)` reference.
 3. Add `<meta name="chameleon" content="v1">` to `<head>` (mandatory — used by the Chrome extension to detect Chameleon-aware pages).
 4. Add the `<link>` and `<script>` for theme.css / theme.js to `<head>`.
-5. Add `data-theme="light"` to `<html>` if not present.
+5. Add `data-theme` and `data-style` to `<html>` if not present — these are page-declared defaults that apply only on first visit (the reader's stored choice always wins). Pick values that fit the artifact's intent: `claude` + `editorial` for warm/serif Anthropic-style pages, `light` + `default` when in doubt. See `theme/v1/theme.css` for the full theme list.
 6. Print a summary: N colors converted, N classes added, N elements opted out via `data-chameleon="ignore"`.
 
 ## Replacement strategy
@@ -98,7 +98,7 @@ Chameleon retrofit summary
 ──────────────────────────
 File:        report.html
 Converted:   17 color literals → 6 roles
-Added:       <link> + <script> in <head>, data-theme="light" on <html>
+Added:       <link> + <script> in <head>, data-theme="claude" data-style="editorial" on <html>
 Opted out:   3 SVG illustrations (preserved)
 Backup:      report.original.html
 Open issues: 2 colors with confidence <70% (see review block above)

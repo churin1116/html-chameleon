@@ -161,6 +161,84 @@
     --on-danger: #450a0a;
   }
 
+  /* ---------- Ocean preset (cool, aquatic) ---------- */
+  [data-theme="ocean"] {
+    --canvas: #f0f9ff; --surface: #e0f2fe; --surface-2: #bae6fd;
+    --text: #0c4a6e; --text-muted: #075985; --text-subtle: #0369a1;
+    --primary: #0284c7; --on-primary: #f0f9ff;
+    --secondary: #14b8a6; --on-secondary: #f0fdfa;
+    --accent: #06b6d4; --on-accent: #ecfeff;
+    --border: #7dd3fc; --border-subtle: #bae6fd; --border-strong: #0284c7;
+    --success: #16a34a; --on-success: #ffffff;
+    --warning: #d97706; --on-warning: #ffffff;
+    --danger: #dc2626; --on-danger: #ffffff;
+  }
+
+  /* ---------- Rose preset (warm pink) ---------- */
+  [data-theme="rose"] {
+    --canvas: #fff1f2; --surface: #ffe4e6; --surface-2: #fecdd3;
+    --text: #4c0519; --text-muted: #881337; --text-subtle: #be123c;
+    --primary: #e11d48; --on-primary: #fff1f2;
+    --secondary: #f59e0b; --on-secondary: #fefce8;
+    --accent: #d946ef; --on-accent: #fdf4ff;
+    --border: #fda4af; --border-subtle: #fecdd3; --border-strong: #e11d48;
+    --success: #16a34a; --on-success: #ffffff;
+    --warning: #d97706; --on-warning: #ffffff;
+    --danger: #b91c1c; --on-danger: #ffffff;
+  }
+
+  /* ---------- Slate preset (neutral grey) ---------- */
+  [data-theme="slate"] {
+    --canvas: #f8fafc; --surface: #f1f5f9; --surface-2: #e2e8f0;
+    --text: #0f172a; --text-muted: #475569; --text-subtle: #94a3b8;
+    --primary: #475569; --on-primary: #f8fafc;
+    --secondary: #0ea5e9; --on-secondary: #f0f9ff;
+    --accent: #f59e0b; --on-accent: #fefce8;
+    --border: #cbd5e1; --border-subtle: #e2e8f0; --border-strong: #475569;
+    --success: #16a34a; --on-success: #ffffff;
+    --warning: #d97706; --on-warning: #ffffff;
+    --danger: #dc2626; --on-danger: #ffffff;
+  }
+
+  /* ---------- Lavender preset (soft purple) ---------- */
+  [data-theme="lavender"] {
+    --canvas: #faf5ff; --surface: #f3e8ff; --surface-2: #e9d5ff;
+    --text: #3b0764; --text-muted: #6b21a8; --text-subtle: #9333ea;
+    --primary: #9333ea; --on-primary: #faf5ff;
+    --secondary: #db2777; --on-secondary: #fdf2f8;
+    --accent: #c084fc; --on-accent: #4a044e;
+    --border: #d8b4fe; --border-subtle: #e9d5ff; --border-strong: #9333ea;
+    --success: #16a34a; --on-success: #ffffff;
+    --warning: #d97706; --on-warning: #ffffff;
+    --danger: #dc2626; --on-danger: #ffffff;
+  }
+
+  /* ---------- Mint preset (fresh green-teal) ---------- */
+  [data-theme="mint"] {
+    --canvas: #f0fdfa; --surface: #ccfbf1; --surface-2: #99f6e4;
+    --text: #042f2e; --text-muted: #115e59; --text-subtle: #14b8a6;
+    --primary: #0d9488; --on-primary: #f0fdfa;
+    --secondary: #84cc16; --on-secondary: #f7fee7;
+    --accent: #06b6d4; --on-accent: #ecfeff;
+    --border: #5eead4; --border-subtle: #99f6e4; --border-strong: #0d9488;
+    --success: #16a34a; --on-success: #ffffff;
+    --warning: #d97706; --on-warning: #ffffff;
+    --danger: #dc2626; --on-danger: #ffffff;
+  }
+
+  /* ---------- Claude preset (warm Anthropic ivory + clay) ---------- */
+  [data-theme="claude"] {
+    --canvas: #faf9f5; --surface: #ffffff; --surface-2: #f0eee6;
+    --text: #141413; --text-muted: #3d3d3a; --text-subtle: #87867f;
+    --primary: #d97757; --on-primary: #ffffff;
+    --secondary: #788c5d; --on-secondary: #ffffff;
+    --accent: #e3dacc; --on-accent: #141413;
+    --border: #d1cfc5; --border-subtle: #f0eee6; --border-strong: #87867f;
+    --success: #788c5d; --on-success: #ffffff;
+    --warning: #c78e3f; --on-warning: #ffffff;
+    --danger: #b04a4a; --on-danger: #ffffff;
+  }
+
   /* ---------- Base + reset ---------- */
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -342,6 +420,12 @@
   .theme-swatch--sunset   { background: linear-gradient(135deg, #fff7ed 50%, #ea580c 50%); }
   .theme-swatch--forest   { background: linear-gradient(135deg, #f0fdf4 50%, #15803d 50%); }
   .theme-swatch--midnight { background: linear-gradient(135deg, #030712 50%, #a78bfa 50%); }
+  .theme-swatch--ocean    { background: linear-gradient(135deg, #f0f9ff 50%, #0284c7 50%); }
+  .theme-swatch--rose     { background: linear-gradient(135deg, #fff1f2 50%, #e11d48 50%); }
+  .theme-swatch--slate    { background: linear-gradient(135deg, #f8fafc 50%, #475569 50%); }
+  .theme-swatch--lavender { background: linear-gradient(135deg, #faf5ff 50%, #9333ea 50%); }
+  .theme-swatch--mint     { background: linear-gradient(135deg, #f0fdfa 50%, #0d9488 50%); }
+  .theme-swatch--claude   { background: linear-gradient(135deg, #faf9f5 50%, #d97757 50%); }
 
   .theme-menu {
     position: absolute;
@@ -866,6 +950,48 @@
         <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
+    <button class="theme-menu__item" role="option" data-value="ocean" aria-selected="false">
+      <span class="theme-swatch theme-swatch--ocean" aria-hidden="true"></span>
+      <span class="theme-menu__name">Ocean</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="rose" aria-selected="false">
+      <span class="theme-swatch theme-swatch--rose" aria-hidden="true"></span>
+      <span class="theme-menu__name">Rose</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="slate" aria-selected="false">
+      <span class="theme-swatch theme-swatch--slate" aria-hidden="true"></span>
+      <span class="theme-menu__name">Slate</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="lavender" aria-selected="false">
+      <span class="theme-swatch theme-swatch--lavender" aria-hidden="true"></span>
+      <span class="theme-menu__name">Lavender</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="mint" aria-selected="false">
+      <span class="theme-swatch theme-swatch--mint" aria-hidden="true"></span>
+      <span class="theme-menu__name">Mint</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="theme-menu__item" role="option" data-value="claude" aria-selected="false">
+      <span class="theme-swatch theme-swatch--claude" aria-hidden="true"></span>
+      <span class="theme-menu__name">Claude</span>
+      <svg class="theme-menu__check" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 5.2 L4 7.2 L8 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 </div>
 
@@ -897,7 +1023,7 @@
     Write semantic classes once — the browser, the user, or a Chrome extension can repaint everything.
   </p>
   <p class="meta">
-    A spec-as-playground. Try the <code>Light / Dark / Sunset / Forest / Midnight</code> buttons in the top-right —
+    A spec-as-playground. Try the <code>Light / Dark / Sunset / Forest / Midnight / Ocean / Rose / Slate / Lavender / Mint / Claude</code> buttons in the top-right —
     every section below re-themes live, including this page itself.
   </p>
 </header>
@@ -1192,6 +1318,12 @@
         <button class="preset-btn" data-preset="sunset">Sunset</button>
         <button class="preset-btn" data-preset="forest">Forest</button>
         <button class="preset-btn" data-preset="midnight">Midnight</button>
+        <button class="preset-btn" data-preset="ocean">Ocean</button>
+        <button class="preset-btn" data-preset="rose">Rose</button>
+        <button class="preset-btn" data-preset="slate">Slate</button>
+        <button class="preset-btn" data-preset="lavender">Lavender</button>
+        <button class="preset-btn" data-preset="mint">Mint</button>
+        <button class="preset-btn" data-preset="claude">Claude</button>
       </div>
 
       <h4>Custom override</h4>
@@ -1436,6 +1568,13 @@
               <button class="preset-btn">Dark</button>
               <button class="preset-btn">Sunset</button>
               <button class="preset-btn">Forest</button>
+              <button class="preset-btn">Midnight</button>
+              <button class="preset-btn">Ocean</button>
+              <button class="preset-btn">Rose</button>
+              <button class="preset-btn">Slate</button>
+              <button class="preset-btn">Lavender</button>
+              <button class="preset-btn">Mint</button>
+              <button class="preset-btn">Claude</button>
             </div>
           </section>
           <section class="ext-section">
@@ -1587,6 +1726,72 @@
       success: '#4ade80', 'on-success': '#052e16',
       warning: '#fcd34d', 'on-warning': '#451a03',
       danger: '#fb7185', 'on-danger': '#450a0a',
+    },
+    ocean: {
+      canvas: '#f0f9ff', surface: '#e0f2fe', 'surface-2': '#bae6fd',
+      text: '#0c4a6e', 'text-muted': '#075985', 'text-subtle': '#0369a1',
+      primary: '#0284c7', 'on-primary': '#f0f9ff',
+      secondary: '#14b8a6', 'on-secondary': '#f0fdfa',
+      accent: '#06b6d4', 'on-accent': '#ecfeff',
+      border: '#7dd3fc', 'border-subtle': '#bae6fd', 'border-strong': '#0284c7',
+      success: '#16a34a', 'on-success': '#ffffff',
+      warning: '#d97706', 'on-warning': '#ffffff',
+      danger: '#dc2626', 'on-danger': '#ffffff',
+    },
+    rose: {
+      canvas: '#fff1f2', surface: '#ffe4e6', 'surface-2': '#fecdd3',
+      text: '#4c0519', 'text-muted': '#881337', 'text-subtle': '#be123c',
+      primary: '#e11d48', 'on-primary': '#fff1f2',
+      secondary: '#f59e0b', 'on-secondary': '#fefce8',
+      accent: '#d946ef', 'on-accent': '#fdf4ff',
+      border: '#fda4af', 'border-subtle': '#fecdd3', 'border-strong': '#e11d48',
+      success: '#16a34a', 'on-success': '#ffffff',
+      warning: '#d97706', 'on-warning': '#ffffff',
+      danger: '#b91c1c', 'on-danger': '#ffffff',
+    },
+    slate: {
+      canvas: '#f8fafc', surface: '#f1f5f9', 'surface-2': '#e2e8f0',
+      text: '#0f172a', 'text-muted': '#475569', 'text-subtle': '#94a3b8',
+      primary: '#475569', 'on-primary': '#f8fafc',
+      secondary: '#0ea5e9', 'on-secondary': '#f0f9ff',
+      accent: '#f59e0b', 'on-accent': '#fefce8',
+      border: '#cbd5e1', 'border-subtle': '#e2e8f0', 'border-strong': '#475569',
+      success: '#16a34a', 'on-success': '#ffffff',
+      warning: '#d97706', 'on-warning': '#ffffff',
+      danger: '#dc2626', 'on-danger': '#ffffff',
+    },
+    lavender: {
+      canvas: '#faf5ff', surface: '#f3e8ff', 'surface-2': '#e9d5ff',
+      text: '#3b0764', 'text-muted': '#6b21a8', 'text-subtle': '#9333ea',
+      primary: '#9333ea', 'on-primary': '#faf5ff',
+      secondary: '#db2777', 'on-secondary': '#fdf2f8',
+      accent: '#c084fc', 'on-accent': '#4a044e',
+      border: '#d8b4fe', 'border-subtle': '#e9d5ff', 'border-strong': '#9333ea',
+      success: '#16a34a', 'on-success': '#ffffff',
+      warning: '#d97706', 'on-warning': '#ffffff',
+      danger: '#dc2626', 'on-danger': '#ffffff',
+    },
+    mint: {
+      canvas: '#f0fdfa', surface: '#ccfbf1', 'surface-2': '#99f6e4',
+      text: '#042f2e', 'text-muted': '#115e59', 'text-subtle': '#14b8a6',
+      primary: '#0d9488', 'on-primary': '#f0fdfa',
+      secondary: '#84cc16', 'on-secondary': '#f7fee7',
+      accent: '#06b6d4', 'on-accent': '#ecfeff',
+      border: '#5eead4', 'border-subtle': '#99f6e4', 'border-strong': '#0d9488',
+      success: '#16a34a', 'on-success': '#ffffff',
+      warning: '#d97706', 'on-warning': '#ffffff',
+      danger: '#dc2626', 'on-danger': '#ffffff',
+    },
+    claude: {
+      canvas: '#faf9f5', surface: '#ffffff', 'surface-2': '#f0eee6',
+      text: '#141413', 'text-muted': '#3d3d3a', 'text-subtle': '#87867f',
+      primary: '#d97757', 'on-primary': '#ffffff',
+      secondary: '#788c5d', 'on-secondary': '#ffffff',
+      accent: '#e3dacc', 'on-accent': '#141413',
+      border: '#d1cfc5', 'border-subtle': '#f0eee6', 'border-strong': '#87867f',
+      success: '#788c5d', 'on-success': '#ffffff',
+      warning: '#c78e3f', 'on-warning': '#ffffff',
+      danger: '#b04a4a', 'on-danger': '#ffffff',
     },
   };
 

@@ -16,7 +16,7 @@
   var STORAGE_KEY = 'chameleon-theme';
   var BUILTIN_THEMES = [
     'light', 'dark', 'sunset', 'forest', 'midnight',
-    'ocean', 'rose', 'slate', 'lavender', 'mint'
+    'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude'
   ];
   // 'system' is a meta-mode: it resolves to light/dark via prefers-color-scheme
   // at apply-time. It has no CSS block of its own.
@@ -76,10 +76,30 @@
     return null;
   }
 
+  // The default theme is the page's expressed intent, falling back to the OS.
+  // Authors hint via <html data-theme="..." data-style="..."> — these win over
+  // OS detection but lose to any stored user choice. Once the reader picks a
+  // theme via the extension, that choice becomes sticky across all Chameleon
+  // pages and the page-declared defaults stop mattering.
   function defaultTheme() {
-    var prefersDark = !!(window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return { mode: prefersDark ? 'dark' : 'light' };
+    var root = document.documentElement;
+    var theme = {};
+
+    var pageMode = root.getAttribute('data-theme');
+    if (pageMode && VALID_MODES.indexOf(pageMode) !== -1) {
+      theme.mode = pageMode;
+    } else {
+      var prefersDark = !!(window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      theme.mode = prefersDark ? 'dark' : 'light';
+    }
+
+    var pageStyle = root.getAttribute('data-style');
+    if (pageStyle && VALID_STYLES.indexOf(pageStyle) !== -1) {
+      theme.style = pageStyle;
+    }
+
+    return theme;
   }
 
   function setTheme(theme) {
@@ -114,7 +134,7 @@
       if (stored && stored.mode === 'system') {
         applyTheme(stored);
       } else if (!stored) {
-        applyTheme({ mode: ev.matches ? 'dark' : 'light' });
+        applyTheme(defaultTheme());
       }
     };
     if (mq.addEventListener) mq.addEventListener('change', listener);
@@ -136,7 +156,7 @@
 
   // Public API.
   window.Chameleon = {
-    version: '1.1.0',
+    version: '1.2.0',
     presets: BUILTIN_THEMES.slice(),
     modes: VALID_MODES.slice(),
     styles: VALID_STYLES.slice(),

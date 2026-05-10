@@ -78,7 +78,11 @@ The `extension/` directory is a working MV3 stub. Load it from `chrome://extensi
 - **Borders:** `--border`, `--border-subtle`, `--border-strong`
 - **States:** `--success`, `--on-success`, `--warning`, `--on-warning`, `--danger`, `--on-danger`
 
-Five built-in presets ship with v1: **Light · Dark · Sunset · Forest · Midnight**. Defining a new preset is ~25 lines of CSS — PRs welcome.
+Eleven built-in presets ship with v1: **Light · Dark · Sunset · Forest · Midnight · Ocean · Rose · Slate · Lavender · Mint · Claude**. Defining a new preset is ~25 lines of CSS — PRs welcome.
+
+Style is an orthogonal axis (`data-style`): **Default** (sans), **Editorial** (serif headings, paper-like cards), **Mono** (terminal/ASCII). Combine freely with any theme — e.g. `data-theme="claude" data-style="editorial"`.
+
+Authors can declare their preferred initial appearance via `<html data-theme="..." data-style="...">` — these page-declared defaults apply on first visit and are overridden once the reader picks any theme via the extension (the reader's choice is sticky across all Chameleon pages thereafter).
 
 Utility classes mirror Tailwind's mental model but resolve to the variables above:
 

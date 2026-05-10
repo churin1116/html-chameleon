@@ -18,6 +18,7 @@ const ALL_THEMES = [
   { id: 'slate',    label: 'Slate',    gradient: 'linear-gradient(135deg, #f8fafc 50%, #475569 50%)' },
   { id: 'lavender', label: 'Lavender', gradient: 'linear-gradient(135deg, #faf5ff 50%, #9333ea 50%)' },
   { id: 'mint',     label: 'Mint',     gradient: 'linear-gradient(135deg, #f0fdfa 50%, #0d9488 50%)' },
+  { id: 'claude',   label: 'Claude',   gradient: 'linear-gradient(135deg, #faf9f5 50%, #d97757 50%)' },
 ];
 
 const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight'];

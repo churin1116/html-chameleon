@@ -37,7 +37,7 @@ Always emit:
 
 ```html
 <!DOCTYPE html>
-<html data-theme="light">
+<html data-theme="light" data-style="default">
 <head>
   <meta name="chameleon" content="v1">
   <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
@@ -55,6 +55,13 @@ signal the Chrome extension uses to decide whether to activate on a page. theme.
 also marks the document via `data-chameleon` at runtime, but the meta tag is
 explicit, parses earlier, and survives even if theme.js is stripped or fails to
 load.
+
+`data-theme` and `data-style` on `<html>` are the **page-declared defaults** —
+applied on first visit when the reader has no stored preference. Once the reader
+picks any theme/style via the Chrome extension, that choice becomes sticky across
+all Chameleon pages and the page-declared defaults stop applying. Pick values
+that match the artifact's intent (e.g. `claude` + `editorial` for warm/serif
+Anthropic-style pages).
 
 Keep custom CSS minimal — color/border styles MUST go through the variables.
 Layout, spacing, typography sizes are free game.
@@ -96,12 +103,16 @@ Utility classes (Tailwind-shaped):
 
 ## Built-in presets
 
-`light` (default) · `dark` · `sunset` · `forest` · `midnight`
+**Color (`data-theme`):** `light` (default) · `dark` · `sunset` · `forest` · `midnight` · `ocean` · `rose` · `slate` · `lavender` · `mint` · `claude`
+
+**Style (`data-style`):** `default` (sans) · `editorial` (serif headings, paper-like cards) · `mono` (terminal/ASCII)
+
+Color and style are orthogonal axes — combine freely (e.g. `claude` + `editorial`, `midnight` + `mono`). See [`theme/v1/theme.css`](../theme/v1/theme.css) for the full variable set per preset.
 
 Switch at runtime via:
 
 ```js
-Chameleon.setTheme({ mode: 'dark' });
+Chameleon.setTheme({ mode: 'dark', style: 'editorial' });
 ```
 
 Or with custom variable overrides:
