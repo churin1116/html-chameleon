@@ -79,6 +79,36 @@ Prefer the most specific representation:
 - Border → `class="border"` (drop the inline `border-color`, keep `border-width` if non-standard)
 - Mixed inline (color + bg + radius) → keep `<style>` but change values to `var(--*)`
 
+### Pattern → utility shortcuts
+
+When the original CSS expresses one of these recurring intents, prefer the
+purpose-built utility instead of reinventing it:
+
+- **Destructive button** (red bg, white text) → `class="btn btn-danger"`
+- **Informational button** (blue bg, white text) → `class="btn btn-info"`
+- **Status chip / tag with semantic color** (small rounded pill conveying state)
+  → `class="badge badge-success"` (also `badge-warning`, `badge-danger`,
+  `badge-info`, `badge-primary`, `badge-accent`, `badge-solid`). Use the
+  neutral `pill` only when the color is purely decorative, not semantic.
+- **Soft callout / highlight row** (low-saturation tint of a role color used
+  as a background wash) → `class="bg-primary-soft"` (also `secondary-soft`,
+  `accent-soft`, `success-soft`, `warning-soft`, `danger-soft`, `info-soft`).
+  These resolve to `color-mix(in srgb, var(--<role>) 12-14%, var(--canvas))`
+  internally, so any custom hex tint of clay/olive/oat that you'd otherwise
+  hand-roll should map here.
+- **Informational alert** (blue notice bar) → `class="alert alert-info"`
+- **Eyebrow label** (small uppercase mono text above a heading) →
+  `class="eyebrow"` — drop the per-page `font-family: mono; text-transform:
+  uppercase; letter-spacing: 0.12em; font-size: 12px;` block.
+- **Inline code / `<pre>` block** → `<code>` and `<pre>` elements are styled
+  by default (surface-2 bg, mono font, subtle border). Only keep custom CSS
+  for layout (max-width, scroll, line-numbers).
+- **Custom hex tints not in the standard palette** (e.g. `#F5E6DE`,
+  `#DCE4D2`, `#E8C9BA` — light/medium tints of the brand colors) → derive
+  via `color-mix(in srgb, var(--primary|secondary|accent) X%, var(--canvas))`
+  rather than aliasing to a literal. Confidence-rate the percentage; ask if
+  unsure.
+
 ## Opt-outs
 
 NEVER touch elements with:
