@@ -70,13 +70,13 @@ The `extension/` directory is a working MV3 stub. Load it from `chrome://extensi
 
 ## The contract
 
-21 CSS variables, semantic names. Themes implement only these — never pixels:
+23 CSS variables, semantic names. Themes implement only these — never pixels:
 
 - **Surface:** `--canvas`, `--surface`, `--surface-2`
 - **Text:** `--text`, `--text-muted`, `--text-subtle`
 - **Brand:** `--primary`, `--on-primary`, `--secondary`, `--on-secondary`, `--accent`, `--on-accent`
 - **Borders:** `--border`, `--border-subtle`, `--border-strong`
-- **States:** `--success`, `--on-success`, `--warning`, `--on-warning`, `--danger`, `--on-danger`
+- **States:** `--success`, `--on-success`, `--warning`, `--on-warning`, `--danger`, `--on-danger`, `--info`, `--on-info`
 
 Eleven built-in presets ship with v1: **Light · Dark · Sunset · Forest · Midnight · Ocean · Rose · Slate · Lavender · Mint · Claude**. Defining a new preset is ~25 lines of CSS — PRs welcome.
 
@@ -89,12 +89,17 @@ Utility classes mirror Tailwind's mental model but resolve to the variables abov
 ```html
 <div class="bg-surface border-subtle rounded">
   <span class="text-muted">muted text</span>
+  <span class="eyebrow">section · 03</span>
   <button class="btn btn-primary">primary action</button>
-  <div class="alert alert-success">success state</div>
+  <button class="btn btn-danger">destructive</button>
+  <span class="badge badge-success">shipped</span>
+  <span class="badge badge-info">info</span>
+  <div class="alert alert-info">heads-up</div>
+  <div class="bg-warning-soft" style="padding: 8px 12px;">soft warning callout</div>
 </div>
 ```
 
-See [`theme/v1/theme.css`](./theme/v1/theme.css) for the full list.
+See [`theme/v1/theme.css`](./theme/v1/theme.css) for the full list — including soft-tint backgrounds (`bg-*-soft`), badge / button / alert variants for every semantic colour, and base styles for `<pre>`, `<code>`, `<kbd>`, `<a>`, `<hr>`.
 
 ## Versioning
 

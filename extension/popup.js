@@ -14,7 +14,7 @@ const STORAGE_KEY = 'chameleon-theme';
 const FAVORITES_KEY = 'chameleon-favorites';
 const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude'];
 const VALID_STYLES = ['default', 'editorial', 'mono'];
-const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight', 'claude'];
 
 async function getCurrent() {
   const data = await chrome.storage.local.get(STORAGE_KEY);

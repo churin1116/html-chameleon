@@ -26,7 +26,7 @@
   const STYLE_ID = '__chameleon-rail-style';
   const VALID_POSITIONS = ['tl', 'tr', 'bl', 'br'];
   const DEFAULT_POSITION = 'tr';
-  const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+  const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight', 'claude'];
 
   const PRESETS = [
     // 'system' is a meta-mode: theme.js resolves it to light/dark via

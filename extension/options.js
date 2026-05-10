@@ -21,7 +21,7 @@ const ALL_THEMES = [
   { id: 'claude',   label: 'Claude',   gradient: 'linear-gradient(135deg, #faf9f5 50%, #d97757 50%)' },
 ];
 
-const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight'];
+const DEFAULT_FAVORITES = ['light', 'dark', 'sunset', 'forest', 'midnight', 'claude'];
 
 async function getFavorites() {
   const data = await chrome.storage.local.get(FAVORITES_KEY);

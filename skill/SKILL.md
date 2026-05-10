@@ -83,7 +83,7 @@ See [`prompts/convert.md`](./prompts/convert.md) for the full prompt template.
 
 ## The contract
 
-21 CSS variables across 5 categories. Themes implement only these:
+23 CSS variables across 5 categories. Themes implement only these:
 
 | Category | Variables |
 | --- | --- |
@@ -91,15 +91,22 @@ See [`prompts/convert.md`](./prompts/convert.md) for the full prompt template.
 | Text | `--text`, `--text-muted`, `--text-subtle` |
 | Brand | `--primary`, `--on-primary`, `--secondary`, `--on-secondary`, `--accent`, `--on-accent` |
 | Borders | `--border`, `--border-subtle`, `--border-strong` |
-| States | `--success`, `--on-success`, `--warning`, `--on-warning`, `--danger`, `--on-danger` |
+| States | `--success`, `--on-success`, `--warning`, `--on-warning`, `--danger`, `--on-danger`, `--info`, `--on-info` |
 
 Utility classes (Tailwind-shaped):
 
-- **Backgrounds**: `bg-canvas`, `bg-surface`, `bg-surface-2`, `bg-primary`, `bg-secondary`, `bg-accent`, `bg-success`, `bg-warning`, `bg-danger`
-- **Text**: `text-base`, `text-muted`, `text-subtle`, `text-primary`, `text-secondary`, `text-accent`, `text-success`, `text-warning`, `text-danger`, `text-on-primary`, `text-on-secondary`
+- **Backgrounds**: `bg-canvas`, `bg-surface`, `bg-surface-2`, `bg-primary`, `bg-secondary`, `bg-accent`, `bg-success`, `bg-warning`, `bg-danger`, `bg-info`
+- **Soft tints** (semantic background washes for callouts / highlight rows): `bg-primary-soft`, `bg-secondary-soft`, `bg-accent-soft`, `bg-success-soft`, `bg-warning-soft`, `bg-danger-soft`, `bg-info-soft`
+- **Text**: `text-base`, `text-muted`, `text-subtle`, `text-primary`, `text-secondary`, `text-accent`, `text-success`, `text-warning`, `text-danger`, `text-info`, `text-on-primary`, `text-on-secondary`, `text-on-info`
 - **Borders**: `border`, `border-subtle`, `border-strong`, `border-primary`
 - **Radius**: `rounded`, `rounded-lg`, `rounded-full`
-- **Components**: `btn` + `btn-primary`/`btn-secondary`/`btn-ghost`, `alert` + `alert-success`/`alert-warning`/`alert-danger`, `card`, `pill`
+- **Editorial label**: `eyebrow` (small uppercase mono — recurring section-header pattern)
+- **Components**:
+  - `btn` + `btn-primary` / `btn-secondary` / `btn-ghost` / `btn-danger` / `btn-info` (hover via color-mix)
+  - `alert` + `alert-success` / `alert-warning` / `alert-danger` / `alert-info`
+  - `card`, `pill`
+  - `badge` + `badge-neutral` / `badge-primary` / `badge-accent` / `badge-success` / `badge-warning` / `badge-danger` / `badge-info` / `badge-solid` (semantic status chips, distinct from neutral `pill`)
+- **Base elements** (auto-styled, no class needed): `<code>`, `<pre>`, `<kbd>`, `<samp>`, `<a>`, `<hr>`
 
 ## Built-in presets
 
