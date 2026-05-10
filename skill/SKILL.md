@@ -26,6 +26,20 @@ Activate when the user asks to:
 - Refactor hardcoded colors out of an HTML file
 - Make any HTML "respond to a theme picker"
 
+## Pair with `frontend-design`
+
+Chameleon enforces the *theming contract* — semantic variables, utility classes,
+no hex literals. It does **not** automatically produce a *distinctive* design.
+For anything the user wants to "look good" (reports, dashboards, landing pages,
+artifacts they'll share), invoke the `frontend-design` skill first for aesthetic
+direction (tone, typography, spatial composition, anti-AI-slop patterns), then
+translate every decision into Chameleon variables and classes.
+
+`prompts/generate.md` § Design quality distills the editorial-style patterns
+(eyebrow + `<hr>` + serif heading, mono captions, paper cards with no shadow,
+soft tints via `color-mix`) into a copy-pasteable reference implementation. Use
+it as the default starting point.
+
 ## Two modes
 
 ### Mode 1: `generate` — new HTML
