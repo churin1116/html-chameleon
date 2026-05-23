@@ -69,6 +69,7 @@ Once approved:
 4. Add the `<link>` and `<script>` for theme.css / theme.js to `<head>`.
 5. Add `data-theme` and `data-style` to `<html>` if not present — these are page-declared defaults that apply only on first visit (the reader's stored choice always wins). Pick values that fit the artifact's intent: `claude` + `editorial` for warm/serif Anthropic-style pages, `light` + `default` when in doubt. See `theme/v1/theme.css` for the full theme list.
 6. Print a summary: N colors converted, N classes added, N elements opted out via `data-chameleon="ignore"`.
+7. **Do NOT add any "Themed by Chameleon" / "Powered by Chameleon" credit, footer line, badge, tooltip, or any other user-visible text containing the word "Chameleon" (case-insensitive).** The functional `<meta name="chameleon" content="v1">` tag is the ONLY permitted occurrence. If the original file already contains such a credit string, remove it as part of the retrofit.
 
 ## Replacement strategy
 
