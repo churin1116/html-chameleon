@@ -164,6 +164,137 @@ from a blank page.
 - **Section dividers**: `<hr>` (uses `--border` automatically)
 - **Code blocks**: wrap in `<pre>` with custom layout styles, use `var(--surface-2)` background
 
+## Progressive disclosure — collapse low-priority content (default closed)
+
+Not everything on a page deserves equal vertical weight. **Content of low display
+priority should be collapsed by default**, not deleted — fold it so the reader sees the
+live/important material first and can expand the rest on demand. Use the native
+`<details>`/`<summary>` element (no JS required).
+
+**Fold-by-default (closed) when the content is:**
+
+- **Rejected / superseded ideas** (`没`, "we considered X but dropped it") — keep for the
+  decision record, but don't let it compete with the adopted direction.
+- **Optional deep-dives / appendices** — supporting detail a reader can skip.
+- **Long evidence dumps, raw tables, methodology** — reference material, not the headline.
+- **Anything explicitly marked archival / "for the record".**
+
+Leave expanded (or don't fold) the current thesis, the decision, the recommendation.
+
+**The pattern** — a Chameleon-styled disclosure, **shipped in the v1 contract**. Just add
+`class="fold"` to a `<details>`; no CSS needed. (CSS shown for reference / local override:)
+
+```css
+details.fold { border: 1px dashed var(--border-strong); border-radius: 12px; background: color-mix(in srgb, var(--text-subtle) 5%, transparent); }
+details.fold > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; font-family: var(--font-mono); color: var(--text-subtle); }
+details.fold[open] > summary::before { content: "▾"; }
+details.fold > summary .fold-title { font-family: var(--font-serif); font-weight: 500; color: var(--text-muted); }
+details.fold > summary .fold-note { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-subtle); padding: 2px 8px; border: 1px solid var(--border-subtle); border-radius: 999px; }
+details.fold .fold-body { padding: 0 18px 18px; }
+details.fold[open] { background: var(--surface); }
+```
+
+```html
+<!-- Closed by default: omit the `open` attribute. Add `open` only to start expanded. -->
+<details class="fold">
+  <summary><span class="fold-title">却下した案 — …</span><span class="fold-note">没・クリックで展開</span></summary>
+  <div class="fold-body">
+    <hr>
+    <!-- the low-priority content; preserved, just folded away -->
+  </div>
+</details>
+```
+
+Rules: **never use `open` for low-priority content** (that defeats the purpose); muted
+title color signals "de-emphasized"; the marker (▸/▾) and a short note ("没", "appendix",
+"detail") tell the reader what they're expanding. Folding ≠ deleting — the content stays
+in the document and in the page's text for search.
+
+> Shipped in `theme/v1/theme.css` (v1, additive) — no inlining needed.
+
+## Structural patterns (shipped in the v1 contract)
+
+The patterns hand-rolled in nearly every report/dashboard — now **part of the v1 contract**
+(`theme/v1/theme.css`). Use the classes; no inlining needed. Colors route through variables
+and fonts use `--font-heading/body/code`, so they theme correctly. CSS shown for reference
+/ local override.
+
+### Tables — `.table`
+
+The single most re-implemented pattern. Opt-in class so bare `<table>` stays untouched.
+
+```css
+.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.table th, .table td { text-align: left; padding: 9px 12px; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
+.table thead th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-strong); }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tr.row-em td { background: color-mix(in srgb, var(--primary) 7%, transparent); } /* highlighted row */
+.table td.num { font-family: var(--font-mono); white-space: nowrap; }                   /* numeric cell */
+.table td.k { white-space: nowrap; font-weight: 500; }                                  /* key/label cell */
+```
+```html
+<table class="table">
+  <thead><tr><th>項目</th><th>値</th></tr></thead>
+  <tbody>
+    <tr class="row-em"><td class="k">主要</td><td class="num">42</td></tr>
+    <tr><td class="k">副次</td><td class="num">7</td></tr>
+  </tbody>
+</table>
+```
+
+### Stat / KPI blocks — `.stat-grid`
+
+At-a-glance metric strip. Hairline grid via a `--border` background showing through 1px gaps.
+
+```css
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.stat-item { background: var(--surface); padding: 12px 14px; }
+.stat-label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-subtle); font-weight: 600; margin-bottom: 3px; }
+.stat-value { font-family: var(--font-serif); font-size: 22px; font-weight: 500; line-height: 1.1; color: var(--text); }
+.stat-value .unit { font-family: var(--font-sans); font-size: 13px; color: var(--text-muted); }
+```
+```html
+<div class="stat-grid">
+  <div class="stat-item"><div class="stat-label">対象</div><div class="stat-value">250<span class="unit"> 名</span></div></div>
+  <div class="stat-item"><div class="stat-label">期間</div><div class="stat-value">4<span class="unit"> 週</span></div></div>
+</div>
+```
+
+### Tabs — pure CSS (`.tabs`, no JS)
+
+JS-free, **position-based** (mapping via `:has()` — no per-id CSS rules). Write **HTML only**:
+radios first, then `nav.tab-list` of labels, then `.tab-panels` of `.tab-panel`s, all in the
+same order. Labels use `for="<radio id>"` for clickability. Supports up to 8 tabs.
+
+```html
+<div class="tabs">
+  <input type="radio" name="tabset1" id="g1t1" checked>
+  <input type="radio" name="tabset1" id="g1t2">
+  <input type="radio" name="tabset1" id="g1t3">
+  <nav class="tab-list">
+    <label for="g1t1">Overview</label><label for="g1t2">Detail</label><label for="g1t3">Sources</label>
+  </nav>
+  <div class="tab-panels">
+    <section class="tab-panel">…</section>
+    <section class="tab-panel">…</section>
+    <section class="tab-panel">…</section>
+  </div>
+</div>
+```
+Per tab group: unique `name=` and page-unique ids; keep radio / label / panel counts and
+order aligned. For rich a11y use real ARIA tabs with JS — this CSS-only version is for static
+reports. (Requires `:has()` — fine in modern browsers.)
+
+## Print / PDF
+
+The v1 contract ships sensible `@media print` defaults: keeps theme colors/tints, hides
+`.no-print` and `.tab-list`, **expands all tab panels and folded `.fold` content** so the PDF
+is complete, avoids mid-element page breaks on `.card` / `.stat-grid` / `.table` rows /
+`details.fold`, and sets 16mm page margins. Add page-specific `@media print` overrides only
+when you need them (e.g. to keep `没`/appendix folds *out* of the PDF, re-hide `.fold-body`).
+
 ## When the design needs more
 
 - For state tints (e.g., a soft success bg), use `color-mix()`:

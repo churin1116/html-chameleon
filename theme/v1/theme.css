@@ -803,3 +803,161 @@ kbd {
   letter-spacing: -0.01em;
   font-weight: 700;
 }
+
+/* ============================================================
+   EXTENDED COMPONENTS (additive, v1) — opt-in structural patterns
+   details.fold · .table · .stat-grid · .tabs · @media print
+   All colors route through variables; fonts use --font-heading/body/code
+   so they swap automatically across data-style.
+   ============================================================ */
+
+/* --- Progressive disclosure: low-priority content, collapsed by default ---
+   Omit the `open` attribute to keep it closed (the point). Add `open` to start expanded. */
+details.fold {
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--text-subtle) 5%, transparent);
+}
+details.fold > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.875rem 1.125rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before {
+  content: "\25B8"; /* ▸ */
+  font-family: var(--font-mono);
+  color: var(--text-subtle);
+  font-size: 0.85rem;
+}
+details.fold[open] > summary::before { content: "\25BE"; } /* ▾ */
+details.fold > summary .fold-title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+details.fold > summary .fold-note {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+}
+details.fold .fold-body { padding: 0 1.125rem 1.125rem; }
+details.fold[open] { background: var(--surface); }
+
+/* --- Table: opt-in via .table; .row-em (highlight) / .num (numeric) / .k (key) cells --- */
+.table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.table thead th {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-strong);
+}
+.table tbody tr:last-child td { border-bottom: none; }
+.table tr.row-em td { background: color-mix(in srgb, var(--primary) 7%, transparent); }
+.table td.num { font-family: var(--font-mono); white-space: nowrap; }
+.table td.k { white-space: nowrap; font-weight: 500; }
+
+/* --- Stat / KPI strip --- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.stat-item { background: var(--surface); padding: 0.75rem 0.875rem; }
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 600;
+  margin-bottom: 0.1875rem;
+}
+.stat-value { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 500; line-height: 1.1; color: var(--text); }
+.stat-value .unit { font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted); }
+
+/* --- Tabs: pure CSS, JS-free, position-based (no per-id rules needed) ---
+   Structure: .tabs > (N radios, first) + nav.tab-list (N labels) + .tab-panels (N .tab-panel).
+   Radios must be the first children. Labels use for="<radio id>" for clickability.
+   Mapping is by position via :has() — supports up to 8 tabs. */
+.tabs > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.tab-list {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.tab-list > label {
+  cursor: pointer;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tab-list > label:hover { color: var(--text); }
+.tab-panel { display: none; }
+.tabs:has(> input:nth-of-type(1):checked) > .tab-list > label:nth-child(1),
+.tabs:has(> input:nth-of-type(2):checked) > .tab-list > label:nth-child(2),
+.tabs:has(> input:nth-of-type(3):checked) > .tab-list > label:nth-child(3),
+.tabs:has(> input:nth-of-type(4):checked) > .tab-list > label:nth-child(4),
+.tabs:has(> input:nth-of-type(5):checked) > .tab-list > label:nth-child(5),
+.tabs:has(> input:nth-of-type(6):checked) > .tab-list > label:nth-child(6),
+.tabs:has(> input:nth-of-type(7):checked) > .tab-list > label:nth-child(7),
+.tabs:has(> input:nth-of-type(8):checked) > .tab-list > label:nth-child(8) {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+.tabs:has(> input:nth-of-type(1):checked) > .tab-panels > .tab-panel:nth-child(1),
+.tabs:has(> input:nth-of-type(2):checked) > .tab-panels > .tab-panel:nth-child(2),
+.tabs:has(> input:nth-of-type(3):checked) > .tab-panels > .tab-panel:nth-child(3),
+.tabs:has(> input:nth-of-type(4):checked) > .tab-panels > .tab-panel:nth-child(4),
+.tabs:has(> input:nth-of-type(5):checked) > .tab-panels > .tab-panel:nth-child(5),
+.tabs:has(> input:nth-of-type(6):checked) > .tab-panels > .tab-panel:nth-child(6),
+.tabs:has(> input:nth-of-type(7):checked) > .tab-panels > .tab-panel:nth-child(7),
+.tabs:has(> input:nth-of-type(8):checked) > .tab-panels > .tab-panel:nth-child(8) {
+  display: block;
+}
+
+/* --- data-style adjustments --- */
+[data-style="mono"] details.fold,
+[data-style="mono"] .stat-grid { border-radius: 0; }
+[data-style="mono"] details.fold > summary .fold-note { border-radius: 0; border-style: dashed; }
+[data-style="mono"] .tab-list > label { text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.75rem; }
+[data-style="mono"] .table thead th { border-bottom-style: dashed; }
+
+/* --- Print / PDF defaults (consumers can override per page) --- */
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } /* keep theme colors/tints */
+  .no-print { display: none !important; }
+  .tab-list { display: none; }                                /* tabs: show all panels in print */
+  .tab-panel { display: block !important; }
+  details.fold > .fold-body { display: block !important; }    /* expand folded content so the PDF is complete */
+  details.fold > summary::before { content: ""; }
+  .card, .stat-grid, .table tr, details.fold { break-inside: avoid; }
+  @page { margin: 16mm; }
+}
