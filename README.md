@@ -105,6 +105,8 @@ Utility classes mirror Tailwind's mental model but resolve to the variables abov
 
 See [`theme/v1/theme.css`](./theme/v1/theme.css) for the full list — including soft-tint backgrounds (`bg-*-soft`), badge / button / alert variants for every semantic colour, and base styles for `<pre>`, `<code>`, `<kbd>`, `<a>`, `<hr>`.
 
+Opt-in **structural patterns** also ship in the contract (add the class, no inlining): `.table` (with `.row-em` / `.num` / `.k` cell helpers), `.stat-grid` (at-a-glance KPI strip), `details.fold` (progressive disclosure — collapsed by default for low-priority / rejected content), `.tabs` (pure-CSS, JS-free, position-based via `:has()`), plus sensible `@media print` defaults (expand folds &amp; tab panels, avoid mid-element page breaks).
+
 ## Versioning
 
 The contract files live under `/theme/v1/`. A breaking change becomes `/theme/v2/`, never a silent regression of `/v1`. Existing HTMLs that pin to `/v1/theme.css` keep working forever.
