@@ -1433,8 +1433,8 @@
     </div>
 
     <div>
-      <p style="color: var(--text-subtle); font-family: ui-monospace, monospace; font-size: 0.75rem; margin-bottom: 0.5rem;">.tabs — pure CSS, JS-free (position-based via :has())</p>
-      <div class="tabs">
+      <p style="color: var(--text-subtle); font-family: ui-monospace, monospace; font-size: 0.75rem; margin-bottom: 0.5rem;">.tabs — pure CSS, JS-free (position-based via :has()) · opt-in <code class="inline">data-persist="&lt;key&gt;"</code> remembers the tab across reloads (theme.js)</p>
+      <div class="tabs" data-persist="design">
         <input type="radio" name="design-tabs" id="dtab1" checked />
         <input type="radio" name="design-tabs" id="dtab2" />
         <input type="radio" name="design-tabs" id="dtab3" />
@@ -1442,7 +1442,7 @@
           <label for="dtab1">Overview</label><label for="dtab2">Detail</label><label for="dtab3">Sources</label>
         </nav>
         <div class="tab-panels">
-          <section class="tab-panel"><p style="color: var(--text-muted); margin: 0;">First panel. HTML only — no per-tab CSS to author.</p></section>
+          <section class="tab-panel"><p style="color: var(--text-muted); margin: 0;">First panel. HTML only — no per-tab CSS to author. This group has <code class="inline">data-persist</code>, so reload the page and it reopens on whichever tab you left.</p></section>
           <section class="tab-panel"><p style="color: var(--text-muted); margin: 0;">Second panel.</p></section>
           <section class="tab-panel"><p style="color: var(--text-muted); margin: 0;">Third panel.</p></section>
         </div>

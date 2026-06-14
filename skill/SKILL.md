@@ -128,7 +128,7 @@ Utility classes (Tailwind-shaped):
   - `card`, `pill`
   - `badge` + `badge-neutral` / `badge-primary` / `badge-accent` / `badge-success` / `badge-warning` / `badge-danger` / `badge-info` / `badge-solid` (semantic status chips, distinct from neutral `pill`)
   - `details.fold` — **progressive disclosure for low-priority content** (rejected/`没` ideas, appendices, raw evidence). Native `<details>` collapsed **by default** (omit `open`); keep the content, just fold it. Shipped in v1; see `prompts/generate.md` § Progressive disclosure.
-- **Structural patterns** (shipped in `theme/v1/theme.css` v1; usage in `prompts/generate.md` § Structural patterns / § Print): `.table` (the most re-implemented pattern, with `.row-em` / `.num` / `.k` cell helpers), `.stat-grid` (at-a-glance KPI strip), `.tabs` (pure-CSS, JS-free, position-based tabs via `:has()`), and a `@media print` block (ships sensible PDF defaults: expand folds/tabs, avoid mid-element breaks, 16mm margins).
+- **Structural patterns** (shipped in `theme/v1/theme.css` v1; usage in `prompts/generate.md` § Structural patterns / § Print): `.table` (the most re-implemented pattern, with `.row-em` / `.num` / `.k` cell helpers), `.stat-grid` (at-a-glance KPI strip), `.tabs` (pure-CSS, JS-free, position-based tabs via `:has()`; **opt-in `data-persist="<key>"`** makes theme.js remember the selected tab across reloads + navigation — FOUC-guarded, no per-page script), and a `@media print` block (ships sensible PDF defaults: expand folds/tabs, avoid mid-element breaks, 16mm margins).
 - **Base elements** (auto-styled, no class needed): `<code>`, `<pre>`, `<kbd>`, `<samp>`, `<a>`, `<hr>`
 
 ## Built-in presets

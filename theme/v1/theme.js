@@ -164,9 +164,56 @@
     setTheme(current);
   }
 
+  // --- Persistent tabs (opt-in) ---------------------------------------------
+  // Opt in with <div class="tabs" data-persist="<key>">. Restores the reader's
+  // last selected tab from localStorage (scoped per pathname + key) and saves on
+  // change, so the choice survives reloads + navigation — no per-page script.
+  // The CSS guard (html[data-chameleon] .tabs[data-persist]:not([data-ch-ready]))
+  // hides panels until we mark the group ready, preventing a default-tab flash.
+  var TAB_KEY_PREFIX = 'chameleon-tab:';
+  function tabStorageKey(group) {
+    var path = (window.location && window.location.pathname) || '/';
+    return TAB_KEY_PREFIX + path + ':' + group;
+  }
+  function initPersistentTabs(scope) {
+    var root = scope || document;
+    var groups = root.querySelectorAll('.tabs[data-persist]');
+    Array.prototype.forEach.call(groups, function (g) {
+      if (g.__chTabsBound) return;
+      g.__chTabsBound = true;
+      var group = g.getAttribute('data-persist') || 'tabs';
+      var key = tabStorageKey(group);
+      var radios = [];
+      Array.prototype.forEach.call(g.children, function (c) {
+        if (c.tagName === 'INPUT' && c.type === 'radio') radios.push(c);
+      });
+      if (radios.length) {
+        try {
+          var saved = parseInt(localStorage.getItem(key), 10);
+          if (!isNaN(saved) && saved >= 0 && saved < radios.length) {
+            radios[saved].checked = true;
+          }
+        } catch (e) { /* storage unavailable */ }
+        radios.forEach(function (r, i) {
+          r.addEventListener('change', function () {
+            if (r.checked) {
+              try { localStorage.setItem(key, String(i)); } catch (e) {}
+            }
+          });
+        });
+      }
+      g.setAttribute('data-ch-ready', '');  // drops the FOUC guard
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { initPersistentTabs(); });
+  } else {
+    initPersistentTabs();
+  }
+
   // Public API.
   window.Chameleon = {
-    version: '1.4.0',
+    version: '1.5.0',
     presets: BUILTIN_THEMES.slice(),
     modes: VALID_MODES.slice(),
     styles: VALID_STYLES.slice(),
@@ -174,6 +221,9 @@
     setMode: setMode,
     setStyle: setStyle,
     getTheme: function () { return readStored() || defaultTheme(); },
+    // Re-scan for persistent .tabs[data-persist] groups (e.g. after injecting
+    // tab markup dynamically). Idempotent — already-bound groups are skipped.
+    persistTabs: initPersistentTabs,
     reset: function () {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
       applyTheme(defaultTheme());

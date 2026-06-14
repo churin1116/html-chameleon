@@ -901,7 +901,15 @@ details.fold[open] { background: var(--surface); }
 /* --- Tabs: pure CSS, JS-free, position-based (no per-id rules needed) ---
    Structure: .tabs > (N radios, first) + nav.tab-list (N labels) + .tab-panels (N .tab-panel).
    Radios must be the first children. Labels use for="<radio id>" for clickability.
-   Mapping is by position via :has() — supports up to 8 tabs. */
+   Mapping is by position via :has() — supports up to 8 tabs.
+
+   PERSISTENCE (opt-in): add data-persist="<key>" to .tabs to make the reader's
+   selected tab survive reloads + navigation. theme.js restores the saved radio
+   on load (per pathname + key) and saves on change — no per-page script needed.
+   The guard below hides panels until theme.js marks the group [data-ch-ready],
+   so a stale default panel never flashes before the saved tab is applied. It is
+   scoped to html[data-chameleon] (set synchronously by theme.js in <head>) so
+   that if JS is disabled/blocked the panels stay visible instead of vanishing. */
 .tabs > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
 .tab-list {
   display: flex;
@@ -942,6 +950,8 @@ details.fold[open] { background: var(--surface); }
 .tabs:has(> input:nth-of-type(8):checked) > .tab-panels > .tab-panel:nth-of-type(8) {
   display: block;
 }
+/* Persistent-tabs FOUC guard — only when JS is present (html[data-chameleon]). */
+html[data-chameleon] .tabs[data-persist]:not([data-ch-ready]) > .tab-panels { visibility: hidden; }
 
 /* --- data-style adjustments --- */
 [data-style="mono"] details.fold,

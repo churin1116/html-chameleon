@@ -287,6 +287,25 @@ Per tab group: unique `name=` and page-unique ids; keep radio / label / panel co
 order aligned. For rich a11y use real ARIA tabs with JS — this CSS-only version is for static
 reports. (Requires `:has()` — fine in modern browsers.)
 
+**Persistence (opt-in).** Bare `.tabs` is stateless — it resets to the `checked` radio on
+reload. To make the reader's tab survive reloads + navigation, add `data-persist="<key>"` to
+the `.tabs` container; theme.js restores the saved radio on load (scoped per pathname + key)
+and saves on change. No per-page script needed; a FOUC guard (scoped to `html[data-chameleon]`
+so it no-ops when JS is off) hides panels until restore completes, so no default-tab content
+flash. Note the tab-bar *highlight* may briefly show the default before correcting — acceptable
+for most pages. If you need **zero flash including the highlight** (e.g. a roadmap/dashboard
+where the bar must paint correct on first frame), hand-roll the `html[data-active-tab]` +
+`<head>` inline-script pattern instead (reads localStorage and sets the attribute before first
+paint; per-page, not part of the contract).
+
+```html
+<div class="tabs" data-persist="report">   <!-- remembers last tab under this key -->
+  <input type="radio" name="rep" id="r1" checked><input type="radio" name="rep" id="r2">
+  <nav class="tab-list"><label for="r1">概要</label><label for="r2">詳細</label></nav>
+  <div class="tab-panels"><section class="tab-panel">…</section><section class="tab-panel">…</section></div>
+</div>
+```
+
 ## Print / PDF
 
 The v1 contract ships sensible `@media print` defaults: keeps theme colors/tints, hides
