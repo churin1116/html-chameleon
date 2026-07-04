@@ -58,13 +58,17 @@ Three components, one shared theme contract.
 
 That's it. The page now responds to `data-theme="light|dark|sunset|forest|midnight"`, persists the user's choice via `localStorage`, and falls back to the system `prefers-color-scheme`.
 
+> **Hosted link vs baking**: the `<link>`/`<script src>` above is the 10-second try-out. For files you'll keep — notes, reports, anything opened via `file://` or shared — **bake the theme instead**: inline `theme/v1/theme.css` and `theme/v1/theme.js` into the file (`<style data-chameleon-theme>` / `<script data-chameleon-theme>`) and stamp `<meta name="chameleon" content="^1" data-baked="<version>">`. Baked files render offline, forever, and never restyle themselves when this repo moves. The Skill and [html-editor](https://github.com/churin1116/html-editor) both bake automatically; html-editor's `pnpm rebake <dir>` upgrades baked files npm-style (`^1` = follow 1.x, exact version = pinned).
+
 ### Use the Skill (Claude Code)
 
 ```
-chameleon: make this HTML themable
+/chameleon                     → generate a new themed HTML (theme baked in)
+/chameleon convert <file>      → retrofit an existing HTML via dry-run color mapping
+/chameleon null                → create an empty, editor-ready HTML (default: ~/Downloads)
 ```
 
-The Skill scans inline styles, `<style>` blocks, and SVG `fill` attrs, proposes a color-to-role mapping, and shows a dry-run before touching anything. Confidence below 70% pauses for your sign-off.
+Natural language works too — "make this themable", "chameleon-ify this file". `convert` scans inline styles, `<style>` blocks, and SVG `fill` attrs, proposes a color-to-role mapping, and shows a dry-run before touching anything. Confidence below 70% pauses for your sign-off.
 
 ### Install the Chrome extension
 

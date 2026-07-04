@@ -2,14 +2,16 @@
 name: chameleon
 description: |
   Generate or retrofit HTML files to use the Chameleon theme contract — semantic
-  CSS variables and Tailwind-shaped utility classes. Two modes: `generate` produces
-  new themable HTML; `convert` retrofits existing files via dry-run color-to-role
-  mapping.
+  CSS variables and Tailwind-shaped utility classes. Three modes: `generate`
+  produces new themable HTML; `convert` retrofits existing files via dry-run
+  color-to-role mapping; `null` creates an empty, html-editor-ready file
+  (default output: ~/Downloads).
 
   Triggers on: "make this themable", "chameleon-ify", "create a themable HTML",
-  "apply the chameleon theme", "themable HTML artifact", "Chameleon", "html-chameleon".
+  "apply the chameleon theme", "themable HTML artifact", "Chameleon", "html-chameleon",
+  "empty themable HTML", "blank chameleon file".
 user-invocable: true
-arguments: "[generate|convert] <optional-file-path>"
+arguments: "[generate|convert|null] <optional-file-path-or-output-dir>"
 ---
 
 # Chameleon Skill
@@ -53,9 +55,9 @@ Always emit:
 <!DOCTYPE html>
 <html data-theme="light" data-style="default">
 <head>
-  <meta name="chameleon" content="v1">
-  <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
-  <script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
+  <meta name="chameleon" content="^1" data-baked="<version>">
+  <style data-chameleon-theme>/* theme/v1/theme.css, inlined */</style>
+  <script data-chameleon-theme>/* theme/v1/theme.js, inlined */</script>
   <!-- ... -->
 </head>
 <body class="bg-canvas">
@@ -63,6 +65,15 @@ Always emit:
 </body>
 </html>
 ```
+
+The theme is **baked (inlined) into the file, never `<link>`ed from the hosted
+copy**: read `theme/v1/theme.css` + `theme/v1/theme.js` from this repo's local
+clone (`~/MyApps/_chrome/260509-html-chameleon/`), escape `</script` →
+`<\/script` in the JS, and stamp `data-baked` with `git describe --tags`
+(strip the `v`). The file then renders offline / via `file://` forever.
+Updates are distributed explicitly by the html-editor's `pnpm rebake <dir>`
+following the `content` policy — `^1` = may move to any newer 1.x, an exact
+version = pinned. Full steps: `prompts/generate.md` § Baking the theme.
 
 The `<meta name="chameleon">` tag is **mandatory** — it's the strongest detection
 signal the Chrome extension uses to decide whether to activate on a page. theme.js
@@ -73,9 +84,10 @@ load.
 `data-theme` and `data-style` on `<html>` are the **page-declared defaults** —
 applied on first visit when the reader has no stored preference. Once the reader
 picks any theme/style via the Chrome extension, that choice becomes sticky across
-all Chameleon pages and the page-declared defaults stop applying. Pick values
-that match the artifact's intent (e.g. `claude` + `editorial` for warm/serif
-Anthropic-style pages).
+all Chameleon pages and the page-declared defaults stop applying. **Default to
+`light` + `default`** (neutral, sans — the normal look) unless the artifact's
+intent calls for something else (e.g. `claude` + `editorial` for warm/serif
+Anthropic-style pages, `midnight` for a dark deck).
 
 For multi-file projects (a docs site, a roadmap, a dashboard split across many
 HTMLs), add `<meta name="chameleon-project" content="<short-name>">` to every
@@ -101,6 +113,43 @@ When given an existing HTML file with hardcoded colors:
 6. Respect `data-chameleon="ignore"` on any element — those colors stay untouched on every future pass.
 
 See [`prompts/convert.md`](./prompts/convert.md) for the full prompt template.
+
+### Mode 3: `null` — empty, editor-ready file
+
+`/chameleon null` creates a blank themed HTML that [html-editor](https://github.com/churin1116/html-editor)
+opens directly in its WYSIWYG editor (the `data-html-editor="1"` marker makes it
+a *managed* file there — instantly writable, and the editor re-canonicalizes the
+head on first save). No content generation, no questions — just write the file
+and report its path.
+
+- **Output location**: `~/Downloads` by default. If the user mentions any other
+  directory or path with the command, use that instead.
+- **Filename**: the user-given name if provided; otherwise `untitled-<YYYYMMDD-HHmmss>.html`.
+  Never overwrite an existing file — suffix `-2`, `-3`, … instead.
+- **Theme**: baked, same as generate mode (read from the local clone, escape
+  `</script`, stamp `data-baked` from `git describe --tags`).
+
+Template (fill `<version>`, `<name>`, and the two theme blocks; everything else verbatim):
+
+```html
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="chameleon" content="^1" data-baked="<version>">
+<title><name></title>
+<style data-chameleon-theme>/* theme/v1/theme.css, inlined */</style>
+<script data-chameleon-theme>/* theme/v1/theme.js, inlined */</script>
+</head>
+<body class="bg-canvas">
+<article id="content" class="prose-canvas" data-html-editor="1">
+<h1><name></h1>
+<p></p>
+</article>
+</body>
+</html>
+```
 
 ## The contract
 

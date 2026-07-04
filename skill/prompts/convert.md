@@ -65,11 +65,11 @@ Once approved:
 
 1. Save the original as `<filename>.original.html` (or `.bak.html`).
 2. Replace each color literal with the corresponding Chameleon class or `var(--role)` reference.
-3. Add `<meta name="chameleon" content="v1">` to `<head>` (mandatory — used by the Chrome extension to detect Chameleon-aware pages).
-4. Add the `<link>` and `<script>` for theme.css / theme.js to `<head>`.
-5. Add `data-theme` and `data-style` to `<html>` if not present — these are page-declared defaults that apply only on first visit (the reader's stored choice always wins). Pick values that fit the artifact's intent: `claude` + `editorial` for warm/serif Anthropic-style pages, `light` + `default` when in doubt. See `theme/v1/theme.css` for the full theme list.
+3. Add `<meta name="chameleon" content="^1" data-baked="<version>">` to `<head>` (mandatory — used by the Chrome extension to detect Chameleon-aware pages; `content` = rebake policy, `data-baked` = the inlined version from `git describe --tags`, `v` stripped).
+4. Bake the theme into `<head>`: inline `theme/v1/theme.css` as `<style data-chameleon-theme>` and `theme/v1/theme.js` as `<script data-chameleon-theme>` (escape `</script` → `<\/script`), read from the local clone `~/MyApps/_chrome/260509-html-chameleon/`. Do NOT `<link>` the hosted copy — files must render offline; see `generate.md` § Baking the theme.
+5. Add `data-theme` and `data-style` to `<html>` if not present — these are page-declared defaults that apply only on first visit (the reader's stored choice always wins). **Default to `light` + `default`** (neutral/normal) unless the artifact's intent clearly calls for something else (e.g. `claude` + `editorial` for warm/serif Anthropic-style pages). See `theme/v1/theme.css` for the full theme list.
 6. Print a summary: N colors converted, N classes added, N elements opted out via `data-chameleon="ignore"`.
-7. **Do NOT add any "Themed by Chameleon" / "Powered by Chameleon" credit, footer line, badge, tooltip, or any other user-visible text containing the word "Chameleon" (case-insensitive).** The functional `<meta name="chameleon" content="v1">` tag is the ONLY permitted occurrence. If the original file already contains such a credit string, remove it as part of the retrofit.
+7. **Do NOT add any "Themed by Chameleon" / "Powered by Chameleon" credit, footer line, badge, tooltip, or any other user-visible text containing the word "Chameleon" (case-insensitive).** The functional `<meta name="chameleon" ...>` tag (and the theme's own baked source comments) are the ONLY permitted occurrences. If the original file already contains such a credit string, remove it as part of the retrofit.
 
 ## Replacement strategy
 
@@ -129,7 +129,7 @@ Chameleon retrofit summary
 ──────────────────────────
 File:        report.html
 Converted:   17 color literals → 6 roles
-Added:       <link> + <script> in <head>, data-theme="claude" data-style="editorial" on <html>
+Added:       baked <style>/<script data-chameleon-theme> in <head>, data-theme="light" data-style="default" on <html>
 Opted out:   3 SVG illustrations (preserved)
 Backup:      report.original.html
 Open issues: 2 colors with confidence <70% (see review block above)

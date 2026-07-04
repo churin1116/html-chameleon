@@ -11,11 +11,11 @@ that uses the Chameleon contract.
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="chameleon" content="v1">
+  <meta name="chameleon" content="^1" data-baked="<version>">
   <!-- Optional: <meta name="chameleon-project" content="<my-project>"> -->
   <title><title></title>
-  <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
-  <script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
+  <style data-chameleon-theme>/* theme/v1/theme.css, inlined verbatim */</style>
+  <script data-chameleon-theme>/* theme/v1/theme.js, inlined (see § Baking below) */</script>
   <style>
     /* Layout / spacing / typography ONLY — no colors here */
   </style>
@@ -26,6 +26,25 @@ that uses the Chameleon contract.
 </html>
 ```
 
+## Baking the theme (inline, never link)
+
+The theme is **baked (inlined) into the file**, not referenced from the hosted
+copy — the file must render offline, via `file://`, and identically forever.
+
+1. Read `theme/v1/theme.css` and `theme/v1/theme.js` from the local clone
+   (`~/MyApps/_chrome/260509-html-chameleon/`) and paste them verbatim into the
+   `<style data-chameleon-theme>` / `<script data-chameleon-theme>` blocks.
+2. In the JS, escape any `</script` as `<\/script` (the header comment contains
+   one) so the inline block doesn't terminate early.
+3. Stamp the version: `git -C ~/MyApps/_chrome/260509-html-chameleon describe --tags`
+   → e.g. `v1.0.0` → `data-baked="1.0.0"`. `content="^1"` is the update policy —
+   the file may later be re-baked to any newer 1.x by the html-editor's
+   `pnpm rebake <dir>` (see `260509-html-editor`), never across majors.
+
+Do NOT emit `<link>`/`<script src>` pointing at `churin1116.github.io` — that
+reintroduces a runtime network dependency and lets hosted theme changes restyle
+already-delivered files.
+
 The optional `<meta name="chameleon-project" content="...">` tag opts the page into
 **per-project preference storage**. When present, the reader's chosen colour theme is
 saved against the project name in `chrome.storage.sync` (account-synced) instead of
@@ -34,9 +53,11 @@ should remember its own theme separately from other Chameleon-aware pages — an
 resilient to file moves (the tag travels with the file). Add the same tag to every
 file in the project group; omit it for one-off artifacts.
 
-The `<meta name="chameleon" content="v1">` tag is **mandatory** in generate mode.
+The `<meta name="chameleon" ...>` tag is **mandatory** in generate mode.
 The Chrome extension uses it to detect whether a page should be themable, and
-displays a "not detected" notice on pages that lack it.
+displays a "not detected" notice on pages that lack it. (Detection keys on the
+tag's presence; `content` carries the rebake policy, `data-baked` the exact
+inlined version.)
 
 ## Page-declared defaults (`data-theme` / `data-style`)
 
@@ -80,10 +101,12 @@ Chameleon enforces the *how*.
 
 Before touching the keyboard, pick **one** direction and commit:
 
-- *Editorial / paper* — restrained, serif headings, generous whitespace, mono captions. Pairs with `claude` + `editorial`. (See the reference implementation below — this is the safe default.)
-- *Quiet utility* — dense data, sans, lots of `--surface-2` rows, mono numbers. Pairs with `light`/`slate` + `default`.
+- *Quiet utility (default)* — clean, sans, light background, restrained accents, mono captions. Pairs with `light` + `default`. **This is the safe default** — reach for it unless the content clearly invites another direction. (See the reference implementation below.)
+- *Editorial / paper* — serif headings, generous whitespace, paper-like cards. Warm and document-like. **Opt in** when the user wants a report/artifact to feel editorial or "designed"; pairs with `claude` + `editorial`.
 - *Moody / atmospheric* — dark canvas, single accent, ample negative space. Pairs with `midnight`/`dark` + `default`.
 - *Terminal / report* — `mono` style, ASCII rules, no rounded corners. Pairs with anything + `mono`.
+
+Unless the user asks for warmth, a "designed"/editorial feel, or a dark deck, **default to `light` + `default`** (normal, neutral, sans). Only switch to `claude`/`editorial` or a dark theme on an explicit cue.
 
 You are not picking a palette — Chameleon already has those. You are picking which
 *part of the contract* to lean on (serif vs sans, dense vs airy, accent-heavy vs
@@ -103,7 +126,7 @@ keeps editorial pages from feeling like a wall of `font-size: 16px`:
 .t-caption { font-family: var(--font-mono);  font-size: 11px; line-height: 1.4; color: var(--text-subtle); letter-spacing: 0.06em; text-transform: uppercase; }
 ```
 
-- Serif for display/h1/h2 only when `data-style="editorial"`. Otherwise lean on the page's `--font-sans`.
+- Under the default `data-style="default"`, use `--font-sans` for headings. Reserve `--font-serif` for display/h1/h2 only when you have deliberately opted into `data-style="editorial"`.
 - Mono captions/eyebrows are the cheapest "this was designed" signal on a page. Use them.
 - Body 14–16px, line-height 1.5–1.6. Don't go below 13 except for captions.
 
@@ -333,14 +356,14 @@ via the Chrome extension repaints the whole page consistently.
 
 ```html
 <!doctype html>
-<html lang="en" data-theme="claude" data-style="editorial">
+<html lang="en" data-theme="light" data-style="default">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="chameleon" content="v1">
+<meta name="chameleon" content="^1" data-baked="<version>">
 <title>Q3 Review — Birchline</title>
-<link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/theme/v1/theme.css">
-<script src="https://churin1116.github.io/html-chameleon/theme/v1/theme.js"></script>
+<style data-chameleon-theme>/* theme/v1/theme.css, inlined — see § Baking the theme */</style>
+<script data-chameleon-theme>/* theme/v1/theme.js, inlined */</script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -354,8 +377,8 @@ via the Chrome extension repaints the whole page consistently.
 
   /* Type scale — define once, reuse everywhere. */
   .t-eyebrow { font-family: var(--font-mono); font-size: 11px; line-height: 1.4; color: var(--text-subtle); letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 6px; }
-  .t-display { font-family: var(--font-serif); font-size: 40px; line-height: 1.1; font-weight: 500; letter-spacing: -0.01em; margin: 0 0 8px; }
-  .t-h2      { font-family: var(--font-serif); font-size: 24px; line-height: 1.3; font-weight: 500; margin: 0 0 8px; }
+  .t-display { font-family: var(--font-sans); font-size: 38px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; }
+  .t-h2      { font-family: var(--font-sans); font-size: 24px; line-height: 1.3; font-weight: 600; margin: 0 0 8px; }
   .t-lead    { font-size: 17px; line-height: 1.55; color: var(--text-muted); margin: 0; }
   .t-caption { font-family: var(--font-mono); font-size: 11px; color: var(--text-subtle); letter-spacing: 0.06em; text-transform: uppercase; }
 
@@ -368,7 +391,7 @@ via the Chrome extension repaints the whole page consistently.
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
   .stat { padding: 18px 20px; }
   .stat .label { font-family: var(--font-mono); font-size: 11px; color: var(--text-subtle); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 8px; }
-  .stat .value { font-family: var(--font-serif); font-size: 30px; font-weight: 500; line-height: 1; letter-spacing: -0.01em; margin: 0; }
+  .stat .value { font-family: var(--font-sans); font-size: 30px; font-weight: 600; line-height: 1; letter-spacing: -0.01em; margin: 0; }
   .stat .delta { font-family: var(--font-mono); font-size: 12px; margin-top: 8px; }
 
   /* Card grid for items. */
@@ -464,14 +487,16 @@ via the Chrome extension repaints the whole page consistently.
 ### Why this template works
 
 - **Eyebrow + `<hr>` + heading** is the load-bearing pattern. It signals "designed" before any content arrives.
-- **Mono for labels/captions, serif for numbers and headlines, sans for body.** Three voices, never crossed.
+- **Mono for labels/captions, sans for headlines and body.** Distinct voices, never crossed. (For an editorial variant, swap headline/number fonts to `--font-serif` and set `data-style="editorial"`.)
 - **Cards have no shadow.** Just `--surface` on `--canvas` with a 1px `--border`. The composition does the work, not the elevation.
-- **Stats use serif for the number** — small detail, large effect. Sans/mono numbers read as dashboard; serif reads as report.
-- **Callouts use `color-mix` for soft tints** — they survive every theme switch (claude/dark/midnight) because they're derived from the semantic state colors, not literal hex.
+- **Weighted sans numbers** for stats — neutral and legible. (Serif numbers read more "report"; switch to `--font-serif` under `editorial` if you want that.)
+- **Callouts use `color-mix` for soft tints** — they survive every theme switch (light/dark/midnight/claude) because they're derived from the semantic state colors, not literal hex.
 - **Footer is a thin mono row** — closes the page without competing for attention.
 
-If the user asked for a darker / moodier report, swap `data-theme="claude"` to
-`midnight` and the entire page repaints — no other changes needed. That's the
+The default here is `light` + `default` (neutral, sans). If the user asks for a
+warm/editorial feel, swap to `data-theme="claude" data-style="editorial"` (and use
+`--font-serif` for headings); for a darker/moodier report, swap `data-theme` to
+`midnight`. The entire page repaints — no other changes needed. That's the
 contract paying for itself.
 
 ## Final self-check before emitting
