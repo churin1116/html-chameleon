@@ -476,9 +476,9 @@ code, pre, kbd, samp {
 
 a { color: var(--primary); }
 
-/* Struck-through text reads as done/void — dim it between muted and subtle
-   (muted alone is too close to --text in light/claude). Line follows currentColor. */
-s, del, strike { color: color-mix(in srgb, var(--text-muted), var(--text-subtle)); }
+/* Struck-through text reads as done/void — dim it to 36% subtle (~#ddd on light)
+   (muted is too close to --text in light/claude). Line follows currentColor. */
+s, del, strike { color: color-mix(in srgb, var(--text-subtle) 36%, transparent); }
 
 hr {
   border: 0;
