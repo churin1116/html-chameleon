@@ -3,14 +3,11 @@
 //
 // Pages bake the theme inline (see skill/prompts/generate.md § Baking), so a
 // file only picks up theme fixes when it is re-baked. With the extension
-// installed, content.js injects this bundled copy at document_start and turns
-// it on for pages that track the current major (`content="^1"` / legacy "v1"),
-// so fixes reach every file immediately. Without the extension the baked copy
-// still renders, unchanged.
-//
-// Every selector is prefixed with `html[data-chameleon-live]`, which content.js
-// sets only on eligible pages. The prefix also lifts specificity above the
-// page's own (baked) theme, so the live copy wins without !important.
+// installed, live-theme.js swaps this bundled copy in for the page's baked
+// <style data-chameleon-theme> before first paint on pages that track the
+// current major (`content="^1"` / legacy "v1") — the same cascade a rebake
+// would produce, so the page's own later CSS still wins. Without the
+// extension the baked copy still renders, unchanged.
 //
 // Usage: node scripts/build-extension-theme.mjs   (re-run after editing theme.css)
 
@@ -24,112 +21,7 @@ const version = execFileSync("git", ["describe", "--tags", "--abbrev=7"], { cwd:
   .trim()
   .replace(/^v/, "");
 
-const GATE = "html[data-chameleon-live]";
-
-// Split `s` on `sep` at depth 0 (outside (), [], strings).
-function splitTop(s, sep) {
-  const out = [];
-  let depth = 0;
-  let quote = null;
-  let start = 0;
-  for (let i = 0; i < s.length; i++) {
-    const c = s[i];
-    if (quote) {
-      if (c === "\\") i++;
-      else if (c === quote) quote = null;
-    } else if (c === '"' || c === "'") quote = c;
-    else if (c === "(" || c === "[") depth++;
-    else if (c === ")" || c === "]") depth--;
-    else if (c === sep && depth === 0) {
-      out.push(s.slice(start, i));
-      start = i + 1;
-    }
-  }
-  out.push(s.slice(start));
-  return out;
-}
-
-function prefixSelector(sel) {
-  const s = sel.trim();
-  if (/^:root\b/.test(s)) return GATE + s.slice(5);
-  if (/^html(?![\w-])/.test(s)) return GATE + s.slice(4);
-  // Theme/style attributes live on <html>, but may also scope a subtree.
-  if (/^\[data-(theme|style|chameleon)\b/.test(s)) return `${GATE}${s}, ${GATE} ${s}`;
-  return `${GATE} ${s}`;
-}
-
-// Minimal CSS walker: prefixes style-rule preludes, recurses into grouping
-// at-rules, and copies everything else verbatim. Comments are dropped.
-function transform(src) {
-  let out = "";
-  let i = 0;
-  while (i < src.length) {
-    if (src.startsWith("/*", i)) {
-      const end = src.indexOf("*/", i + 2);
-      i = end === -1 ? src.length : end + 2;
-      continue;
-    }
-    if (/\s/.test(src[i])) {
-      i++;
-      continue;
-    }
-    if (src[i] === "}") return { out, rest: i + 1 };
-    // Read a prelude up to `{` or `;` (skipping strings/comments).
-    let j = i;
-    let quote = null;
-    let prelude = "";
-    while (j < src.length) {
-      const c = src[j];
-      if (quote) {
-        prelude += c;
-        if (c === "\\") prelude += src[++j];
-        else if (c === quote) quote = null;
-      } else if (src.startsWith("/*", j)) {
-        j = src.indexOf("*/", j + 2) + 1;
-      } else if (c === '"' || c === "'") {
-        quote = c;
-        prelude += c;
-      } else if (c === "{" || c === ";") break;
-      else prelude += c;
-      j++;
-    }
-    prelude = prelude.trim();
-    if (src[j] === ";") {
-      out += `${prelude};\n`;
-      i = j + 1;
-      continue;
-    }
-    const bodyStart = j + 1;
-    if (/^@(media|supports|layer|container)\b/.test(prelude)) {
-      const inner = transform(src.slice(bodyStart));
-      out += `${prelude} {\n${inner.out}}\n`;
-      i = bodyStart + inner.rest;
-      continue;
-    }
-    // Find the matching close brace for a declaration block (or opaque at-rule).
-    let depth = 1;
-    let k = bodyStart;
-    quote = null;
-    while (k < src.length && depth > 0) {
-      const c = src[k];
-      if (quote) {
-        if (c === "\\") k++;
-        else if (c === quote) quote = null;
-      } else if (c === '"' || c === "'") quote = c;
-      else if (c === "{") depth++;
-      else if (c === "}") depth--;
-      k++;
-    }
-    const body = src.slice(bodyStart, k - 1).replace(/\/\*[\s\S]*?\*\//g, "").trim();
-    const head = prelude.startsWith("@") ? prelude : splitTop(prelude, ",").map(prefixSelector).join(", ");
-    out += `${head} { ${body} }\n`;
-    i = k;
-  }
-  return { out, rest: i };
-}
-
-const live = transform(css).out;
-if (/<\/style/i.test(live)) throw new Error("theme.css contains '</style'");
+if (/<\/style/i.test(css)) throw new Error("theme.css contains '</style'");
 
 const outPath = join(root, "extension/theme-live.js");
 writeFileSync(
@@ -138,8 +30,8 @@ writeFileSync(
 // Source: theme/v1/theme.css @ ${version}
 self.__chameleonLive = {
   version: ${JSON.stringify(version)},
-  css: ${JSON.stringify(live)},
+  css: ${JSON.stringify(css)},
 };
 `,
 );
-console.log(`wrote extension/theme-live.js (theme ${version}, ${live.length} bytes)`);
+console.log(`wrote extension/theme-live.js (theme ${version}, ${css.length} bytes)`);
