@@ -49,6 +49,7 @@ If you add / rename / remove a signal, **update all of** these files in the same
 | Action | How |
 | --- | --- |
 | Reload extension after editing `extension/*` | `chrome://extensions` → reload the Chameleon card |
+| Push a `theme.css` edit to already-baked pages (via the extension) | `node scripts/build-extension-theme.mjs` → reload the extension |
 | Verify Pages change | `git push` to `main` → wait ~30–60s → curl the URL |
 | Skill prompt edit | Save the file; propagates instantly via symlink |
 | Regenerate icons | `python3` with Pillow on `extension/icons/source.png`; see commit `d548e95` for the rounded-corners script |

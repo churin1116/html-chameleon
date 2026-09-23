@@ -11,6 +11,9 @@
  *    Either way, report the result to the background service worker so the
  *    toolbar badge reflects it.
  *
+ * The live theme override (bundled theme.css over the page's baked copy) lives
+ * in live-theme.js, which also runs in subframes — see manifest.json.
+ *
  * Detection layers (any one is sufficient):
  *   - <meta name="chameleon" ...>          (strongest, explicit declaration)
  *   - <link href*="html-chameleon">        (catches anyone using the hosted CSS)
