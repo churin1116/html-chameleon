@@ -991,7 +991,11 @@ html[data-chameleon] .tabs[data-persist]:not([data-ch-ready]) > .tab-panels { vi
 .prose-canvas h4 { font-size: 1.05rem; }
 .prose-canvas h5 { font-size: 1rem; }
 .prose-canvas h6 { font-size: 0.9rem; }
-.prose-canvas h2 { margin: calc(var(--base-margin) * 1.8) 0 0; }
+.prose-canvas h2 {
+  margin: calc(var(--base-margin) * 1.8) 0 0;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border);
+}
 .prose-canvas h3 { margin: calc(var(--base-margin) * 1.5) 0 0; }
 .prose-canvas p { margin: 1em 0; }
 /* Emphasis renders as boten (emphasis dots), not italics: Japanese has no true
@@ -1067,6 +1071,35 @@ html[data-chameleon] .tabs[data-persist]:not([data-ch-ready]) > .tab-panels { vi
 .prose-canvas details[open] > summary::before { transform: rotate(90deg); }
 .prose-canvas details > *:not(summary) { padding-left: 0.85em; padding-right: 0.85em; }
 .prose-canvas details > *:last-child:not(summary) { padding-bottom: 0.6em; }
+/* Table of contents block (html-editor): <nav data-toc class="toc"> listing
+   the document's h2/h3 as in-page links. Keyed on nav[data-toc] rather than
+   .prose-canvas so it also styles TOCs inserted into hand-written pages. */
+.prose-canvas h2,
+.prose-canvas h3 { scroll-margin-top: 1.5rem; }
+nav[data-toc] {
+  margin: 1.6em 0;
+  padding: 1em 1.3em 1.1em;
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  border-radius: var(--radius-md, 8px);
+}
+nav[data-toc] .toc-title {
+  margin: 0 0 0.5em;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+nav[data-toc] ol { list-style: none; margin: 0; padding: 0; }
+nav[data-toc] ol ol { padding-left: 1.2em; }
+nav[data-toc] li { margin: 0.3em 0; line-height: 1.6; }
+nav[data-toc] a {
+  color: var(--text);
+  text-decoration: none;
+}
+nav[data-toc] a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+}
+nav[data-toc] .toc-h3 > a { color: var(--text-muted); font-size: 0.93em; }
 /* Link cards (html-editor). Colors, radius and shadow come from the theme
    variables, so cards follow theme switches. */
 .prose-canvas .link-card { margin: 1.6em 0; }
