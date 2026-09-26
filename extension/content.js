@@ -26,6 +26,7 @@
   const POSITION_KEY = 'chameleon-position';
   const FAVORITES_KEY = 'chameleon-favorites';
   const PALETTES_KEY = 'chameleon-custom-palettes';
+  const TOC_KEY = 'chameleon-toc-sidebar'; // boolean — TOC sidebar open (global, all pages)
   const PROJECT_KEY_PREFIX = 'chameleon-project:';
   const RAIL_ID = '__chameleon-rail';
 
@@ -238,6 +239,9 @@
         applyPositionToRail(pos);
       }
     }
+    if (changes[TOC_KEY]) {
+      applyToc(changes[TOC_KEY].newValue === true);
+    }
     if (changes[FAVORITES_KEY]) {
       const favs = changes[FAVORITES_KEY].newValue;
       applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
@@ -308,6 +312,7 @@
     const rail = document.createElement('div');
     rail.id = RAIL_ID;
     rail.classList.add('__cm-pos-' + initialPos);
+    document.documentElement.setAttribute('data-cm-rail-pos', initialPos);
     rail.innerHTML = `
       <button class="__cm-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Chameleon theme">
         <span class="__cm-swatch" aria-hidden="true"></span>
@@ -355,6 +360,14 @@
           <span class="__cm-action-name">Chat with AI</span>
         </button>
         ` : ''}
+        <button class="__cm-action __cm-toc-toggle" data-action="toc" type="button" role="menuitemcheckbox" aria-checked="false">
+          <svg class="__cm-action-icon __cm-action-icon-toc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 6h10M4 12h7M4 18h10"/>
+            <rect x="16.5" y="3.5" width="4" height="17" rx="1.2"/>
+          </svg>
+          <span class="__cm-action-name">目次サイドバー</span>
+          <span class="__cm-switch" aria-hidden="true"></span>
+        </button>
         <button class="__cm-settings-toggle" type="button" aria-expanded="false" aria-controls="__cm-position-panel">
           <svg class="__cm-settings-icon" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="2" y="2" width="12" height="12" rx="2"/>
@@ -455,6 +468,15 @@
       });
     });
 
+    rail.querySelectorAll('[data-action="toc"]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const next = btn.getAttribute('aria-checked') !== 'true';
+        chrome.storage.local.set({ [TOC_KEY]: next });
+        applyToc(next); // don't wait for onChanged; menu stays open
+      });
+    });
+
     rail.querySelectorAll('.__cm-pos-cell').forEach(cell => {
       cell.addEventListener('click', e => {
         e.stopPropagation();
@@ -551,7 +573,27 @@
     if (!rail) return;
     VALID_POSITIONS.forEach(p => rail.classList.remove('__cm-pos-' + p));
     rail.classList.add('__cm-pos-' + pos);
+    document.documentElement.setAttribute('data-cm-rail-pos', pos);
     syncPositionCells(pos);
+  }
+
+  // ---------- TOC sidebar (toc-sidebar.js) ----------
+  function applyToc(open) {
+    if (self.__chameleonToc) self.__chameleonToc.setOpen(!!open);
+    document.querySelectorAll('#' + RAIL_ID + ' [data-action="toc"]').forEach(btn => {
+      btn.setAttribute('aria-checked', open ? 'true' : 'false');
+    });
+  }
+
+  function initToc() {
+    if (!self.__chameleonToc) return;
+    self.__chameleonToc.setOnClose(function () {
+      chrome.storage.local.set({ [TOC_KEY]: false });
+      applyToc(false);
+    });
+    chrome.storage.local.get(TOC_KEY, function (data) {
+      applyToc(data[TOC_KEY] === true);
+    });
   }
 
   function syncPositionCells(pos) {
@@ -775,6 +817,29 @@
       .__cm-action-icon { color: #facc15 !important; flex-shrink: 0 !important; }
       .__cm-action-icon-chat { color: var(--primary, #2563eb) !important; }
       .__cm-action-icon-customize { color: var(--accent, #ec4899) !important; }
+      .__cm-action-icon-toc { color: var(--text-muted, #525252) !important; }
+      .__cm-switch {
+        position: relative !important;
+        flex-shrink: 0 !important;
+        width: 26px !important;
+        height: 15px !important;
+        border-radius: 999px !important;
+        background: var(--border-strong, #a1a1aa) !important;
+        transition: background 0.15s ease !important;
+      }
+      .__cm-switch::after {
+        content: "" !important;
+        position: absolute !important;
+        top: 2px !important;
+        left: 2px !important;
+        width: 11px !important;
+        height: 11px !important;
+        border-radius: 50% !important;
+        background: var(--surface, #ffffff) !important;
+        transition: transform 0.15s ease !important;
+      }
+      .__cm-toc-toggle[aria-checked="true"] .__cm-switch { background: var(--primary, #2563eb) !important; }
+      .__cm-toc-toggle[aria-checked="true"] .__cm-switch::after { transform: translateX(11px) !important; }
 
       .__cm-project-banner {
         display: flex !important;
@@ -871,6 +936,7 @@
     } catch (e) { /* extension may have been reloaded */ }
     if (result.detected) {
       injectPalette();
+      initToc();
     }
   }
 

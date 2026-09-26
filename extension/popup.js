@@ -13,6 +13,7 @@
 const STORAGE_KEY = 'chameleon-theme';
 const FAVORITES_KEY = 'chameleon-favorites';
 const PALETTES_KEY = 'chameleon-custom-palettes';
+const TOC_KEY = 'chameleon-toc-sidebar'; // content.js opens/closes the sidebar on every tab
 const PROJECT_KEY_PREFIX = 'chameleon-project:';
 const VALID_MODES  = ['system', 'light', 'dark', 'sunset', 'forest', 'midnight', 'ocean', 'rose', 'slate', 'lavender', 'mint', 'claude', 'graphite', 'nocturne', 'custom'];
 const VALID_STYLES = ['default', 'editorial', 'mono'];
@@ -291,8 +292,14 @@ document.getElementById('customize-palette-btn')?.addEventListener('click', () =
 });
 
 // Re-render visibility when favorites, palettes, or per-project storage changes.
+const tocToggle = document.getElementById('toc-toggle');
+tocToggle?.addEventListener('change', () => {
+  chrome.storage.local.set({ [TOC_KEY]: tocToggle.checked });
+});
+
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area === 'local') {
+    if (changes[TOC_KEY] && tocToggle) tocToggle.checked = changes[TOC_KEY].newValue === true;
     if (changes[FAVORITES_KEY]) {
       const favs = changes[FAVORITES_KEY].newValue;
       applyFavorites(Array.isArray(favs) && favs.length ? favs : DEFAULT_FAVORITES);
@@ -353,6 +360,8 @@ function renderProjectBadge() {
     statusPill.textContent = 'v1.5';
     statusPill.classList.remove('is-active');
   }
+
+  if (tocToggle) tocToggle.checked = (await chrome.storage.local.get(TOC_KEY))[TOC_KEY] === true;
 
   renderProjectBadge();
   applyFavorites(favorites);

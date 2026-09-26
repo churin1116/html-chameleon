@@ -214,3 +214,41 @@ body {
   border-color: #2563eb;
 }
 .gh-icon-btn svg { display: block; }
+
+/* TOC sidebar toggle (content.js / toc-sidebar.js act on it) */
+.popup__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 4px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #18181b;
+  cursor: pointer;
+}
+.popup__switch {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 30px;
+  height: 17px;
+  margin: 0;
+  border-radius: 999px;
+  background: #d4d4d8;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.popup__switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.15s ease;
+}
+.popup__switch:checked { background: #2563eb; }
+.popup__switch:checked::after { transform: translateX(13px); }
