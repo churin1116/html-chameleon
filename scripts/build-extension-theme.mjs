@@ -9,13 +9,33 @@
 // would produce, so the page's own later CSS still wins. Without the
 // extension the baked copy still renders, unchanged.
 //
-// Usage: node scripts/build-extension-theme.mjs   (re-run after editing theme.css)
+// Usage: node scripts/build-extension-theme.mjs [--force]
+//   Run after *committing* a theme.css change. The bundle is labelled with
+//   `git describe` of HEAD, and the extension only swaps pages baked with an
+//   older label — so building from an uncommitted theme.css would stamp new
+//   CSS with HEAD's label, and pages already baked at HEAD would silently
+//   keep their stale copy. The build refuses that; --force builds anyway
+//   (for trying a change locally).
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dirname, "..");
+const force = process.argv.includes("--force");
+
+try {
+  execFileSync("git", ["diff", "--quiet", "HEAD", "--", "theme/v1/theme.css"], { cwd: root });
+} catch {
+  const msg =
+    "theme/v1/theme.css has uncommitted changes; the bundle would carry HEAD's version " +
+    "label, so pages already baked at HEAD would not be swapped. Commit theme.css first.";
+  if (!force) {
+    console.error(`${msg} (--force to build anyway)`);
+    process.exit(1);
+  }
+  console.warn(`warning: ${msg}`);
+}
 const css = readFileSync(join(root, "theme/v1/theme.css"), "utf8");
 const version = execFileSync("git", ["describe", "--tags", "--abbrev=7"], { cwd: root, encoding: "utf8" })
   .trim()
