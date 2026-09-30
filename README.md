@@ -62,6 +62,16 @@ That's it. The page now responds to `data-theme="light|dark|sunset|forest|midnig
 
 ### Use the Skill (Claude Code)
 
+Install by symlinking — the Skill bakes `theme/v1/` from the clone it lives in, so copying `skill/` on its own won't work:
+
+```bash
+git clone https://github.com/churin1116/html-chameleon.git
+mkdir -p ~/.claude/skills
+ln -s "$PWD/html-chameleon/skill" ~/.claude/skills/chameleon
+```
+
+`git pull` in the clone then updates both the Skill and the theme it bakes.
+
 ```
 /chameleon                     → generate a new themed HTML (theme baked in)
 /chameleon convert <file>      → retrofit an existing HTML via dry-run color mapping

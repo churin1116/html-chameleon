@@ -67,10 +67,11 @@ Always emit:
 ```
 
 The theme is **baked (inlined) into the file, never `<link>`ed from the hosted
-copy**: read `theme/v1/theme.css` + `theme/v1/theme.js` from this repo's local
-clone (`~/MyApps/_chrome/260509-html-chameleon/`), escape `</script` →
-`<\/script` in the JS, and stamp `data-baked` with `git describe --tags`
-(strip the `v`). The file then renders offline / via `file://` forever.
+copy**: read `theme/v1/theme.css` + `theme/v1/theme.js` from the html-chameleon
+clone this skill lives in (resolved from the skill's base directory via
+`git rev-parse --show-toplevel`), escape `</script` → `<\/script` in the JS, and
+stamp `data-baked` with `git describe --tags --abbrev=7` (strip the `v`). The
+file then renders offline / via `file://` forever.
 Updates are distributed explicitly by the html-editor's `pnpm rebake <dir>`
 following the `content` policy — `^1` = may move to any newer 1.x, an exact
 version = pinned. Full steps: `prompts/generate.md` § Baking the theme.
@@ -126,8 +127,7 @@ and report its path.
   directory or path with the command, use that instead.
 - **Filename**: the user-given name if provided; otherwise `untitled-<YYYYMMDD-HHmmss>.html`.
   Never overwrite an existing file — suffix `-2`, `-3`, … instead.
-- **Theme**: baked, same as generate mode (read from the local clone, escape
-  `</script`, stamp `data-baked` from `git describe --tags`).
+- **Theme**: baked, same as generate mode (`prompts/generate.md` § Baking the theme).
 
 Template (fill `<version>`, `<name>`, and the two theme blocks; everything else verbatim):
 

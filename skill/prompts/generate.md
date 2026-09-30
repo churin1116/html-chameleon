@@ -31,15 +31,28 @@ that uses the Chameleon contract.
 The theme is **baked (inlined) into the file**, not referenced from the hosted
 copy — the file must render offline, via `file://`, and identically forever.
 
-1. Read `theme/v1/theme.css` and `theme/v1/theme.js` from the local clone
-   (`~/MyApps/_chrome/260509-html-chameleon/`) and paste them verbatim into the
-   `<style data-chameleon-theme>` / `<script data-chameleon-theme>` blocks.
-2. In the JS, escape any `</script` as `<\/script` (the header comment contains
+1. Locate the repo root. This skill is the `skill/` directory of an
+   html-chameleon clone (usually symlinked into `~/.claude/skills/chameleon`),
+   so resolve `<root>` from the skill's base directory — git follows the
+   symlink: `git -C "<skill base directory>" rev-parse --show-toplevel`.
+   If that fails, or `<root>/theme/v1/theme.css` doesn't exist (the skill was
+   copied into some other git repo), the skill is detached from its repo: stop
+   and tell the user to clone <https://github.com/churin1116/html-chameleon>
+   and symlink its `skill/` instead (README § Use the Skill). Never fall back
+   to the hosted copy.
+2. Read `<root>/theme/v1/theme.css` and `<root>/theme/v1/theme.js` and paste
+   them verbatim into the `<style data-chameleon-theme>` /
+   `<script data-chameleon-theme>` blocks.
+3. In the JS, escape any `</script` as `<\/script` (the header comment contains
    one) so the inline block doesn't terminate early.
-3. Stamp the version: `git -C ~/MyApps/_chrome/260509-html-chameleon describe --tags`
-   → e.g. `v1.0.0` → `data-baked="1.0.0"`. `content="^1"` is the update policy —
-   the file may later be re-baked to any newer 1.x by the html-editor's
-   `pnpm rebake <dir>` (see `260509-html-editor`), never across majors.
+4. Stamp the version: `git -C "<root>" describe --tags --abbrev=7`, leading `v`
+   stripped → `v1.0.0` → `data-baked="1.0.0"`, `v1.0.0-2-gabc1234` →
+   `data-baked="1.0.0-2-gabc1234"` (same label the Chrome extension bundle and
+   html-editor's `pnpm sync-theme` use). If no tag is found (shallow clone),
+   run `git -C "<root>" fetch --unshallow --tags` — never invent a version.
+   `content="^1"` is the update policy — the file may later be re-baked to any
+   newer 1.x by [html-editor](https://github.com/churin1116/html-editor)'s
+   `pnpm rebake <dir>`, never across majors.
 
 Do NOT emit `<link>`/`<script src>` pointing at `churin1116.github.io` — that
 reintroduces a runtime network dependency and lets hosted theme changes restyle
