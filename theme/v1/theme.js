@@ -3,9 +3,11 @@
  * https://github.com/churin1116/html-chameleon
  * MIT License
  *
- * Loads any persisted theme from localStorage, falls back to system
- * prefers-color-scheme, listens for cross-tab + extension updates,
- * and exposes window.Chameleon for runtime control.
+ * Loads any persisted theme from localStorage, falls back to the page's
+ * declared data-theme, then to plain light. Listens for cross-tab +
+ * extension updates, and exposes window.Chameleon for runtime control.
+ * OS dark mode is honoured only when explicitly opted into via the
+ * 'system' mode — it is never the default.
  *
  * Place in <head> WITHOUT `defer` to avoid FOUC:
  *   <script src="https://churin1116.github.io/html-chameleon/v1/theme.js"></script>
@@ -84,11 +86,11 @@
     return null;
   }
 
-  // The default theme is the page's expressed intent, falling back to the OS.
-  // Authors hint via <html data-theme="..." data-style="..."> — these win over
-  // OS detection but lose to any stored user choice. Once the reader picks a
-  // theme via the extension, that choice becomes sticky across all Chameleon
-  // pages and the page-declared defaults stop mattering.
+  // The default theme is the page's expressed intent, falling back to plain
+  // light. Authors hint via <html data-theme="..." data-style="..."> — these
+  // win over the fallback but lose to any stored user choice. Once the reader
+  // picks a theme via the extension, that choice becomes sticky across all
+  // Chameleon pages and the page-declared defaults stop mattering.
   function defaultTheme() {
     var root = document.documentElement;
     var theme = {};
@@ -97,11 +99,13 @@
     if (pageMode && VALID_MODES.indexOf(pageMode) !== -1) {
       theme.mode = pageMode;
     } else {
-      // Default to the meta-mode 'system' so the page stays in lockstep with
-      // the OS preference (resolveMode resolves to 'light'/'dark' at apply
-      // time, and the matchMedia listener re-applies on OS flips). This also
-      // matches the extension popup's default which already shows "System".
-      theme.mode = 'system';
+      // Default to plain light rather than the meta-mode 'system'. A page that
+      // declares no data-theme should not flip to dark just because the reader's
+      // OS is dark: authored documents are written and proofed against a light
+      // ground, and an unrequested dark render is the more surprising outcome.
+      // Readers who want OS lockstep can still pick "System" in the extension —
+      // that stored choice wins over this fallback.
+      theme.mode = 'light';
     }
 
     var pageStyle = root.getAttribute('data-style');

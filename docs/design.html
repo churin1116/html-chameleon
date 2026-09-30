@@ -1545,7 +1545,7 @@
 
       <div class="preview-card">
         <h3 class="card-title">Code review snippet</h3>
-        <pre class="code-block mono"><span class="text-subtle">// theme.js — load from localStorage, fall back to system pref</span>
+        <pre class="code-block mono"><span class="text-subtle">// theme.js — load from localStorage, fall back to the page's data-theme, then plain light</span>
 <span class="text-primary">const</span> stored = <span class="text-secondary">localStorage</span>.getItem(<span class="text-accent">'chameleon-theme'</span>);
 <span class="text-primary">const</span> theme  = stored ? JSON.<span class="text-secondary">parse</span>(stored) : { mode: <span class="text-accent">'light'</span> };
 <span class="text-secondary">document</span>.documentElement.dataset.theme = theme.mode;</pre>
@@ -1628,7 +1628,7 @@
 ├── <span class="dir">theme/</span>
 │   └── <span class="dir">v1/</span>
 │       ├── <span class="file">theme.css</span>          <span class="annot">23 CSS variables + utility classes</span>
-│       └── <span class="file">theme.js</span>           <span class="annot">localStorage loader, system-pref fallback</span>
+│       └── <span class="file">theme.js</span>           <span class="annot">localStorage loader, plain-light fallback</span>
 ├── <span class="dir">skill/</span>
 │   ├── <span class="file">SKILL.md</span>           <span class="annot">Claude Code skill — generate / convert modes</span>
 │   └── <span class="dir">prompts/</span>

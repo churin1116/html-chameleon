@@ -56,7 +56,7 @@ Three components, one shared theme contract.
 </html>
 ```
 
-That's it. The page now responds to `data-theme="light|dark|sunset|forest|midnight"`, persists the user's choice via `localStorage`, and falls back to the system `prefers-color-scheme`.
+That's it. The page now responds to `data-theme="light|dark|sunset|forest|midnight"`, persists the user's choice via `localStorage`, and falls back to plain light when a page declares nothing (OS dark mode applies only via the explicit `system` mode).
 
 > **Hosted link vs baking**: the `<link>`/`<script src>` above is the 10-second try-out. For files you'll keep — notes, reports, anything opened via `file://` or shared — **bake the theme instead**: inline `theme/v1/theme.css` and `theme/v1/theme.js` into the file (`<style data-chameleon-theme>` / `<script data-chameleon-theme>`) and stamp `<meta name="chameleon" content="^1" data-baked="<version>">`. Baked files render offline, forever, and never restyle themselves when this repo moves. The Skill and [html-editor](https://github.com/churin1116/html-editor) both bake automatically; html-editor's `pnpm rebake <dir>` upgrades baked files npm-style (`^1` = follow 1.x, exact version = pinned).
 
