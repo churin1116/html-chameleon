@@ -111,6 +111,8 @@ See [`theme/v1/theme.css`](./theme/v1/theme.css) for the full list — including
 
 Opt-in **structural patterns** also ship in the contract (add the class, no inlining): `.table` (with `.row-em` / `.num` / `.k` cell helpers), `.stat-grid` (at-a-glance KPI strip), `details.fold` (progressive disclosure — collapsed by default for low-priority / rejected content), `.tabs` (pure-CSS, JS-free, position-based via `:has()`; opt-in `data-persist="<key>"` makes theme.js remember the selected tab across reloads + navigation), plus sensible `@media print` defaults (expand folds &amp; tab panels, avoid mid-element page breaks).
 
+**Use `.tabs` freely.** Once a document runs past ~8 sections, it makes the reader scroll for the one section they came for — tab it. Keep sections in document order, put every section inside a panel, cap at 8. Skip tabs when the page already filters a uniform list (the two mechanisms fight), or when readers rely on Ctrl+F / deep-link into its sections — hidden panels are `display:none`. Printing expands every panel, so PDFs stay complete.
+
 ## Versioning
 
 The contract files live under `/theme/v1/`. A breaking change becomes `/theme/v2/`, never a silent regression of `/v1`. Existing HTMLs that pin to `/v1/theme.css` keep working forever.

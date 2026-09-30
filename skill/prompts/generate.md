@@ -287,6 +287,34 @@ At-a-glance metric strip. Hairline grid via a `--border` background showing thro
 
 ### Tabs — pure CSS (`.tabs`, no JS)
 
+**Reach for tabs early — a long page is a design failure, not a neutral default.** Any report
+that runs past roughly 8 sections (or a body over ~30KB) makes the reader scroll past the thing
+they came for. Tabs are the cheapest fix in the contract: no JS, no per-page script, and
+`data-persist` remembers where the reader was. Default to tabs for research plans, literature
+reviews, comparison memos, dashboards, and any doc a reader returns to for one specific section.
+
+Group panels by **what the reader is looking for**, not by even size — and:
+
+- **Keep document order.** If sections are numbered (§1…§10), group them contiguously. Hoisting
+  the conclusion into tab 1 breaks the numbering the reader is navigating by; put a TL;DR panel
+  first instead, and leave the numbered run intact.
+- **Every section goes inside a panel.** A `<section>` left outside `.tab-panels` renders
+  always-visible and silently breaks the model — the trap when someone later appends a section.
+- **Label the tab, then describe it** — a one-line `.t-meta` under the tab bar saying what's in
+  the panel. Drop it when it just restates the panel's first heading.
+- **Cap at 8.** More than that means the doc wants splitting into files, not more tabs.
+
+**Don't tab when:**
+
+- The page already has search / filter / collapse over a uniform list (a catalog of N items).
+  Those mechanisms partition the same content and will fight each other — the filter's results
+  end up split across tabs. `details.fold` + filters is the right pattern there.
+- The page's main use is **Ctrl+F**, or other pages **deep-link into its sections** (`#anchor`).
+  Hidden panels are `display:none`: browser find won't reach them and an `#anchor` into a
+  collapsed panel won't reveal it. Check for inbound `page.html#…` links before tabbing.
+
+Printing is safe — the v1 `@media print` block expands every panel, so PDFs stay complete.
+
 JS-free, **position-based** (mapping via `:has()` — no per-id CSS rules). Write **HTML only**:
 radios first, then `nav.tab-list` of labels, then `.tab-panels` of `.tab-panel`s, all in the
 same order. Labels use `for="<radio id>"` for clickability. Supports up to 8 tabs.
