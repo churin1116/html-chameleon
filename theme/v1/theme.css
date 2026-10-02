@@ -1007,13 +1007,18 @@ html[data-chameleon] .tabs[data-persist]:not([data-ch-ready]) > .tab-panels { vi
   -webkit-text-emphasis-style: filled dot;
   text-emphasis-style: filled dot;
 }
+/* Links: --primary pulled 25% toward --text. Raw --primary falls under 4.5:1
+   on the canvas in several presets (sunset, ocean, claude, mint) and, spread
+   through a citation-heavy note, competes with the primary that marks the
+   active tab and callouts; at 75% every preset clears 4.5:1 and still reads
+   apart from body text. Not muted toward grey — dimmed text means struck. */
 .prose-canvas a {
-  color: var(--text);
+  color: color-mix(in srgb, var(--primary) 75%, var(--text));
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: var(--border-strong);
+  text-decoration-color: color-mix(in srgb, var(--primary) 40%, transparent);
 }
-.prose-canvas a:hover { text-decoration-color: var(--text); }
+.prose-canvas a:hover { text-decoration-color: currentColor; }
 .prose-canvas pre {
   background: var(--surface-2);
   padding: 1rem;
