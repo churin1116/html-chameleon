@@ -1182,6 +1182,99 @@ nav[data-toc] .toc-h3 > a { color: var(--text-muted); font-size: 0.93em; }
 @media (max-width: 560px) {
   .prose-canvas .link-card-thumb { flex-basis: 92px; min-height: 88px; }
 }
+/* Speech bubbles (html-editor): an avatar beside a named bubble, for
+   interviews and dialogues.
+     <div class="speech" data-speech [data-side="right"]>
+       <div class="speech-avatar"><img src="…" alt=""></div>   (img optional)
+       <div class="speech-body">
+         <div class="speech-name">…</div>                        (may be empty)
+         <div class="speech-bubble"><p>…</p></div>
+       </div>
+     </div>
+   .speech-body is display: contents, so the name sits above the bubble while
+   the avatar lines up with the bubble's first line, with or without a name.
+   An avatar with no image — or one that fails to load (alt="" draws no
+   broken-image glyph) — shows a silhouette. Keyed on [data-speech] rather
+   than .prose-canvas so it also styles bubbles in hand-written pages. */
+[data-speech] {
+  --speech-avatar-size: 3.2em;
+  --speech-bubble-bg: color-mix(in srgb, var(--surface-2) 80%, transparent);
+  --speech-silhouette: color-mix(in srgb, var(--text-subtle) 55%, var(--surface-2));
+  display: grid;
+  grid-template-columns: var(--speech-avatar-size) minmax(0, 1fr);
+  grid-template-areas: ". name" "avatar bubble";
+  column-gap: 0.95em;
+  align-items: start;
+  margin: 1.5em 0;
+}
+[data-speech][data-side="right"] {
+  grid-template-columns: minmax(0, 1fr) var(--speech-avatar-size);
+  grid-template-areas: "name ." "bubble avatar";
+}
+[data-speech] > .speech-body { display: contents; }
+[data-speech] > .speech-avatar {
+  grid-area: avatar;
+  width: var(--speech-avatar-size);
+  height: var(--speech-avatar-size);
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--surface-2);
+  background-image:
+    radial-gradient(circle calc(var(--speech-avatar-size) * 0.19) at 50% 40%, var(--speech-silhouette) 94%, transparent 100%),
+    radial-gradient(38% 36% at 50% 102%, var(--speech-silhouette) 97%, transparent 100%);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+[data-speech] > .speech-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+[data-speech] .speech-name {
+  grid-area: name;
+  margin: 0 0.25em 0.3em;
+  font-size: 0.8em;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+[data-speech] .speech-name:empty { display: none; }
+[data-speech][data-side="right"] .speech-name { text-align: right; }
+[data-speech] .speech-bubble {
+  grid-area: bubble;
+  position: relative;
+  min-width: 0;
+  padding: 0.7em 1.1em;
+  background: var(--speech-bubble-bg);
+  border-radius: var(--radius-lg, 14px);
+  overflow-wrap: anywhere;
+}
+/* The tail points at the avatar's center, which is level with the first
+   line of text (avatar radius = padding-top + half a 1.8 line). */
+[data-speech] .speech-bubble::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--speech-avatar-size) / 2 - 0.45em);
+  right: 100%;
+  border-style: solid;
+  border-width: 0.45em 0.6em 0.45em 0;
+  border-color: transparent var(--speech-bubble-bg) transparent transparent;
+}
+[data-speech][data-side="right"] .speech-bubble::before {
+  right: auto;
+  left: 100%;
+  border-width: 0.45em 0 0.45em 0.6em;
+  border-color: transparent transparent transparent var(--speech-bubble-bg);
+}
+[data-speech] .speech-bubble p { margin: 0.6em 0; }
+[data-speech] .speech-bubble > :first-child { margin-top: 0; }
+[data-speech] .speech-bubble > :last-child { margin-bottom: 0; }
+@media (max-width: 560px) {
+  [data-speech] { --speech-avatar-size: 2.6em; column-gap: 0.8em; }
+}
 
 /* --- Print / PDF defaults (consumers can override per page) --- */
 @media print {
@@ -1191,6 +1284,6 @@ nav[data-toc] .toc-h3 > a { color: var(--text-muted); font-size: 0.93em; }
   .tab-panel { display: block !important; }
   details.fold > .fold-body { display: block !important; }    /* expand folded content so the PDF is complete */
   details.fold > summary::before { content: ""; }
-  .card, .stat-grid, .table tr, details.fold { break-inside: avoid; }
+  .card, .stat-grid, .table tr, details.fold, [data-speech] { break-inside: avoid; }
   @page { margin: 16mm; }
 }
