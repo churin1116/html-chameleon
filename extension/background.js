@@ -41,16 +41,12 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     chrome.tabs.create({ url: chrome.runtime.getURL('customize.html') });
     return;
   }
+});
 
-  // Open the side-panel chat. chrome.sidePanel.open() must be called from a
-  // user-gesture handler — it's allowed inside chrome.runtime.onMessage when
-  // the message originated from a content-script click event.
-  if (msg?.type === 'chameleon:open-chat' && sender.tab?.id) {
-    chrome.sidePanel.open({ tabId: sender.tab.id }).catch(err => {
-      console.error('Chameleon: failed to open side panel', err);
-    });
-    return;
-  }
+// The AI chat side panel has been removed. Drop the Anthropic API key (and the
+// review toggle) it kept in local storage instead of leaving the key behind.
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.remove(['chameleon-api-key', 'chameleon-approve-before-apply']);
 });
 
 // Clear the badge while a tab is reloading / navigating so stale state doesn't

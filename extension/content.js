@@ -349,17 +349,6 @@
           </svg>
           <span class="__cm-action-name">Customize palette</span>
         </button>
-        ${isLocalFile() ? `
-        <button class="__cm-action __cm-action-chat" data-action="chat" type="button">
-          <svg class="__cm-action-icon __cm-action-icon-chat" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12a8 8 0 1 1-2.6-5.9L21 4v7l-7 0"/>
-            <circle cx="9" cy="13" r="0.7" fill="currentColor"/>
-            <circle cx="13" cy="13" r="0.7" fill="currentColor"/>
-            <circle cx="17" cy="13" r="0.7" fill="currentColor"/>
-          </svg>
-          <span class="__cm-action-name">Chat with AI</span>
-        </button>
-        ` : ''}
         <button class="__cm-action __cm-toc-toggle" data-action="toc" type="button" role="menuitemcheckbox" aria-checked="false">
           <svg class="__cm-action-icon __cm-action-icon-toc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
             <path d="M4 6h10M4 12h7M4 18h10"/>
@@ -454,16 +443,6 @@
         try {
           chrome.runtime.sendMessage({ type: 'chameleon:open-customize' });
         } catch (err) { /* extension may have been reloaded */ }
-        close();
-      });
-    });
-
-    rail.querySelectorAll('[data-action="chat"]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        try {
-          chrome.runtime.sendMessage({ type: 'chameleon:open-chat' });
-        } catch (err) { /* swallow */ }
         close();
       });
     });
@@ -815,7 +794,6 @@
       .__cm-settings-toggle:hover,
       .__cm-action:hover { background: var(--surface-2, #f4f4f5) !important; color: var(--text, #0a0a0a) !important; }
       .__cm-action-icon { color: #facc15 !important; flex-shrink: 0 !important; }
-      .__cm-action-icon-chat { color: var(--primary, #2563eb) !important; }
       .__cm-action-icon-customize { color: var(--accent, #ec4899) !important; }
       .__cm-action-icon-toc { color: var(--text-muted, #525252) !important; }
       .__cm-switch {
@@ -909,10 +887,6 @@
       .__cm-pos-cell[data-pos="bl"] { bottom: 6px !important; left: 6px !important; }
       .__cm-pos-cell[data-pos="br"] { bottom: 6px !important; right: 6px !important; }
     `;
-  }
-
-  function isLocalFile() {
-    return location.protocol === 'file:';
   }
 
   // ---------- Detection ----------
