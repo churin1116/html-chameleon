@@ -53,6 +53,7 @@ If you add / rename / remove a signal, **update all of** these files in the same
 | Verify Pages change | `git push` to `main` → wait ~30–60s → curl the URL |
 | Skill prompt edit | Save the file; propagates instantly via symlink |
 | Regenerate icons | `python3` with Pillow on `extension/icons/source.png`; see commit `d548e95` for the rounded-corners script |
+| Release the extension to the Web Store | commit everything → `node scripts/release-extension.mjs --bump minor` (`--dry-run` first; `--status` to follow review). Listing / Privacy tab changes are dashboard-only — see [extension/README.md](extension/README.md#releasing-to-the-chrome-web-store) |
 
 ## Frozen Pages URLs (don't break)
 

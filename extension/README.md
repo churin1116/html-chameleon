@@ -49,6 +49,49 @@ When you open the popup on a `file://` tab without this toggle, Chameleon shows 
 - **No `chrome.storage.sync`.** Settings persist locally per browser. Cross-device sync comes in Phase 3.
 - **No per-site override.** All sites use the same theme. Per-origin overrides come in Phase 3.
 
+## Releasing to the Chrome Web Store
+
+The extension is published on the Chrome Web Store; updates go out through the
+Chrome Web Store API v2 with one command:
+
+```bash
+node scripts/release-extension.mjs --dry-run --bump minor   # checks + package + store status, uploads nothing
+node scripts/release-extension.mjs --bump minor             # bump + commit manifest, upload, submit for review
+node scripts/release-extension.mjs --status                 # follow the review
+```
+
+It releases what is committed (`extension/` and `theme/v1/theme.css` clean,
+`theme-live.js` rebuilt), refuses a version that isn't above the published one,
+and won't stack a submission on one that is still pending. `--staged` holds an
+approved update until you publish it from the dashboard. The package is written
+to `dist/chameleon-v<version>.zip`.
+
+**The API covers the package only.** The store listing, screenshots and the
+Privacy tab can only be changed in the Developer Dashboard — do that before
+releasing whenever what the extension does with page data changes.
+
+### One-time setup
+
+Authentication uses a service account impersonated through `gcloud`, so no key
+file is ever written to disk.
+
+1. In a Google Cloud project, enable the **Chrome Web Store API** and the
+   **IAM Service Account Credentials API**, create a service account (no
+   roles), and give your own Google account **Service Account Token Creator**
+   on it.
+2. Developer Dashboard → **Account**: add the service account's email (one per
+   publisher). Note the publisher ID (**Publisher → Settings**) and the item ID.
+3. Store the three settings in the Keychain (environment variables of the same
+   names work too):
+
+   ```bash
+   security add-generic-password -a "$USER" -s CWS_PUBLISHER_ID -w '<publisher id>' -U
+   security add-generic-password -a "$USER" -s CWS_EXTENSION_ID -w '<item id>' -U
+   security add-generic-password -a "$USER" -s CWS_SERVICE_ACCOUNT -w '<name>@<project>.iam.gserviceaccount.com' -U
+   ```
+
+4. `node scripts/release-extension.mjs --status` should print the published version.
+
 ## File layout
 
 ```
