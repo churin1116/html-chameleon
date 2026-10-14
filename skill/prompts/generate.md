@@ -30,6 +30,8 @@ that uses the Chameleon contract.
 
 The theme is **baked (inlined) into the file**, not referenced from the hosted
 copy — the file must render offline, via `file://`, and identically forever.
+The one network fetch left is the default sans (Zen Kaku Gothic New, imported
+from Google Fonts by `theme.css`); offline it falls back to the system sans.
 
 1. Locate the repo root. This skill is the `skill/` directory of an
    html-chameleon clone (usually symlinked into `~/.claude/skills/chameleon`),
@@ -139,6 +141,7 @@ keeps editorial pages from feeling like a wall of `font-size: 16px`:
 .t-caption { font-family: var(--font-mono);  font-size: 11px; line-height: 1.4; color: var(--text-subtle); letter-spacing: 0.06em; text-transform: uppercase; }
 ```
 
+- `--font-sans` is Zen Kaku Gothic New, and the baked theme already imports it from Google Fonts — don't add your own `<link>` for it or hard-code another sans on `body`.
 - Under the default `data-style="default"`, use `--font-sans` for headings. Reserve `--font-serif` for display/h1/h2 only when you have deliberately opted into `data-style="editorial"`.
 - Mono captions/eyebrows are the cheapest "this was designed" signal on a page. Use them.
 - Body 14–16px, line-height 1.5–1.6. Don't go below 13 except for captions.

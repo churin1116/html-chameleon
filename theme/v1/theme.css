@@ -7,6 +7,11 @@
  *   <link rel="stylesheet" href="https://churin1116.github.io/html-chameleon/v1/theme.css">
  */
 
+/* Default sans (--font-sans below). @import must precede every rule.
+   Offline, or where a CSP blocks Google Fonts, the stack falls back to the
+   system fonts that follow it. */
+@import url("https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap");
+
 /* ============================================================
    PRESETS — 23 CSS variables per theme.
    Add a new theme by defining the same set under [data-theme="..."]
@@ -410,7 +415,9 @@
 
 :root,
 [data-style="default"] {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif;
+  /* Before 2026-10-15 the system stack alone:
+     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif */
+  --font-sans: "Zen Kaku Gothic New", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif;
   --font-serif: ui-serif, "Charter", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Consolas, monospace;
   --font-body: var(--font-sans);
